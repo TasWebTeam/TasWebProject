@@ -14,7 +14,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-custom navbar-dark">
         <div class="container-fluid px-4 px-lg-5">
-            <a class="navbar-brand fw-bold text-white d-flex align-items-center" href="#">
+            <a class="navbar-brand fw-bold text-white d-flex align-items-center" href="{{ route('tas_inicioView') }}">
                 <img src="/images/logo.png" alt="TAS" class="logo-img">
                 TAS
             </a>
@@ -28,8 +28,8 @@
                 <ul class="navbar-nav mx-auto justify-content-center mb-2 mb-lg-0">
 
                     <li class="nav-item">
-                        <a class="nav-link text-white fs-5 {{ request()->routeIs('tas_inicio') ? 'active' : '' }}"
-                           href="{{ route('tas_inicio') }}">
+                        <a class="nav-link text-white fs-5 {{ request()->routeIs('tas_inicioView') ? 'active' : '' }}"
+                           href="{{ route('tas_inicioView') }}">
                            Inicio
                         </a>
                     </li>
