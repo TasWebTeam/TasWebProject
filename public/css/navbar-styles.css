@@ -1,3 +1,7 @@
+body {
+  padding-top: 70px; 
+}
+
 .navbar-custom {
     background: linear-gradient(135deg, #003865 0%, #004d7a 100%);
     box-shadow: 0 4px 20px rgba(0, 56, 101, 0.15);

@@ -31,6 +31,11 @@ class TasController extends Controller
         return view('tas.access');
     }
 
+    public function tas_subirRecetaView()
+    {
+        return view('tas.subir_receta');
+    }
+
     public function tas_inicioSesion(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -57,13 +62,15 @@ class TasController extends Controller
             return back()->with('error', $usuario);
         }
 
-        session(['usuario' => [
-            'id' => $usuario->getId(),
-            'correo' => $usuario->getCorreo(),
-        ]]);
-
-        return view('tas.home', ['usuario' => $usuario]);
-    }
+        session([
+            'usuario' => [
+                'id' => $usuario->getId(),
+                'correo' => $usuario->getCorreo(),
+                'nombre' => $usuario->getNombre(),
+            ],
+        ]);
+    return redirect()->route('tas_inicioView') ->with('success', 'Bienvenido ' . $usuario->getNombre());   
+ }
 
     public function tas_crearCuenta(Request $request)
     {
@@ -97,5 +104,19 @@ class TasController extends Controller
         }
 
         return redirect()->route('tas_loginView')->with('success', 'Usuario creado correctamente');
+    }
+
+    public function logout()
+    {
+        $usuarioSession = session('usuario');
+        $correo = $usuarioSession['correo'] ?? null;
+
+        if ($correo) {
+            $this->tasService->cerrarSesion($correo);
+        }
+
+        session()->flush();
+
+        return redirect()->route('tas_loginView');
     }
 }
