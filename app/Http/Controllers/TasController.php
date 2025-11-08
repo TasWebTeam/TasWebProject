@@ -31,11 +31,6 @@ class TasController extends Controller
         return view('tas.access');
     }
 
-    public function tas_subirRecetaView()
-    {
-        return view('tas.subir_receta');
-    }
-
     public function tas_inicioSesion(Request $request)
     {
         $validator = Validator::make($request->all(), [

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TasController;
+use App\Http\Controllers\RecetaController;
 
 Route::get('/', [TasController::class, 'tas_inicioView'])->name('tas_inicioView');
 
@@ -16,9 +17,9 @@ Route::get('/registro', [TasController::class, 'tas_registroView'])
 Route::post('/login', [TasController::class, 'tas_inicioSesion'])->name('tas_inicioSesion');
 Route::post('/registro', [TasController::class, 'tas_crearCuenta'])->name('tas_crearCuenta');
 
-Route::get('/subir-receta', [TasController::class, 'tas_subirRecetaView'])
+Route::get('/subir-receta', [RecetaController::class, 'subirRecetaView'])
     ->middleware('verificar.sesion')
-    ->name('tas_subirRecetaView');
+    ->name('subirRecetaView');
 
 Route::post('/logout', [TasController::class, 'logout'])
     ->middleware('verificar.sesion')

@@ -1,0 +1,33 @@
+.bg-tas {
+  background-color: #005B96 !important;
+  color: white !important;
+}
+
+.btn-tas-outline {
+  border: 2px solid #005B96;
+  color: #005B96;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.btn-tas-outline:hover {
+  background-color: #005B96;
+  color: #fff;
+}
+
+.map-container {
+  height: 500px;
+  width: 100%;
+  border-radius: 10px;
+  border: 2px solid #e3e3e3;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+}
+
+.card {
+  border-radius: 15px !important;
+}
+
+.card-header.rounded-top {
+  border-top-left-radius: 15px !important;
+  border-top-right-radius: 15px !important;
+}
