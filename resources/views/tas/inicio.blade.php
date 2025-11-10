@@ -1,6 +1,6 @@
 @extends('layouts.template')
 
-@section('title', 'Inicio - TAS')
+@section('title', 'Inicio')
 
 @section('content')
     <div class="container py-5 vh-100 d-flex justify-content-center">

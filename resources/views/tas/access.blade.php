@@ -1,6 +1,6 @@
 @extends('layouts.template')
 
-@section('title', request()->routeIs('register') ? 'Registro - TAS' : 'Login - TAS')
+@section('title', request()->routeIs('register') ? 'Registro' : 'Login')
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/login-styles.css') }}">

@@ -1,7 +1,7 @@
 {{-- Blade View --}}
 @extends('layouts.template')
 
-@section('title', 'Farmacias disponibles')
+@section('title', 'Subir Receta')
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/receta-styles.css') }}">

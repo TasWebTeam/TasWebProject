@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const path = window.location.pathname.toLowerCase();
         const isRegister = path.includes('registro') || path.includes('register');
         toggleForm(isRegister);
-        document.title = isRegister ? 'Registro - TAS' : 'Login - TAS';
+        document.title = isRegister ? 'Registro' : 'Login';
     }
 
     if (signUpBtn && signInBtn) {
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const url = signUpBtn.dataset.url || '/registro';
             window.history.pushState({ view: 'register' }, '', url);
-            document.title = 'Registro - TAS';
+            document.title = 'Registro';
         });
 
         signInBtn.addEventListener('click', (e) => {
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const url = signInBtn.dataset.url || '/login';
             window.history.pushState({ view: 'login' }, '', url);
-            document.title = 'Login - TAS';
+            document.title = 'Login';
         });
     }
 
