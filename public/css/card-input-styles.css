@@ -1,0 +1,81 @@
+/* Estilos para input de tarjeta con imagen */
+.fila-tarjeta {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.fila-tarjeta input {
+    flex: 1;
+    padding-left: 50px !important;
+    margin: 0 !important;
+}
+
+#cardBrand {
+    position: absolute;
+    left: 15px;
+    width: 30px;
+    height: auto;
+    z-index: 10;
+    pointer-events: none;
+}
+
+#cardBrand.d-none {
+    display: none;
+}
+
+/* Estilos para el grupo de inputs de fecha y CVV */
+.input-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin: 10px 0;
+}
+
+.input-group input {
+    flex: 1;
+    margin: 0;
+}
+
+/* Estilos para el grupo de botones */
+.button-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.button-group button {
+    flex: 1;
+    margin: 0;
+}
+
+/* Descripción del paso */
+.step-description {
+    font-size: 13px;
+    color: #666;
+    margin: 5px 0 15px 0;
+    text-align: center;
+}
+
+/* Responsivo */
+@media (max-width: 480px) {
+    .fila-tarjeta input {
+        padding-left: 45px !important;
+    }
+    
+    #cardBrand {
+        left: 12px;
+        width: 25px;
+    }
+    
+    .button-group {
+        flex-direction: column;
+    }
+    
+    .button-group button {
+        width: 100%;
+    }
+}

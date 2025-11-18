@@ -1,5 +1,11 @@
 document.addEventListener("DOMContentLoaded", function () {
 
+    // Cargar CSS dinámicamente
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/css/card-input-styles.css';
+    document.head.appendChild(link);
+
     const paso1 = document.getElementById("formPaso1");
     const paso2 = document.getElementById("formPaso2");
 
