@@ -35,6 +35,7 @@ class TasRepository
                 'intentos_login' => 0,
                 'ultimo_intento' => null,
                 'bloqueado_hasta' => null,
+                'rol' => 'paciente',
             ]);
         } catch (\Exception $e) {
             return null;

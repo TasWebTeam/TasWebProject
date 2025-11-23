@@ -24,7 +24,7 @@ class TasService
         if (!$usuario) return null;
 
         return new Usuario(
-            $usuario->id,
+            $usuario->id_usuario,
             $usuario->correo,
             $usuario->nip,
             $usuario->nombre,
@@ -32,7 +32,8 @@ class TasService
             (bool) $usuario->sesion_activa,
             (int) $usuario->intentos_login,
             $usuario->ultimo_intento ? new DateTime($usuario->ultimo_intento) : null,
-            $usuario->bloqueado_hasta ? new DateTime($usuario->bloqueado_hasta) : null
+            $usuario->bloqueado_hasta ? new DateTime($usuario->bloqueado_hasta) : null,
+            $usuario->rol
         );
     }
 

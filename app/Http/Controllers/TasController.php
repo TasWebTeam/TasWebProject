@@ -141,21 +141,32 @@ class TasController extends Controller
     }
 
     public function tas_crearCuenta(Request $request)
-    {
+{
+    try {
+
+        \Log::info('Inicio creación de usuario', ['request' => $request->all()]);
+
+        // VALIDACIÓN DE DATOS PERSONALES
         $validacionCliente = $this->validarDatosCliente($request);
 
         if ($validacionCliente !== true) {
+            \Log::warning('Error en datos personales', ['errores' => $validacionCliente]);
             return back()->withErrors($validacionCliente, 'registro')->withInput();
         }
 
+        // VALIDACIÓN TARJETA (si no se omite)
         if ($request->input('omitir_pago') != '1') {
 
             $validacionTarjeta = $this->validarDatosTarjeta($request);
 
             if ($validacionTarjeta !== true) {
+                \Log::warning('Error en datos de tarjeta', ['errores' => $validacionTarjeta]);
                 return back()->withErrors($validacionTarjeta, 'tarjeta')->withInput();
             }
         }
+
+        // INTENTO DE CREACIÓN EN BASE DE DATOS
+        \Log::info('Intentando crear usuario en BD...');
 
         $resultado = $this->tasService->crearUsuario(
             $request->correo,
@@ -164,12 +175,30 @@ class TasController extends Controller
             $request->apellido
         );
 
+        // SI LA BD RESPONDE ERROR
         if ($resultado != 1) {
+            \Log::error('Error al crear usuario en BD', ['resultado' => $resultado]);
             return back()->with('error', $resultado)->withInput();
         }
 
-        return redirect()->route('tas_loginView')->with('success', 'Usuario creado correctamente');
+        \Log::info('Usuario creado correctamente');
+
+        return redirect()
+            ->route('tas_loginView')
+            ->with('success', 'Usuario creado correctamente');
+
+    } catch (\Exception $e) {
+
+        \Log::error('EXCEPCIÓN FATAL CREANDO USUARIO', [
+            'mensaje' => $e->getMessage(),
+            'linea' => $e->getLine(),
+            'archivo' => $e->getFile(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return back()->with('error', 'Error interno al crear usuario: '.$e->getMessage())->withInput();
     }
+}
 
     public function logout()
     {

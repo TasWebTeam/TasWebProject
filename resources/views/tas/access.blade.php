@@ -78,6 +78,7 @@
                 <input type="hidden" name="nombre" id="nombreHidden" value="{{ old('nombre') }}">
                 <input type="hidden" name="apellido" id="apellidoHidden" value="{{ old('apellido') }}">
                 <input type="hidden" name="nip" id="nipHidden" value="{{ old('nip') }}">
+
                 <input type="hidden" name="omitir_pago" id="omitir_pago" value="0">
 
                 <div class="button-group">

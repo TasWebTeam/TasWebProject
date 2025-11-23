@@ -1,6 +1,8 @@
 <?php
 namespace App\Services;
+
 use DateTime;
+
 class Usuario
 {
     private int $id;
@@ -12,6 +14,7 @@ class Usuario
     private int $intentosLogin;
     private ?DateTime $ultimoIntento;
     private ?DateTime $bloqueadoHasta;
+    private string $rol;
 
     public function __construct(
         int $id,
@@ -22,7 +25,8 @@ class Usuario
         bool $sesionActiva = false,
         int $intentosLogin = 0,
         ?DateTime $ultimoIntento = null,
-        ?DateTime $bloqueadoHasta = null
+        ?DateTime $bloqueadoHasta = null,
+        string $rol = ''
     ) {
         $this->id = $id;
         $this->correo = $correo;
@@ -33,6 +37,7 @@ class Usuario
         $this->intentosLogin = $intentosLogin;
         $this->ultimoIntento = $ultimoIntento;
         $this->bloqueadoHasta = $bloqueadoHasta;
+        $this->rol = $rol;
     }
 
     public function getId(): int
@@ -80,6 +85,8 @@ class Usuario
         return $this->bloqueadoHasta;
     }
 
+    public function getRol(): string { return $this->rol; }     
+
     public function setCorreo(string $correo): void
     {
         $this->correo = $correo;
@@ -118,6 +125,11 @@ class Usuario
     public function setBloqueadoHasta(?DateTime $bloqueadoHasta): void
     {
         $this->bloqueadoHasta = $bloqueadoHasta;
+    }
+
+    public function setRol(string $rol): void 
+    { 
+        $this->rol = $rol;
     }
 
     public function aumentarIntentosLogin(): void
