@@ -1,4 +1,4 @@
-<div id="textarea-container" class="mb-4 d-none">
+<div id="textarea-container" class="mb-4">
     <div class="row g-3 mb-3">
         <div class="col-12 col-md-4">
             <label for="medication" class="form-label fw-bold">

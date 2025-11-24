@@ -37,13 +37,6 @@
                             Subir Receta
                         </a>
                     </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link text-white fs-5 {{ request()->routeIs('tas_contacto') ? 'active' : '' }}"
-                            href="#">
-                            Contacto
-                        </a>
-                    </li>
                 </ul>
                 <div class="d-flex align-items-center">
                     @if (session()->has('usuario'))

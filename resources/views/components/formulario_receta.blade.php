@@ -13,21 +13,6 @@
             <div class="farmacia-nombre mt-2" id="farmacia-seleccionada"></div>
         </div>
 
-        <p class="section-title text-center">Selecciona cómo subir tu receta</p>
-
-        <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
-            <button type="button" class="option-button position-relative">
-                <input type="file" name="foto_receta" accept="image/*" capture="environment">
-                <i class="fas fa-camera fa-lg me-2"></i>
-                <span>Seleccionar foto</span>
-            </button>
-
-            <button type="button" class="option-button" onclick="toggleTextarea()">
-                <i class="fas fa-keyboard fa-lg me-2"></i>
-                <span>Escribir receta</span>
-            </button>
-        </div>
-
         <x-formulario_escribir_receta />
 
         <div class="text-center mt-4">
