@@ -23,6 +23,10 @@ Route::get('/subir_receta', [RecetaController::class, 'subirRecetaView'])
     ->middleware('verificar.sesion')
     ->name('subirRecetaView');
 
+    Route::get('/metodo_pago', [TasController::class, 'tas_metodoPagoView'])
+    ->middleware('verificar.sesion')
+    ->name('tas_metodoPagoView');
+
 Route::get('/sucursales', [TasController::class, 'mapaSucursales']);
 
 Route::post('/logout', [TasController::class, 'logout'])

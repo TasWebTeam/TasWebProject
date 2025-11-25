@@ -58,7 +58,7 @@
                 @endif
 
                 <h1>Método de Pago</h1>
-                <p class="step-description">Agrega una tarjeta para agilizar tus compras (opcional)</p>
+                <p class="step-description">Agrega una tarjeta para agilizar tus compras</p>
 
                 <div class="fila-tarjeta">
                     <img id="cardBrand" class="d-none" alt="brand">
@@ -83,10 +83,9 @@
 
                 <div class="button-group">
                     <button type="button" id="btnVolver">Volver</button>
-                    <button type="button" id="btnOmitir">Omitir</button>
+                <button type="submit" id="btnRegistrarse">Registrarse</button>
                 </div>
 
-                <button type="submit" id="btnRegistrarse">Registrarse</button>
             </form>
 
         </div>
@@ -119,7 +118,6 @@
                 <input type="text" name="correo" placeholder="Correo electrónico" required value="{{ old('correo') }}">
                 <input type="password" name="nip" placeholder="Contraseña" required>
 
-                <a href="#">¿Olvidaste tu contraseña?</a>
                 <button type="submit" class="btn-login-submit">Ingresar</button>
             </form>
 
@@ -153,5 +151,6 @@
 
 @push('scripts')
     <script src="{{ asset('js/login-script.js') }}"></script>
+    <script src="{{ asset('js/tarjeta-script.js') }}"></script>
     <script src="{{ asset('js/register-stepper-script.js') }}"></script>
 @endpush

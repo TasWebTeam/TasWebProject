@@ -47,7 +47,7 @@
                                 {{ session('usuario.nombre') ?? 'Usuario' }}
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                                <li><a class="dropdown-item" href="#">Perfil</a></li>
+                                <li><a class="dropdown-item" href="{{ route('tas_metodoPagoView') }}">Método de pago</a></li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                         onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
