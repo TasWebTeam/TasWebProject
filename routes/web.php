@@ -19,15 +19,13 @@ Route::post('/registro', [TasController::class, 'tas_crearCuenta'])->name('tas_c
 Route::post('/registro/validar-cliente', [TasController::class, 'validarPasoCliente'])
     ->name('tas.validarPasoCliente');
 
-Route::get('/subir_receta', [RecetaController::class, 'subirRecetaView'])
+Route::get('/subir_receta', [TasController::class, 'tas_subirRecetaView'])
     ->middleware('verificar.sesion')
-    ->name('subirRecetaView');
+    ->name('tas_subirRecetaView');
 
     Route::get('/metodo_pago', [TasController::class, 'tas_metodoPagoView'])
     ->middleware('verificar.sesion')
     ->name('tas_metodoPagoView');
-
-Route::get('/sucursales', [TasController::class, 'mapaSucursales']);
 
 Route::post('/logout', [TasController::class, 'logout'])
     ->middleware('verificar.sesion')

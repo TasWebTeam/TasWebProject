@@ -33,7 +33,7 @@
 
                     <li class="nav-item">
                         <a class="nav-link text-white fs-5 {{ request()->routeIs('tas_subir') ? 'active' : '' }}"
-                            href="{{ route('subirRecetaView') }}">
+                            href="{{ route('tas_subirRecetaView') }}">
                             Subir Receta
                         </a>
                     </li>

@@ -9,7 +9,7 @@
     <x-stepper :currentStep="1" />
 
     <div id="map-section" class="d-flex justify-content-center">
-        <x-mapa_farmacias />
+        <x-mapa_farmacias :sucursales="$sucursales" />
     </div>
 
     <div id="form-section" class="d-none justify-content-center">

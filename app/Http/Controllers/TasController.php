@@ -31,6 +31,11 @@ class TasController extends Controller
         return view('tas.access');
     }
 
+    public function tas_metodoPagoView()
+    {
+        return view('tas.metodo_pago');
+    }
+
     public function tas_inicioSesion(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -91,7 +96,9 @@ class TasController extends Controller
     public function validarPasoCliente(Request $request)
     {
         $validacion = $this->validarDatosCliente($request);
-        if ($validacion === true) return response()->json(['ok' => true]);
+        if ($validacion === true) {
+            return response()->json(['ok' => true]);
+        }
 
         return response()->json(['ok' => false, 'errores' => $validacion->all()]);
     }
@@ -107,7 +114,9 @@ class TasController extends Controller
                 $n = intval($number[$i]);
                 if ($alt) {
                     $n *= 2;
-                    if ($n > 9) $n -= 9;
+                    if ($n > 9) {
+                        $n -= 9;
+                    }
                 }
                 $sum += $n;
                 $alt = ! $alt;
@@ -148,24 +157,31 @@ class TasController extends Controller
             return back()->withErrors($validacionCliente, 'registro')->withInput();
         }
 
-        if ($request->input('omitir_pago') != '1') {
+        $validacionTarjeta = $this->validarDatosTarjeta($request);
 
-            $validacionTarjeta = $this->validarDatosTarjeta($request);
-
-            if ($validacionTarjeta !== true) {
-                return back()->withErrors($validacionTarjeta, 'tarjeta')->withInput();
-            }
+        if ($validacionTarjeta !== true) {
+            return back()->withErrors($validacionTarjeta, 'tarjeta')->withInput();
         }
 
-        $resultado = $this->tasService->crearUsuario(
+        $usuario = $this->tasService->crearUsuario(
             $request->correo,
             $request->nip,
             $request->nombre,
-            $request->apellido
+            $request->apellido,
         );
 
-        if ($resultado != 1) {
-            return back()->with('error', $resultado)->withInput();
+        $tarjeta = $this->tasService->crearTarjeta(
+            $usuario->getId(),
+            $request->numero_tarjeta,
+            $request->fecha_vencimiento
+        );
+
+        if (is_string($tarjeta)) {
+            return back()->with('error', $tarjeta);
+        }
+
+        if (! $usuario) {
+            return back()->with('error', $usuario)->withInput();
         }
 
         return redirect()->route('tas_loginView')->with('success', 'Usuario creado correctamente');
@@ -178,13 +194,14 @@ class TasController extends Controller
             $this->tasService->cerrarSesion($usuario['correo']);
         }
         session()->flush();
+
         return redirect()->route('tas_loginView');
     }
-    
-    public function mapaSucursales()
-{
-    $sucursales = $this->tasService->getSucursales();
-    return response()->json($sucursales);
-}
 
+    public function tas_subirRecetaView()
+    {
+        $sucursales = $this->tasService->obtenerSucursales();
+
+        return view('tas.subir_receta', compact('sucursales'));
+    }
 }

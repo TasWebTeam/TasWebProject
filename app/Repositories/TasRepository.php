@@ -2,8 +2,9 @@
 
 namespace App\Repositories;
 
-use App\Models\UsuarioModel;
 use App\Models\BranchModel;
+use App\Models\TarjetaModel;
+use App\Models\UsuarioModel;
 use App\Services\Usuario;
 use Illuminate\Support\Facades\DB;
 
@@ -43,6 +44,20 @@ class TasRepository
         }
     }
 
+    public function crearTarjeta($idUsuario, $last4, $brand, $fechaExp)
+    {
+        try {
+            return TarjetaModel::create([
+                'id_usuario' => $idUsuario,
+                'last4' => $last4,
+                'brand' => $brand,
+                'fecha_exp' => $fechaExp,
+            ]);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
     public function buscarUsuarioPorCorreo(string $correo)
     {
         try {
@@ -69,15 +84,15 @@ class TasRepository
             return null;
         }
     }
+
     public function obtenerSucursales()
     {
-    try {
-        return BranchModel::with('cadena:id_cadena,nombre')
-            ->select('id_sucursal', 'id_cadena', 'nombre', 'latitud', 'longitud')
-            ->get();
-    } catch (\Exception $e) {
-        \Log::error('Error al obtener sucursales: ' . $e->getMessage());
-        return null;
+        try {
+            return BranchModel::with('cadena:id_cadena,nombre')
+                ->select('id_sucursal', 'id_cadena', 'nombre', 'latitud', 'longitud')
+                ->get();
+        } catch (\Exception $e) {
+            return null;
         }
     }
 }

@@ -8,19 +8,15 @@ use Illuminate\Contracts\View\View;
 
 class mapa_farmacias extends Component
 {
-    /**
-     * Create a new component instance.
-     */
-    public function __construct()
-    {
-        //
-    }
+    public $sucursales;
 
-    /**
-     * Get the view / contents that represent the component.
-     */
+    public function __construct($sucursales)
+    {
+        $this->sucursales = $sucursales;
+    }
+    
     public function render(): View|Closure|string
     {
-        return view('components.mapa-farmacias');
+        return view('components.mapa_farmacias');
     }
 }
