@@ -58,6 +58,15 @@ class TasRepository
         }
     }
 
+    public function obtenerTarjetaPorUsuario($idUsuario){
+         try {
+            return TarjetaModel::where('id_usuario', $idUsuario)
+                ->first();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
     public function buscarUsuarioPorCorreo(string $correo)
     {
         try {

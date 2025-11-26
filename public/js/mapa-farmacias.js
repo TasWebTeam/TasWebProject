@@ -52,3 +52,78 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+function seleccionarFarmacia(cadena, nombre) {
+    const nombreCompleto = `${cadena} — Sucursal ${nombre}`;
+    
+    Swal.fire({
+        title: "¿Confirmar selección?",
+        html: `Has elegido:<br><strong>${nombreCompleto}</strong>`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Sí, continuar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#005B96",
+        cancelButtonColor: "#6c757d",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            localStorage.setItem("farmaciaCadena", cadena);
+            localStorage.setItem("farmaciaSucursal", nombre);
+
+            const elementoFarmacia = document.getElementById('farmacia-seleccionada');
+            if (elementoFarmacia) {
+                elementoFarmacia.textContent = nombreCompleto;
+            }
+
+            const mapSection = document.getElementById('map-section');
+            const formSection = document.getElementById('form-section');
+            
+            if (mapSection && formSection) {
+                mapSection.classList.add('d-none');
+                formSection.classList.remove('d-none');
+
+                const stepperContainer = document.querySelector('.stepper-container');
+                if (stepperContainer) {
+                    stepperContainer.innerHTML = `
+                        <div class='stepper-wrapper'>
+                            <div class='stepper-item completed'>
+                                <div class='step-counter'>1</div>
+                                <div class='step-name'>Seleccionar<br>Sucursal</div>
+                            </div>
+                            <div class='stepper-line completed'></div>
+                            <div class='stepper-item active'>
+                                <div class='step-counter'>2</div>
+                                <div class='step-name'>Subir<br>Receta</div>
+                            </div>
+                            <div class='stepper-line'></div>
+                            <div class='stepper-item'>
+                                <div class='step-counter'>3</div>
+                                <div class='step-name'>Confirmar<br>Pedido</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                Swal.fire({
+                    title: "¡Farmacia seleccionada!",
+                    html: `
+                        <i class="fas fa-check-circle text-success fa-3x mb-3"></i><br>
+                        Redirigiendo al siguiente paso...
+                    `,
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false,
+                }).then(() => {
+                    window.location.href = "/subir_receta";
+                });
+            }
+        }
+    });
+}
+
+function toggleTextarea() {
+    const container = document.getElementById('textarea-container');
+    if (container) {
+        container.classList.toggle('d-none');
+    }
+}

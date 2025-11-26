@@ -31,9 +31,24 @@ class TasController extends Controller
         return view('tas.access');
     }
 
+    public function tas_subirRecetaView()
+    {
+        $sucursales = $this->tasService->obtenerSucursales();
+
+        return view('tas.subir_receta', compact('sucursales'));
+    }
+
     public function tas_metodoPagoView()
     {
-        return view('tas.metodo_pago');
+        $usuario = session('usuario');
+
+        if (!$usuario) {
+            return redirect()->route('tas_loginView');
+        }
+
+        $tarjeta = $this->tasService->obtenerTarjetaUsuario($usuario['id']);
+
+        return view('tas.metodo_pago', compact('tarjeta'));
     }
 
     public function tas_inicioSesion(Request $request)
@@ -196,12 +211,5 @@ class TasController extends Controller
         session()->flush();
 
         return redirect()->route('tas_loginView');
-    }
-
-    public function tas_subirRecetaView()
-    {
-        $sucursales = $this->tasService->obtenerSucursales();
-
-        return view('tas.subir_receta', compact('sucursales'));
     }
 }

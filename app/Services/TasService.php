@@ -106,6 +106,23 @@ class TasService
         );
     }
 
+    public function obtenerTarjetaUsuario($idUsuario)
+    {
+        $resultado = $this->tasRepository->obtenerTarjetaPorUsuario($idUsuario);
+
+        if (! $resultado) {
+            return null;
+        }
+
+        return new Tarjeta(
+            $resultado->id_tarjeta,
+            $resultado->id_usuario,
+            $resultado->last4,
+            $resultado->brand,
+            $resultado->fecha_exp
+        );
+    }
+
     private function detectarBrand(string $num): string
     {
         if (preg_match('/^4/', $num)) {

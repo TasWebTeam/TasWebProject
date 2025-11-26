@@ -1,0 +1,424 @@
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shine {
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+@keyframes float {
+    0%,
+    100% {
+        transform: translateY(0px) rotateY(0deg);
+    }
+    50% {
+        transform: translateY(-10px) rotateY(3deg);
+    }
+}
+
+@keyframes glow {
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 35px rgba(255, 215, 0, 0.7);
+    }
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.payment-card {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.bg-decoration {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #005b96 0%, #003d6b 100%);
+    opacity: 0.05;
+    animation: pulse 4s ease-in-out infinite;
+}
+
+.bg-circle-1 {
+    width: 300px;
+    height: 300px;
+    top: -150px;
+    right: -150px;
+}
+
+.bg-circle-2 {
+    width: 200px;
+    height: 200px;
+    bottom: -100px;
+    left: -100px;
+    animation-delay: 1s;
+}
+
+.credit-card {
+    width: 100%;
+    max-width: 450px;
+    height: 280px;
+    border-radius: 20px;
+    padding: 30px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: fadeInUp 0.8s ease-out, float 6s ease-in-out infinite;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.credit-card[data-brand="visa"] {
+    background: linear-gradient(135deg, #1a1f71 0%, #0066b2 50%, #0099cc 100%);
+}
+
+.credit-card[data-brand="mastercard"] {
+    background: linear-gradient(135deg, #1c1c1c 0%, #eb001b 50%, #f79e1b 100%);
+}
+
+.credit-card[data-brand="amex"] {
+    background: linear-gradient(135deg, #006fcf 0%, #0099dd 50%, #00c2ff 100%);
+}
+
+.credit-card[data-brand="discover"] {
+    background: linear-gradient(135deg, #ff6000 0%, #ff8833 50%, #ffaa66 100%);
+}
+
+.credit-card:not([data-brand]) {
+    background: linear-gradient(135deg, #005b96 0%, #003d6b 50%, #002847 100%);
+}
+
+.credit-card:hover {
+    transform: translateY(-15px) scale(1.03) rotateY(-5deg);
+    box-shadow: 0 35px 90px rgba(0, 91, 150, 0.5);
+}
+
+.credit-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -200%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.15),
+        transparent
+    );
+    animation: shine 4s infinite;
+}
+
+.credit-card::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 0.12) 0%,
+        transparent 70%
+    );
+    border-radius: 50%;
+}
+
+.card-logo-top {
+    position: absolute;
+    top: 25px;
+    right: 30px;
+    font-size: 50px;
+    color: rgba(255, 255, 255, 0.9);
+    z-index: 2;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.card-chip-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 2;
+}
+
+.card-chip {
+    width: 55px;
+    height: 45px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #ffd700 0%, #ffc107 50%, #ffa000 100%);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 6px 8px;
+}
+
+.chip-line {
+    height: 2px;
+    background: linear-gradient(90deg, #b8860b 0%, #ffd700 50%, #b8860b 100%);
+    border-radius: 1px;
+    opacity: 0.8;
+}
+
+.card-wireless {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.7);
+    transform: rotate(90deg);
+}
+
+.card-number {
+    font-size: 26px;
+    letter-spacing: 5px;
+    font-family: "Courier New", monospace;
+    font-weight: 600;
+    color: white;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+    margin: 35px 0 25px 0;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+}
+
+.number-group {
+    display: inline-block;
+}
+
+.card-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    position: relative;
+    z-index: 2;
+}
+
+.card-holder,
+.card-expiry {
+    text-align: left;
+}
+
+.card-expiry {
+    text-align: right;
+}
+
+.card-label {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 6px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.card-info {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.card-brand-watermark {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    width: 80px;
+    height: auto;
+    opacity: 0.15;
+    z-index: 1;
+}
+
+.card-brand-watermark svg {
+    width: 100%;
+    height: auto;
+    color: white;
+}
+
+.amex-logo {
+    font-size: 32px;
+    font-weight: 900;
+    color: white;
+    letter-spacing: 3px;
+    font-family: Arial, sans-serif;
+}
+
+.card-badge-float {
+    position: absolute;
+    top: 20px;
+    left: 25px;
+    background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+    color: #1a1a1a;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+    animation: glow 2s ease-in-out infinite;
+    z-index: 3;
+}
+
+.default-badge {
+    background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+    color: #1a1a1a;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 13px;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+    animation: glow 2s ease-in-out infinite;
+    display: inline-block;
+    letter-spacing: 0.5px;
+}
+
+.card-security-info {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.security-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.security-icon {
+    font-size: 22px;
+    color: #005b96;
+}
+
+.security-text {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.security-divider {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, #dee2e6, transparent);
+}
+
+.btn-action {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-radius: 12px;
+    padding: 12px 28px;
+    font-weight: 600;
+    border: 2px solid;
+    position: relative;
+    overflow: hidden;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+.btn-action::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-action:hover::before {
+    width: 350px;
+    height: 350px;
+}
+
+.btn-action:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+}
+
+.btn-action:active {
+    transform: translateY(-2px);
+}
+
+@media (max-width: 576px) {
+    .credit-card {
+        max-width: 100%;
+        height: 240px;
+        padding: 25px;
+    }
+
+    .card-number {
+        font-size: 22px;
+        letter-spacing: 3px;
+    }
+
+    .card-logo-top {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+    }
+
+    .card-logo-img {
+        width: 55px;
+        height: auto;
+        object-fit: contain;
+    }
+
+    .credit-card {
+        position: relative;
+    }
+
+    .card-brand-watermark img {
+        width: 100%;
+        height: auto;
+        opacity: 0.15;
+    }
+}
