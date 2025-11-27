@@ -67,6 +67,27 @@ class TasRepository
         }
     }
 
+    public function actualizarTarjeta($idUsuario, $last4, $brand, $fechaExp)
+{
+    try {
+        $tarjeta = TarjetaModel::where('id_usuario', $idUsuario)->first();
+        
+        if (!$tarjeta) {
+            return null;
+        }
+
+        $tarjeta->last4 = $last4;
+        $tarjeta->brand = $brand;
+        $tarjeta->fecha_exp = $fechaExp;
+        $tarjeta->save();
+
+        return $tarjeta;
+    } catch (\Exception $e) {
+        return null;
+    }
+}
+
+
     public function buscarUsuarioPorCorreo(string $correo)
     {
         try {

@@ -72,14 +72,37 @@ class TasService
         );
     }
 
+    private function limpiarNumeroTarjeta(string $numero): string
+    {
+        return preg_replace('/\D/', '', $numero);
+    }
+
+    private function obtenerLast4(string $numeroLimpio): string
+    {
+        return substr($numeroLimpio, -4);
+    }
+
+    private function detectarBrand(string $num): string
+    {
+        if (preg_match('/^4/', $num)) {
+            return 'visa';
+        }
+        if (preg_match('/^5[1-5]/', $num)) {
+            return 'mastercard';
+        }
+        if (preg_match('/^3[47]/', $num)) {
+            return 'amex';
+        }
+
+        return 'desconocido';
+    }
+
     public function crearTarjeta(int $idUsuario, string $numero, string $fechaExp)
     {
         $this->tasRepository->beginTransaction();
 
-        $numeroLimpio = preg_replace('/\D/', '', $numero);
-
-        $last4 = substr($numeroLimpio, -4);
-
+        $numeroLimpio = $this->limpiarNumeroTarjeta($numero);
+        $last4 = $this->obtenerLast4($numeroLimpio);
         $brand = $this->detectarBrand($numeroLimpio);
 
         $tarjetaModel = $this->tasRepository->crearTarjeta(
@@ -106,6 +129,43 @@ class TasService
         );
     }
 
+    public function actualizarTarjeta(int $idUsuario, string $numero, string $fechaExp)
+    {
+        $this->tasRepository->beginTransaction();
+
+        try {
+            $numeroLimpio = $this->limpiarNumeroTarjeta($numero);
+            $last4 = $this->obtenerLast4($numeroLimpio);
+            $brand = $this->detectarBrand($numeroLimpio);
+
+            $tarjetaModel = $this->tasRepository->actualizarTarjeta(
+                $idUsuario,
+                $last4,
+                $brand,
+                $fechaExp
+            );
+
+            if (!$tarjetaModel) {
+                $this->tasRepository->rollbackTransaction();
+                return 'Advertencia: No se pudo actualizar la tarjeta.';
+            }
+
+            $this->tasRepository->commitTransaction();
+
+            return new Tarjeta(
+                $tarjetaModel->id_tarjeta,
+                $tarjetaModel->id_usuario,
+                $tarjetaModel->last4,
+                $tarjetaModel->brand,
+                $tarjetaModel->fecha_exp
+            );
+
+        } catch (\Exception $e) {
+            $this->tasRepository->rollbackTransaction();
+            return 'Error: ' . $e->getMessage();
+        }
+    }
+
     public function obtenerTarjetaUsuario($idUsuario)
     {
         $resultado = $this->tasRepository->obtenerTarjetaPorUsuario($idUsuario);
@@ -121,21 +181,6 @@ class TasService
             $resultado->brand,
             $resultado->fecha_exp
         );
-    }
-
-    private function detectarBrand(string $num): string
-    {
-        if (preg_match('/^4/', $num)) {
-            return 'visa';
-        }
-        if (preg_match('/^5[1-5]/', $num)) {
-            return 'mastercard';
-        }
-        if (preg_match('/^3[47]/', $num)) {
-            return 'amex';
-        }
-
-        return 'desconocido';
     }
 
     public function actualizarSesion(Usuario $usuario)
@@ -210,7 +255,7 @@ class TasService
     {
         $modelos = $this->tasRepository->obtenerSucursales();
 
-        if (! $modelos) {
+        if (!$modelos) {
             return [];
         }
 

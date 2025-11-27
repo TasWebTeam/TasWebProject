@@ -18,7 +18,7 @@
 
             <h4 class="fw-bold mb-4" style="color: #005B96;">
                 <i class="fas fa-wallet me-2"></i>
-                Método de pago registrado
+                Método De Pago Registrado
             </h4>
 
             <div class="credit-card mx-auto my-4" data-brand="{{ strtolower($tarjeta->getBrand()) }}">
@@ -38,8 +38,6 @@
                         @break
                     @endswitch
                 </div>
-
-
 
                 <div class="card-chip-container">
                     <div class="card-chip">
@@ -66,28 +64,6 @@
                 </div>
             </div>
 
-            <div class="card-brand-watermark">
-                @switch(strtolower($tarjeta->getBrand()))
-                    @case('visa')
-                        <svg viewBox="0 0 48 16" fill="currentColor">
-                            <path
-                                d="M15.6 2.8l-5.9 10.4h-3L4.4 4.7c-.2-.4-.3-.6-.6-.7C3.3 3.8 2.5 3.6 1.8 3.4L1.9 3h5c.6 0 1.2.4 1.3 1.1l1.2 6.5 3-7.8h3.2zm12.5 7c0-2.7-3.8-2.9-3.7-4.1 0-.4.4-.8 1.2-.9.4-.1 1.5-.1 2.8.5l.5-2.3c-.7-.2-1.6-.5-2.7-.5-2.9 0-4.9 1.5-4.9 3.7 0 1.6 1.4 2.5 2.5 3 1.1.6 1.5.9 1.5 1.4 0 .7-.9 1.1-1.7 1.1-1.4 0-2.2-.2-3.4-.7l-.6 2.7c.8.3 2.2.6 3.6.6 3.1.1 5.1-1.4 5.1-3.6zm7.4 3.4h2.8l-2.5-10.4h-2.6c-.6 0-1 .3-1.3.8l-4.4 9.6h3l.6-1.7h3.7l.7 1.7zm-3.3-4l1.5-4.2.9 4.2h-2.4zm-13.1-6.4l-2.4 10.4h-2.9l2.4-10.4h2.9z" />
-                        </svg>
-                    @break
-
-                    @case('mastercard')
-                        <svg viewBox="0 0 48 32" fill="none">
-                            <circle cx="19" cy="16" r="12" fill="#EB001B" opacity="0.3" />
-                            <circle cx="29" cy="16" r="12" fill="#F79E1B" opacity="0.3" />
-                        </svg>
-                    @break
-
-                    @case('amex')
-                        <div class="amex-logo">AMEX</div>
-                    @break
-                @endswitch
-            </div>
-
             <div class="card-security-info p-3 mt-3">
                 <div class="d-flex justify-content-around align-items-center">
                     <div class="security-item">
@@ -109,9 +85,94 @@
 
             <div class="mt-4 d-flex gap-3 justify-content-center flex-wrap">
                 <button class="btn btn-outline-primary btn-action" onclick="editCard()">
-                    <i class="fas fa-edit me-2"></i>
-                    Editar
+                    <i class="fas fa-edit me-2"></i>Cambiar
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editCardModal" class="modal-overlay @if ($errors->editarTarjeta->any()) show @endif">
+        <div class="modal-container">
+            <div class="modal-card">
+                <h5 class="modal-title">
+                    <i class="fas fa-credit-card me-2"></i>
+                    Cambiar Método de Pago
+                </h5>
+
+                @if (session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                @if ($errors->editarTarjeta->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->editarTarjeta->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form id="updateCardForm" action="{{ route('tas_actualizarTarjeta') }}" method="POST">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="cardNumber" class="form-label">Número de Tarjeta</label>
+                        <div class="position-relative">
+                            <input type="text"
+                                class="form-control @error('numero_tarjeta', 'editarTarjeta') is-invalid @enderror"
+                                id="cardNumber" name="numero_tarjeta" placeholder="1234 5678 9012 3456" maxlength="19"
+                                value="{{ old('numero_tarjeta') }}" required>
+                            <div id="cardBrandLogo" class="card-brand-logo">
+                                <img src="" alt="Card Brand">
+                            </div>
+                        </div>
+                        <small class="text-muted">Ingrese los 16 dígitos de la tarjeta</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="expiryDate" class="form-label">Fecha de Expiración</label>
+                            <input type="text"
+                                class="form-control @error('fecha_vencimiento', 'editarTarjeta') is-invalid @enderror"
+                                id="expiryDate" name="fecha_vencimiento" placeholder="MM/AA" maxlength="5"
+                                value="{{ old('fecha_vencimiento') }}" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="cvv" class="form-label">CVV</label>
+                            <input type="text" class="form-control @error('cvv', 'editarTarjeta') is-invalid @enderror"
+                                id="cvv" name="cvv" placeholder="123" maxlength="4"
+                                value="{{ old('cvv') }}" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cardHolder" class="form-label">Nombre del Titular</label>
+                        <input type="text"
+                            class="form-control @error('nombre_tarjeta', 'editarTarjeta') is-invalid @enderror"
+                            id="cardHolder" name="nombre_tarjeta" placeholder="NOMBRE APELLIDO"
+                            style="text-transform: uppercase;" value="{{ old('nombre_tarjeta') }}" required>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-center mt-4">
+                        <button type="button" class="btn btn-outline-secondary" onclick="cancelEdit()">
+                            <i class="fas fa-times me-2"></i>
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            Guardar Cambios
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
