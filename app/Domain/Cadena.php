@@ -1,21 +1,21 @@
 <?php
 
-namespace App\Services;
+namespace App\Domain;
 
 class Cadena
 {
-    private string $id_cadena;
+    private string $idCadena;
     private string $nombre;
 
-    public function __construct(string $id_cadena, string $nombre)
+    public function __construct(string $idCadena, string $nombre)
     {
-        $this->id_cadena = $id_cadena;
+        $this->idCadena = $idCadena;
         $this->nombre = $nombre;
     }
 
     public function getIdCadena(): string
     {
-        return $this->id_cadena;
+        return $this->idCadena;
     }
 
     public function getNombre(): string
@@ -23,9 +23,9 @@ class Cadena
         return $this->nombre;
     }
 
-    public function setIdCadena(string $id_cadena): void
+    public function setIdCadena(string $idCadena): void
     {
-        $this->id_cadena = $id_cadena;
+        $this->idCadena = $idCadena;
     }
 
     public function setNombre(string $nombre): void
@@ -36,7 +36,7 @@ class Cadena
     public function toArray(): array
     {
         return [
-            'id_cadena' => $this->id_cadena,
+            'idCadena' => $this->idCadena,
             'nombre'    => $this->nombre,
         ];
     }

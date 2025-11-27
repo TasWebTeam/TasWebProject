@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class LineSurtidoModel extends Model
+class LineaSurtidoModel extends Model
 {
     protected $table = 'linea_surtido';
     public $timestamps = false;

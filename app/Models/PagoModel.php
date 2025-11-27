@@ -13,7 +13,7 @@ class PagoModel extends Model
 
     public function receta()
     {
-        return $this->belongsTo(PrescriptionModel::class, 'id_receta', 'id_receta');
+        return $this->belongsTo(RecetaModel::class, 'id_receta', 'id_receta');
     }
 
     public function tarjeta()

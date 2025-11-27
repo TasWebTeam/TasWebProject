@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PharmacyModel extends Model
+class CadenaModel extends Model
 {
     protected $table = 'cadenas';
     protected $fillable = ['id_cadena', 'nombre'];

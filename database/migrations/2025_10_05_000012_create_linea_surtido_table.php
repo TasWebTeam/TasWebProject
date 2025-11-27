@@ -21,8 +21,8 @@ return new class extends Migration
 
             $table->foreign('id_receta')->references('id_receta')->on('recetas');
             $table->foreign('id_medicamento')->references('id_medicamento')->on('medicamentos');
-            $table->foreign('id_cadenaSurtido')->references('id_cadena')->on('sucursales');
-            $table->foreign('id_sucursalSurtido')->references('id_sucursal')->on('sucursales');
+            $table->foreign(['id_cadenaSurtido','id_sucursalSurtido'])->references(['id_cadena','id_sucursal'])->on('sucursales');
+            //$table->foreign('id_sucursalSurtido')->references('id_sucursal')->on('sucursales');
             $table->foreign('id_empleado')->references('id_usuario')->on('empleados');
         });
     }
