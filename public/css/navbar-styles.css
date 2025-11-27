@@ -1,5 +1,5 @@
 body {
-  padding-top: 70px; 
+    padding-top: 70px;
 }
 
 .navbar-custom {
@@ -26,7 +26,7 @@ body {
 }
 
 .nav-link::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: 0;
     left: 50%;
@@ -102,6 +102,93 @@ body {
     justify-content: center;
 }
 
+.dropdown-menu {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    min-width: 220px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    animation: dropdownFade 0.3s ease;
+}
+
+@keyframes dropdownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-item {
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    margin: 0.25rem 0;
+    font-weight: 500;
+    color: #003865;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.dropdown-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(135deg, #00b0b9 0%, #00d4d9 100%);
+    transition: width 0.3s ease;
+    z-index: -1;
+}
+
+.dropdown-item:hover {
+    background-color: transparent;
+    color: white;
+    transform: translateX(5px);
+}
+
+.dropdown-item:hover::before {
+    width: 100%;
+}
+
+.dropdown-item:active {
+    background-color: transparent;
+    color: white;
+}
+
+.dropdown-divider {
+    height: 2px;
+    margin: 0.5rem 0;
+    background: linear-gradient(90deg, transparent, #00b0b9, transparent);
+    opacity: 0.3;
+}
+
+.dropdown-toggle::after {
+    margin-left: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.dropdown-toggle[aria-expanded="true"]::after {
+    transform: rotate(180deg);
+}
+
+.dropdown-item i {
+    margin-right: 0.75rem;
+    width: 20px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.dropdown-item:hover i {
+    transform: scale(1.2);
+}
+
 @media (max-width: 991px) {
     .navbar-nav {
         padding: 1rem 0;
@@ -110,5 +197,10 @@ body {
     .btn-accent {
         margin-top: 1rem;
         width: 100%;
+    }
+
+    .dropdown-menu {
+        border-radius: 12px;
+        min-width: 100%;
     }
 }

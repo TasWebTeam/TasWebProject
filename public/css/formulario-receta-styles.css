@@ -5,6 +5,41 @@
     --color-cyan-hover: #0089A8;
 }
 
+.bg-tas {
+    background: linear-gradient(135deg, #005B96 0%, #0077B6 100%);
+    color: white !important;
+}
+
+.btn-tas-outline {
+    border: 2px solid #005B96;
+    color: #005B96;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.btn-tas-outline:hover {
+    background: #005B96;
+    color: white;
+}
+
+.map-container {
+    height: 500px;
+    width: 100%;
+    border-radius: 10px;
+    border: 2px solid #e3e3e3;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.card {
+    border-radius: 15px !important;
+}
+
+.card-header.rounded-top {
+    border-top-left-radius: 15px !important;
+    border-top-right-radius: 15px !important;
+}
+
 .formulario-receta-card {
     max-width: 900px;
     margin: 2rem auto;
@@ -239,6 +274,81 @@
     font-weight: 600;
     font-size: 1.05em;
     display: inline-block;
+}
+
+.cedula-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 25px;
+    border-radius: 15px;
+    border: 2px solid #dee2e6;
+}
+
+.form-label {
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+#seccion-medicamentos {
+    animation: slideDown 0.4s ease-out;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
+.medicamentos-form {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+}
+
+#tabla-medicamentos {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+#tabla-medicamentos thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+#tabla-medicamentos tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.btn-eliminar-med {
+    padding: 5px 10px;
+    font-size: 0.875rem;
+}
+
+.invalid-feedback {
+    display: none;
+    font-size: 0.875rem;
+}
+
+.form-control.is-invalid ~ .invalid-feedback {
+    display: block;
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+}
+
+.fila-medicamento {
+    animation: slideDown 0.3s ease-out;
 }
 
 @media (max-width: 768px) {
