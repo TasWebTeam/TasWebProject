@@ -5,7 +5,7 @@ namespace App\Repositories;
 use App\Models\SucursalModel;
 use App\Models\TarjetaModel;
 use App\Models\UsuarioModel;
-use App\Services\Usuario;
+use App\Domain\Usuario;
 use Illuminate\Support\Facades\DB;
 
 class TasRepository

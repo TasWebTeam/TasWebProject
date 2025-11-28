@@ -1,8 +1,13 @@
 <?php
 
-namespace App\Domain;
+namespace App\Services;
+
 
 use App\Repositories\TasRepository;
+use App\Domain\Usuario;
+use App\Domain\Sucursal;
+use App\Domain\Cadena;
+use App\Domain\Tarjeta;
 use DateTime;
 use Illuminate\Support\Facades\Hash;
 
@@ -26,10 +31,10 @@ class TasService
 
         return new Usuario(
             $usuario->id_usuario,
+            $usuario->nombre,
+            $usuario->apellido,
             $usuario->correo,
             $usuario->nip,
-            $usuario->nombre,
-            $usuario->apellido
         );
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Domain;
 use App\Repositories\ConsultarRepository;
+use App\Services\SucursalService;
 use DateTime;
 use InvalidArgumentException;
 
@@ -52,7 +53,7 @@ class Receta
         );
     }
 
-    public function obtenerSucursal(string $nombreSucursal, string $nombreCadena): void
+    public function obtenerSucursal(string $nombreSucursal, string $nombreCadena ): void
     {
         $consultarRepository = new ConsultarRepository();               // Esta bien no indicar que se creó este objeto en el diagrama 2?
         $cad = $consultarRepository->recuperarCadena($nombreCadena);
@@ -98,10 +99,11 @@ class Receta
         return $total * 0.15;
     }
 
-    public function procesarReceta(int $numTarjeta): void
+    public function procesarReceta(int $numTarjeta, SucursalService $sucursalService): void
     {
         foreach ($this->detallesReceta as $detalle) {
-            $this->sucursal->procesar($this->sucursal, $t);
+            // $this->sucursal->procesar($this->sucursal, $t);
+            $detalle->procesar($this->sucursal, $sucursalService);
         }
         // lógica de dominio pendiente
     }

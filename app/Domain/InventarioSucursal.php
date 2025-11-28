@@ -35,7 +35,7 @@ class InventarioSucursal
 
     public function devolverMedicamento($cantidad): void
     {
-        //$this->stockActual += $cantidad;
+        $this->stockActual += $cantidad;
     }
 
     public function obtenerSucursal(): Sucursal { 

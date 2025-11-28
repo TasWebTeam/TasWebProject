@@ -1,6 +1,10 @@
 <?php
 
 namespace App\Domain;
+
+use App\Repositories\ConsultarRepository;
+use App\Services\RutaOpenStreetMapService;
+use App\Services\SucursalService;
 use InvalidArgumentException;
 
 class DetalleReceta
@@ -22,29 +26,47 @@ class DetalleReceta
         $this->setLineasSurtido($lineasSurtido);
     }
 
-    public function obtenerSubtotal(): float
+    public function obtenerSubtotal(): float 
     {
         return $this->cantidad * $this->precio;
     }
 
-    public function procesar(Sucursal $suc): void{
+    public function procesar(Sucursal $sucursal, SucursalService $sucursalService): void{
         $seAbastece = false;
-        
-        while(!$seAbastece){
-            $cantidadRequerida= $this->cantidad;
-            $cantObtenida = $suc->verificarDisponibilidad($this->cantidad, $this->medicamento);
-            if($cantObtenida > 0){
-                $linea = new LineaSurtido($cantObtenida, $this->precio);
+        $cantidadRequerida = $this->cantidad;
+        $sucursalActual    = $sucursal;
+        while (!$seAbastece) {
+
+            $cantObtenida = $sucursalActual->verificarDisponibilidad(
+                $cantidadRequerida,
+                $this->medicamento
+            );
+
+            if ($cantObtenida > 0) {
+                $linea = new LineaSurtido(
+                    $sucursalActual,
+                    $this->precio,
+                    $cantObtenida
+                );
                 $this->agregarLineaSurtido($linea);
                 $cantidadRequerida -= $cantObtenida;
             }
-            if($cantidadRequerida == 0){
+
+            if ($cantidadRequerida <= 0) {
                 $seAbastece = true;
+                break;
             }
-            else{
-                $coordenadas = $this->obtenerSucursalCercana($this->sucursal);
-                //Buscar sucursal cercana
-                //Abastecer desde sucursal cercana
+
+            $siguienteSucursal = $sucursalService->obtenerSucursalMasCercanaConStock(
+                $sucursalActual,
+                $this->medicamento,
+                $cantidadRequerida
+            );
+
+            if ($siguienteSucursal === null) {
+                $seAbastece = true; // o marcar como incompleto / lanzar excepción
+            } else {
+                $sucursalActual = $siguienteSucursal;
             }
         }
     }

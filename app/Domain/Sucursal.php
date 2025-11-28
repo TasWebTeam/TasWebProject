@@ -31,24 +31,24 @@ class Sucursal
     }
 
     public function verificarDisponibilidad(int $cant, Medicamento $med): int{
-        //$consultarRepository = new consultarRepository(); SUSCEPTIBLE A CAMBIOS
-        //$Inv = $consultarRepository->recuperarInventario($this->getCadena(), $this->getIdSucursal(), $med->getNombre());
+        //Nota: Modificar el diagrama de interaccion
         $inv = $this->obtenerInventario($med->getNombre());
         $hayStock = $inv->verificarStock();
         $stockExistente = 0;
-        if($hayStock){
+        $cantObtenida = 0;
+
+        if ($hayStock) {
             $stockExistente = $inv->obtenerStock();
+
+            if ($stockExistente >= $cant) {
+                $inv->descontarMedicamento($cant);
+                $cantObtenida = $cant;
+            } else {
+                $inv->descontarMedicamento($stockExistente);
+                $cantObtenida = $stockExistente;
+            }
         }
 
-        if($hayStock && $stockExistente >= $cant){
-            $inv->descontarMedicamento($cant);
-            $cantObtenida = $cant;
-        }
-
-        if($hayStock && $stockExistente < $cant){
-            $inv->descontarMedicamento($stockExistente);
-            $cantObtenida = $stockExistente;
-        }
         return $cantObtenida;
     }
 
