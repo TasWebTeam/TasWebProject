@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Services;
-
+namespace App\Domain;
+use App\repositories\ConsultarRepository;
 class Sucursal
 {
     private int $idSucursal;
@@ -11,33 +11,52 @@ class Sucursal
     private float $longitud;
 
     public function __construct(
-        int $id_sucursal,
-        Cadena $cadena,
-        string $nombre,
-        float $latitud,
-        float $longitud
+        int $id_sucursal = 0,
+        ?Cadena $cadena = null,
+        string $nombre = "",
+        float $latitud = 0.0,
+        float $longitud = 0.0
     ) {
-        $this->id_sucursal = $id_sucursal;
+        $this->idSucursal = $id_sucursal;
         $this->cadena = $cadena;
         $this->nombre = $nombre;
         $this->latitud = $latitud;
         $this->longitud = $longitud;
-        $this->cadena = $cadena;
+    }
+    
+    public function obtenerInventario(string $nombreMedicamento): InventarioSucursal{
+        $consultarRepository = new ConsultarRepository();       // NO SE INDICA EN EL DIAGRAMA
+        $inv = $consultarRepository->recuperarInventario ($this->getCadena(), $this->getIdSucursal(), $nombreMedicamento);
+        return $inv;
     }
 
-    public function obtenerInventario(string $nombreMedicamento){
+    public function verificarDisponibilidad(int $cant, Medicamento $med): int{
+        //$consultarRepository = new consultarRepository(); SUSCEPTIBLE A CAMBIOS
+        //$Inv = $consultarRepository->recuperarInventario($this->getCadena(), $this->getIdSucursal(), $med->getNombre());
+        $inv = $this->obtenerInventario($med->getNombre());
+        $hayStock = $inv->verificarStock();
+        $stockExistente = 0;
+        if($hayStock){
+            $stockExistente = $inv->obtenerStock();
+        }
+
+        if($hayStock && $stockExistente >= $cant){
+            $inv->descontarMedicamento($cant);
+            $cantObtenida = $cant;
+        }
+
+        if($hayStock && $stockExistente < $cant){
+            $inv->descontarMedicamento($stockExistente);
+            $cantObtenida = $stockExistente;
+        }
+        return $cantObtenida;
+    }
+
+    public function devolverReceta(int $idReceta): void{
 
     }
 
-    public function verificarDisponibilidad(int $cant,Medicamento $med){
-
-    }
-
-    public function devolverReceta(int $idReceta){
-
-    }
-
-    public function confirmarRecetaNoRecogida(int $idReceta, string $estado){
+    public function confirmarRecetaNoRecogida(int $idReceta, string $estado): void{
 
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Domain;
 
 use App\Repositories\TasRepository;
 use DateTime;
@@ -29,12 +29,7 @@ class TasService
             $usuario->correo,
             $usuario->nip,
             $usuario->nombre,
-            $usuario->apellido,
-            (bool) $usuario->sesion_activa,
-            (int) $usuario->intentos_login,
-            $usuario->ultimo_intento ? new DateTime($usuario->ultimo_intento) : null,
-            $usuario->bloqueado_hasta ? new DateTime($usuario->bloqueado_hasta) : null,
-            $usuario->rol
+            $usuario->apellido
         );
     }
 
@@ -63,12 +58,7 @@ class TasService
             $usuarioNuevo->correo,
             $usuarioNuevo->nip,
             $usuarioNuevo->nombre,
-            $usuarioNuevo->apellido,
-            (bool) $usuarioNuevo->sesion_activa,
-            (int) $usuarioNuevo->intentos_login,
-            $usuarioNuevo->ultimo_intento ? new \DateTime($usuarioNuevo->ultimo_intento) : null,
-            $usuarioNuevo->bloqueado_hasta ? new \DateTime($usuarioNuevo->bloqueado_hasta) : null,
-            $usuarioNuevo->rol
+            $usuarioNuevo->apellido
         );
     }
 
@@ -272,11 +262,10 @@ class TasService
 
             $sucursal = new Sucursal(
                 $s->id_sucursal,
-                $s->id_cadena,
+                $cadena,
                 $s->nombre,
                 $s->latitud,
-                $s->longitud,
-                $cadena
+                $s->longitud
             );
 
             $sucursales[] = $sucursal->toArray();

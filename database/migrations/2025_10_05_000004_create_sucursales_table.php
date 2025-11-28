@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('latitud', 10, 8)->nullable();
             $table->decimal('longitud', 11, 8)->nullable();
 
-            $table->primary(['id_sucursal', 'id_cadena'], 'pk_sucursales');
+            $table->primary(['id_cadena', 'id_sucursal'], 'pk_sucursales');
 
             $table->foreign('id_cadena', 'fk_sucursales_cadenas')
                 ->references('id_cadena')

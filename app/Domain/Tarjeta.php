@@ -1,37 +1,37 @@
 <?php
 
-namespace App\Services;
+namespace App\Domain;
 
 class Tarjeta
 {
-    private int $id_tarjeta;
-    private int $id_usuario;
+    private int $idTarjeta;
+    private int $idUsuario;
     private string $last4;
     private string $brand;
-    private string $fecha_exp;
+    private string $fechaExp;
 
     public function __construct(
-        int $id_tarjeta,
-        int $id_usuario,
+        int $idTarjeta,
+        int $idUsuario,
         string $last4,
         string $brand,
-        string $fecha_exp,
+        string $fechaExp,
     ) {
-        $this->id_tarjeta = $id_tarjeta;
-        $this->id_usuario = $id_usuario;
+        $this->idTarjeta = $idTarjeta;
+        $this->idUsuario = $idUsuario;
         $this->last4 = $last4;
         $this->brand = $brand;
-        $this->fecha_exp = $fecha_exp;
+        $this->fechaExp = $fechaExp;
     }
 
     public function getIdTarjeta(): int
     {
-        return $this->id_tarjeta;
+        return $this->idTarjeta;
     }
 
     public function getIdUsuario(): int
     {
-        return $this->id_usuario;
+        return $this->idUsuario;
     }
 
     public function getLast4(): string
@@ -46,17 +46,17 @@ class Tarjeta
 
     public function getFechaExp(): string
     {
-        return $this->fecha_exp;
+        return $this->fechaExp;
     }
 
-    public function setIdTarjeta(int $id_tarjeta): void
+    public function setIdTarjeta(int $idTarjeta): void
     {
-        $this->id_tarjeta = $id_tarjeta;
+        $this->idTarjeta = $idTarjeta;
     }
 
-    public function setIdUsuario(int $id_usuario): void
+    public function setIdUsuario(int $idUsuario): void
     {
-        $this->id_usuario = $id_usuario;
+        $this->idUsuario = $idUsuario;
     }
 
     public function setLast4(string $last4): void
@@ -69,8 +69,8 @@ class Tarjeta
         $this->brand = $brand;
     }
 
-    public function setFechaExp(string $fecha_exp): void
+    public function setFechaExp(string $fechaExp): void
     {
-        $this->fecha_exp = $fecha_exp;
+        $this->fechaExp = $fechaExp;
     }
 }

@@ -1,15 +1,15 @@
 <?php
-namespace App\Services;
+namespace App\Domain;
 
 use DateTime;
 
 class Usuario
 {
-    private int $id;
-    private string $correo;
-    private string $nip;
+    private int $idUsuario;
     private string $nombre;
     private string $apellido;
+    private string $correo;
+    private string $nip;
     private bool $sesionActiva;
     private int $intentosLogin;
     private ?DateTime $ultimoIntento;
@@ -17,42 +17,27 @@ class Usuario
     private string $rol;
 
     public function __construct(
-        int $id,
-        string $correo,
-        string $nip,
+        int $idUsuario,
         string $nombre,
         string $apellido,
-        bool $sesionActiva = false,
-        int $intentosLogin = 0,
-        ?DateTime $ultimoIntento = null,
-        ?DateTime $bloqueadoHasta = null,
-        string $rol = ''
+        string $correo,
+        string $nip
     ) {
-        $this->id = $id;
-        $this->correo = $correo;
-        $this->nip = $nip;
+        $this->idUsuario = $idUsuario;
         $this->nombre = $nombre;
         $this->apellido = $apellido;
-        $this->sesionActiva = $sesionActiva;
-        $this->intentosLogin = $intentosLogin;
-        $this->ultimoIntento = $ultimoIntento;
-        $this->bloqueadoHasta = $bloqueadoHasta;
-        $this->rol = $rol;
+        $this->correo = $correo;
+        $this->nip = $nip;
+        $this->sesionActiva = false;
+        $this->intentosLogin = 0;
+        $this->ultimoIntento = null;
+        $this->bloqueadoHasta = null;
+        $this->rol = '';
     }
 
     public function getId(): int
     {
-        return $this->id;
-    }
-
-    public function getCorreo(): string
-    {
-        return $this->correo;
-    }
-
-    public function getNip(): string
-    {
-        return $this->nip;
+        return $this->idUsuario;
     }
 
     public function getNombre(): string
@@ -63,6 +48,16 @@ class Usuario
     public function getApellido(): string
     {
         return $this->apellido;
+    }
+
+    public function getCorreo(): string
+    {
+        return $this->correo;
+    }
+
+    public function getNip(): string
+    {
+        return $this->nip;
     }
 
     public function isSesionActiva(): bool
@@ -92,10 +87,6 @@ class Usuario
         $this->correo = $correo;
     }
 
-    public function setNip(string $nip): void
-    {
-        $this->nip = $nip;
-    }
 
     public function setNombre(string $nombre): void
     {
@@ -105,6 +96,11 @@ class Usuario
     public function setApellido(string $apellido): void
     {
         $this->apellido = $apellido;
+    }
+
+    public function setNip(string $nip): void
+    {
+        $this->nip = $nip;
     }
 
     public function setSesionActiva(bool $sesionActiva): void

@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Models\BranchModel;
+use App\Models\SucursalModel;
 use App\Models\TarjetaModel;
 use App\Models\UsuarioModel;
 use App\Services\Usuario;
@@ -118,8 +118,8 @@ class TasRepository
     public function obtenerSucursales()
     {
         try {
-            return BranchModel::with('cadena:id_cadena,nombre')
-                ->select('id_sucursal', 'id_cadena', 'nombre', 'latitud', 'longitud')
+            return SucursalModel::with('cadena:id_cadena,nombre')
+                ->select('id_cadena', 'id_sucursal', 'nombre', 'latitud', 'longitud')
                 ->get();
         } catch (\Exception $e) {
             return null;
