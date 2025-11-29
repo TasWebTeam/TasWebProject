@@ -2,6 +2,7 @@
 
 namespace App\Domain;
 use App\repositories\ConsultarRepository;
+use App\Repositories\ActualizarRepository;
 class Sucursal
 {
     private int $idSucursal;
@@ -36,19 +37,22 @@ class Sucursal
         $hayStock = $inv->verificarStock();
         $stockExistente = 0;
         $cantObtenida = 0;
-
+        $cadena = $this->getCadena();
+        $actualizarRepository = new ActualizarRepository();
+        $actualizarRepository->beginTransaction();
         if ($hayStock) {
             $stockExistente = $inv->obtenerStock();
-
             if ($stockExistente >= $cant) {
                 $inv->descontarMedicamento($cant);
-                $cantObtenida = $cant;
+                $cantObtenida = $cant;     
             } else {
                 $inv->descontarMedicamento($stockExistente);
                 $cantObtenida = $stockExistente;
             }
+            $idSucursal = $this->getIdSucursal();
+            $actualizarRepository->actualizarInventario($cadena, $idSucursal, $inv);
         }
-
+        $actualizarRepository->commitTransaction();
         return $cantObtenida;
     }
 

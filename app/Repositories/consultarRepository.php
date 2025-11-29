@@ -40,7 +40,7 @@ class ConsultarRepository
             $cadenaModel->nombre
         );
     }
-
+    
     public function recuperarSucursal($nombreSucursal, Cadena $cad){
         $sucursalModel = SucursalModel::with('cadena')
             ->where('nombre', $nombreSucursal)
@@ -245,71 +245,71 @@ class ConsultarRepository
         );
    }
 
-   public function buscarSucursalesCandidatas(
+    public function buscarSucursalesCandidatas(
         Sucursal $sucursalOrigen,
         Medicamento $medicamento,
         int $cantidadRequerida,
         int $limite = 20,
-        float $radioKm = 20.0   // radio aproximado de búsqueda
+        float $radioKm = 20.0
     ): array {
-        $idCadenaOrigen = $sucursalOrigen->getCadena()->getIdCadena();
-        $idMed          = $medicamento->getIdMedicamento();
+        $idMed = $medicamento->getIdMedicamento();
 
         $lat0 = $sucursalOrigen->getLatitud();
         $lon0 = $sucursalOrigen->getLongitud();
 
-        // ====== 1) BOUNDING BOX (filtro geográfico aproximado) ======
-        // 1° lat ~ 111 km
-        $deltaLat = $radioKm / 111.0;
+        $table = (new SucursalModel())->getTable(); // 'sucursales'
 
-        // 1° lon ~ 111 * cos(lat) km
-        $deltaLon = $radioKm / (111.0 * cos(deg2rad($lat0)));
+        // 1) Bounding box
+        $deltaLat = $radioKm / 111.0;
+        $deltaLon = $radioKm / (111.0 * max(cos(deg2rad($lat0)), 0.00001));
 
         $latMin = $lat0 - $deltaLat;
         $latMax = $lat0 + $deltaLat;
         $lonMin = $lon0 - $deltaLon;
         $lonMax = $lon0 + $deltaLon;
 
-        // ====== 2) Fórmula Haversine en SQL (distancia en km) ======
+        // 2) Haversine
         $haversine = "
             6371 * 2 * ASIN(
                 SQRT(
-                    POWER(SIN(RADIANS(sucursales.latitud - ?) / 2), 2) +
-                    COS(RADIANS(?)) * COS(RADIANS(sucursales.latitud)) *
-                    POWER(SIN(RADIANS(sucursales.longitud - ?) / 2), 2)
+                    POWER(SIN(RADIANS($table.latitud - ?) / 2), 2) +
+                    COS(RADIANS(?)) * COS(RADIANS($table.latitud)) *
+                    POWER(SIN(RADIANS($table.longitud - ?) / 2), 2)
                 )
             )
         ";
 
-        // ====== 3) Consulta: cadena + bounding box + tiene medicamento + stock > 0 ======
-        $sucursalesModel = SucursalModel::with('cadena')
-            ->select('sucursales.*')
+        // 3) Consulta
+        $query = SucursalModel::with('cadena')
+            ->select("$table.*")
             ->selectRaw("$haversine AS distancia", [$lat0, $lat0, $lon0])
-            ->where('id_cadena', $idCadenaOrigen)
-            ->whereBetween('latitud', [$latMin, $latMax])
-            ->whereBetween('longitud', [$lonMin, $lonMax])
-            ->whereHas('medications', function ($q) use ($idMed /*, $cantidadRequerida*/) {
-                $q->where('medicamentos.id_medicamento', $idMed)
-                ->wherePivot('stock_actual', '>', 0);
-                // Si quieres que pueda surtir TODO:
-                // ->wherePivot('stock_actual', '>=', $cantidadRequerida);
+            ->whereBetween("$table.latitud",  [$latMin, $latMax])
+            ->whereBetween("$table.longitud", [$lonMin, $lonMax])
+            ->whereHas('inventarios', function ($q) use ($idMed) {
+                $q->where('inventarios.id_medicamento', $idMed)
+                ->where('inventarios.stock_actual', '>', 0);
             })
-            ->orderBy('distancia', 'asc') // las más cercanas primero
-            ->limit($limite)              // y solo las N más cercanas
-            ->get();
+            ->orderBy('distancia', 'asc')
+            ->limit($limite);
 
-        // ====== 4) Transformar a dominio ======
+        // dd($query->toSql(), $query->getBindings());
+
+        $sucursalesModel = $query->get();
+
+        // 4) Transformar a dominio
         $resultado = [];
 
         foreach ($sucursalesModel as $sucModel) {
-            // evitar la misma sucursal origen si no quieres re-usarla
-            if ($sucModel->id_sucursal === $sucursalOrigen->getIdSucursal()) {
+            $mismaSucursal = $sucModel->id_sucursal === $sucursalOrigen->getIdSucursal()
+            && $sucModel->id_cadena   === $sucursalOrigen->getCadena()->getIdCadena();
+
+            if ($mismaSucursal) {
                 continue;
             }
 
             $resultado[] = $this->transformarSucursalModelADomain($sucModel);
         }
-
         return $resultado;
     }
+
 }

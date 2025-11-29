@@ -14,6 +14,16 @@
         </div>
 
         <x-formulario_escribir_receta />
+        
+        <!-- TESTING -->
+        <form method="POST" action="{{ route('TESTING') }}">   
+                @csrf
+                <div class="text-center mt-4">
+            <button type="submit" class="btn btn-submit">
+                <i class="fas fa-paper-plane me-2"></i>Enviar receta
+            </button>
+        </div>
+        </form>
 
         <div class="text-center mt-4">
             <button type="submit" class="btn btn-submit">

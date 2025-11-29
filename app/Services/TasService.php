@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-
 use App\Repositories\TasRepository;
 use App\Domain\Usuario;
 use App\Domain\Sucursal;
@@ -231,7 +230,6 @@ class TasService
         $usuario->iniciarSesion();
         $usuario->reiniciarIntentosLogin();
         $this->actualizarSesion($usuario);
-
         return $usuario;
     }
 

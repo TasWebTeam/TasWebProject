@@ -1,0 +1,31 @@
+.servicio-section {
+    margin-bottom: 3rem;
+}
+
+.faq-card, .contact-card, .retiro-card {
+    background: #f8fafc;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.faq-card:hover, .contact-card:hover, .retiro-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+.contacto-list li {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.servicio-section h2 {
+    font-size: 1.8rem;
+    color: #003865;
+}
+
+.retiro-card ul {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+    font-size: 1rem;
+}

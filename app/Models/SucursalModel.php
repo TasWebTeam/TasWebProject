@@ -17,7 +17,16 @@ class SucursalModel extends Model
         return $this->belongsTo(CadenaModel::class, 'id_cadena', 'id_cadena');
     }
 
-    public function medications()
+    public function inventarios()
+    {
+        return $this->hasMany(
+            InventarioModel::class,
+            'id_sucursal',
+            'id_sucursal'
+        )->whereColumn('inventarios.id_cadena', 'sucursales.id_cadena');
+    }
+
+    /*public function medications()
     {
         return $this->belongsToMany(
             MedicamentoModel::class,
@@ -25,5 +34,5 @@ class SucursalModel extends Model
             'id_sucursal',
             'id_medicamento'
         )->withPivot('stock_actual', 'stock_minimo', 'stock_maximo');
-    }
+    }*/
 }

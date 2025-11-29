@@ -105,12 +105,87 @@ class Receta
             // $this->sucursal->procesar($this->sucursal, $t);
             $detalle->procesar($this->sucursal, $sucursalService);
         }
+        $this->pago->validarPago($numTarjeta);
+        $this->calcularFecha();
         // lógica de dominio pendiente
     }
 
     public function calcularFecha(): void
     {
+            // 1) Fecha de registro = ahora
+        $fechaRegistro = new DateTime();
+        $this->setFechaRegistro($fechaRegistro);
+
+        // ===============================
+        // 2) Calcular tiempo estimado
+        // ===============================
+
+        $tiempoMinutos = 0;
+
+        // Tiempo base por validaciones, captura, etc.
+        $tiempoMinutos += 10; // puedes ajustar
+
+        $sucursalesInvolucradas = [];
+
+        // Recorrer detalles y sus líneas de surtido
+        foreach ($this->detallesReceta as $detalle) {
+            foreach ($detalle->getLineasSurtido() as $linea) {
+
+                // 2.1 Tiempo por cada línea de surtido
+                $tiempoMinutos += 5; // ej. 5 min por línea
+
+                // 2.2 Registrar sucursal involucrada
+                $sucursal = $linea->getSucursal();
+                $idSuc    = $sucursal->getIdSucursal();
+
+                $sucursalesInvolucradas[$idSuc] = true;
+            }
+        }
+
+        // 2.3 Tiempo por cada sucursal diferente que participa
+        $tiempoPorSucursal = 30; // ej. 30 min por traslados / coordinación
+        $tiempoMinutos += count($sucursalesInvolucradas) * $tiempoPorSucursal;
+
+        // Crear fecha de recolección sumando el tiempo estimado
+        $fechaRecoleccion = (clone $fechaRegistro)->modify("+{$tiempoMinutos} minutes");
+
+        // ============================================
+        // 3) Ajustar a horario laboral (9:00 - 20:00)
+        // ============================================
+
+        $fechaRecoleccion = $this->ajustarAHorarioLaboral($fechaRecoleccion, 9, 20);
+
+        $this->setFechaRecoleccion($fechaRecoleccion);
         // lógica de dominio pendiente
+    }
+    private function ajustarAHorarioLaboral(DateTime $fecha, int $horaInicio = 9, int $horaFin = 20): DateTime
+    {
+                    /**
+         * Ajusta una fecha al horario laboral:
+         * - Si cae antes de la hora de apertura, la mueve a la hora de apertura.
+         * - Si cae después del cierre, la mueve al siguiente día a la hora de apertura.
+         */
+        // Clonamos por seguridad (por si no quieres mutar el original)
+        $ajustada = clone $fecha;
+
+        $hora   = (int)$ajustada->format('H');
+        $minuto = (int)$ajustada->format('i');
+
+        // Caso 1: antes de abrir
+        if ($hora < $horaInicio) {
+            $ajustada->setTime($horaInicio, 0);
+            return $ajustada;
+        }
+
+        // Caso 2: después de cerrar (o exactamente a la hora de cierre pero con minutos > 0)
+        if ($hora > $horaFin || ($hora === $horaFin && $minuto > 0)) {
+            // Pasar al siguiente día a la hora de apertura
+            $ajustada->modify('+1 day')->setTime($horaInicio, 0);
+            return $ajustada;
+        }
+
+        // Caso 3: dentro del horario → se respeta la hora calculada
+        return $ajustada;
     }
 
     public function devolverMedicamentos(): void

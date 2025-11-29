@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\TasService;
-use App\Services\Usuario;
+use App\Domain\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 

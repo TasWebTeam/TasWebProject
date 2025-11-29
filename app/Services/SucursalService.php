@@ -60,10 +60,10 @@ class SucursalService
         if (empty($candidatas)) {
             return null;
         }
-
+        
         $latO = $sucursalOrigen->getLatitud();
         $lonO = $sucursalOrigen->getLongitud();
-
+        
         // 2) Afinar con OSM sobre las N más cercanas
         $topCandidatas = array_slice($candidatas, 0, $this->maxCandidatosOSM);
 

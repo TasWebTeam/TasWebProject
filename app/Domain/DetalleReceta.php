@@ -41,7 +41,7 @@ class DetalleReceta
                 $cantidadRequerida,
                 $this->medicamento
             );
-
+            // cantObtenida -> 3
             if ($cantObtenida > 0) {
                 $linea = new LineaSurtido(
                     $sucursalActual,
@@ -58,7 +58,7 @@ class DetalleReceta
             }
 
             $siguienteSucursal = $sucursalService->obtenerSucursalMasCercanaConStock(
-                $sucursalActual,
+                $sucursal,
                 $this->medicamento,
                 $cantidadRequerida
             );
@@ -69,6 +69,7 @@ class DetalleReceta
                 $sucursalActual = $siguienteSucursal;
             }
         }
+        dd($this->getLineasSurtido());
     }
 
     public function abastecer(): void{

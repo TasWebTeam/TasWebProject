@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\TasController;
+use App\Http\Controllers\ProcesarRecetaController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [TasController::class, 'tas_inicioView'])->name('tas_inicioView');
@@ -32,3 +33,10 @@ Route::post('/metodo-pago/actualizar', [TasController::class, 'tas_actualizarTar
 Route::post('/logout', [TasController::class, 'logout'])
     ->middleware('verificar.sesion')
     ->name('logout');
+
+    
+Route::post('/TESTING', [ProcesarRecetaController::class, 'TESTING'])
+    ->name('TESTING');
+
+Route::view('/acerca', 'tas.acerca')->name('acerca');
+Route::view('/servicio', 'tas.servicio')->name('servicio');

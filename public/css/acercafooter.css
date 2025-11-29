@@ -1,0 +1,32 @@
+.acerca-section {
+    margin-bottom: 3rem;
+}
+
+.acerca-card {
+    background: #f8fafc;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.acerca-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+.acerca-section h2 {
+    font-size: 1.8rem;
+    color: #003865;
+}
+
+.acerca-card ul {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+    font-size: 1rem;
+}
+
+.acerca-card p {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: #333;
+}

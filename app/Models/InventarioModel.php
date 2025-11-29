@@ -13,7 +13,7 @@ class InventarioModel extends Model
     protected $primaryKey = null;
 
     public function medicamento(){
-        return $this->belongsTo(MedicamentoModel::class, 'id_medicamento');
+        return $this->belongsTo(MedicamentoModel::class, 'id_medicamento', 'id_medicamento');
     }
 
     public function sucursal(){
