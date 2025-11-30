@@ -23,4 +23,14 @@ class RecetaModel extends Model
     {
         return $this->hasMany(DetalleRecetaModel::class, 'id_receta', 'id_receta');
     }
+
+    public function usuario()
+    {
+        return $this->belongsTo(UsuarioModel::class, 'id_usuario', 'id_usuario');
+    }
+
+    public function sucursalDestino()
+    {
+        return $this->belongsTo(SucursalModel::class, 'id_sucursalDestino', 'id_sucursal');
+    }
 }

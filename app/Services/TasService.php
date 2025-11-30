@@ -237,19 +237,35 @@ class TasService
         $usuario->reiniciarIntentosLogin();
         $this->actualizarSesion($usuario);
 
-        // Guardar en sesión
-        session([
-            'usuario' => [
-                'id'       => $usuario->getId(),
-                'correo'   => $usuario->getCorreo(),
-                'nombre'   => $usuario->getNombre(),
-                'apellido' => $usuario->getApellido(),
-                'rol'      => $usuario->getRol(),
-            ]
-        ]);
+        // ----------------------------------
+        // Construimos los datos de sesión
+        // ----------------------------------
+        $sessionData = [
+            'id'       => $usuario->getId(),
+            'correo'   => $usuario->getCorreo(),
+            'nombre'   => $usuario->getNombre(),
+            'apellido' => $usuario->getApellido(),
+            'rol'      => $usuario->getRol(),
+        ];
+
+        // Si es empleado, anexamos sucursal/cadena/puesto
+        if ($usuario->getRol() === 'empleado') {
+            $empleado = $this->tasRepository->obtenerEmpleado($usuario);
+            //$empleadoModel=$this->tasRepository->obtenerEmpleadoModelPorUsuario($usuario);
+
+            if ($empleado && $empleado->getSucursal()) {
+                //AQUI josegas, voy a josear una pizza
+                $sessionData['id_sucursal'] = $empleado->getSucursal()->getIdSucursal();
+                $sessionData['id_puesto']   = $empleado->getPuesto();
+            }
+        }
+
+        // Guardamos TODO junto en ses1ión
+        session(['usuario' => $sessionData]);
 
         return $usuario;
     }
+
 
     /* ============================================================
      *  CERRAR SESIÓN

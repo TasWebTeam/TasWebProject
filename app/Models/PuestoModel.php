@@ -14,4 +14,6 @@ class PuestoModel extends Model
         'nombre',
         'descripcion'
     ];
+
+    //belongs to
 }

@@ -3,9 +3,14 @@
 namespace App\Repositories;
 
 use App\Models\SucursalModel;
+use App\Models\CadenaModel;
 use App\Models\TarjetaModel;
 use App\Models\UsuarioModel;
+use App\Models\EmpleadoModel;
 use App\Domain\Usuario;
+use App\Domain\Empleado;
+use App\Domain\Sucursal;
+use App\Domain\Cadena;
 use Illuminate\Support\Facades\DB;
 
 class TasRepository
@@ -102,7 +107,6 @@ class TasRepository
     {
         try {
             $usuarioModel = UsuarioModel::find($usuario->getId());
-
             $usuarioModel->sesion_activa = $usuario->isSesionActiva();
             $usuarioModel->intentos_login = $usuario->getIntentosLogin();
             $usuarioModel->ultimo_intento = $usuario->getUltimoIntento()?->format('Y-m-d H:i:s');
@@ -124,4 +128,92 @@ class TasRepository
             return null;
         }
     }
+
+    /*public function obtenerEmpleado($usuario){
+        try{
+            return EmpleadoModel::where('id_usuario', $usuario->getId())->first();
+        } catch(\Exception $e){
+            return null;
+        }
+    }*/
+
+    public function obtenerEmpleado(Usuario $usuario): ?Empleado
+{
+    try {
+        // Traemos también el puesto (relación en EmpleadoModel)
+        $empleadoModel = EmpleadoModel::with('puesto')
+            ->where('id_usuario', $usuario->getId())
+            ->first();
+
+        if (!$empleadoModel) {
+            return null;
+        }
+
+        // Construimos el dominio Empleado a partir del Usuario + puesto
+        $empleado = new Empleado(
+            $usuario->getId(),
+            $usuario->getNombre(),
+            $usuario->getApellido(),
+            $usuario->getCorreo(),
+            $usuario->getNip(),
+            $empleadoModel->puesto ? $empleadoModel->puesto->nombre : '',
+            $this->obtenerSucursal($empleadoModel->id_sucursal)
+        );
+
+        // Copiamos el estado de sesión & bloqueo desde el Usuario
+        $empleado->setSesionActiva($usuario->isSesionActiva());
+        $empleado->setIntentosLogin($usuario->getIntentosLogin());
+        $empleado->setUltimoIntento($usuario->getUltimoIntento());
+        $empleado->setBloqueadoHasta($usuario->getBloqueadoHasta());
+        $empleado->setRol($usuario->getRol());
+
+        return $empleado;
+
+        }catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    private function obtenerSucursal(int $idSucursal) {
+        $sucursalEloquent = SucursalModel::with('cadena')->find($idSucursal);
+
+        if (!$sucursalEloquent) {
+            return null;
+        }
+
+        $sucursalDomain = new Sucursal(
+            $sucursalEloquent->id_sucursal,
+            $this->obtenerCadena($sucursalEloquent->id_cadena),
+            $sucursalEloquent->nombre,
+            $sucursalEloquent->latitud,
+            $sucursalEloquent->longitud,
+        );
+
+        return $sucursalDomain;
+    }
+
+    private function obtenerCadena(int $idCadena){
+        $cadenaEloquent = CadenaModel::with('cadena')->find($idCadena);
+
+        if (!$cadenaEloquent) {
+            return null;
+        }
+        $cadenaDomain = new Cadena(
+            $cadenaEloquent->id_cadena,
+            $cadenaEloquent->nombre
+        );
+
+        return $cadenaDomain;
+    }
+
+
+
+
+
+
+
+
+
+
+
 }

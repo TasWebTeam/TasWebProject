@@ -26,6 +26,14 @@ class SucursalModel extends Model
         )->whereColumn('inventarios.id_cadena', 'sucursales.id_cadena');
     }
 
+    public function recetas(){
+        //return $this->hasMany();
+    }
+
+    public function empleados(){
+
+    }
+
     /*public function medications()
     {
         return $this->belongsToMany(

@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\TasController;
 use App\Http\Controllers\ProcesarRecetaController;
-use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\GestionarRecetaController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [TasController::class, 'tas_inicioView'])->name('tas_inicioView');
@@ -44,10 +44,10 @@ Route::view('/servicio', 'tas.servicio')->name('servicio');
 
 Route::middleware(['verificar.sesion', 'solo.empleado'])->group(function () {
 
-    Route::get('/empleado/recetas', [EmpleadoController::class, 'recetas'])
+    Route::get('/empleado/recetas', [GestionarRecetaController::class, 'recetas'])
         ->name('empleado_recetas');
 
-    Route::get('/empleado/recetas-expiradas', [EmpleadoController::class, 'recetasExpiradas'])
+    Route::get('/empleado/recetas-expiradas', [GestionarRecetaController::class, 'recetasExpiradas'])
         ->name('empleado_recetas_expiradas');
 });
 
