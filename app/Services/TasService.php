@@ -284,4 +284,57 @@ class TasService
 
         return $sucursales;
     }
+    public function buscarMedicamentos(string $query): array
+    {
+        $modelos = $this->tasRepository->buscarMedicamentosPorNombre($query);
+
+        if (!$modelos || $modelos->isEmpty()) {
+            return [];
+        }
+
+        $medicamentos = [];
+
+        foreach ($modelos as $m) {
+            $url = $m->imagen 
+                ? asset($m->imagen->URL) 
+                : asset('images/medicamentos/default.png');
+
+            $medicamento = new Medicamento(
+                $m->id_medicamento,
+                $m->idImagen,
+                $m->nombre,
+                $m->especificacion,
+                $m->laboratorio,
+                $m->es_controlado,
+                $url
+            );
+
+            $medicamentos[] = $medicamento->toArray();
+        }
+
+        return $medicamentos;
+    }
+
+    public function obtenerMedicamentos(int $idMedicamento): ?Medicamento
+    {
+        $modelo = $this->tasRepository->obtenerMedicamentoPorId($idMedicamento);
+
+        if (!$modelo) {
+            return null;
+        }
+
+        $url = $modelo->imagen 
+            ? asset($modelo->imagen->URL) 
+            : asset('images/medicamentos/default.png');
+
+        return new Medicamento(
+            $modelo->id_medicamento,
+            $modelo->idImagen,
+            $modelo->nombre,
+            $modelo->especificacion,
+            $modelo->laboratorio,
+            $modelo->es_controlado,
+            $url
+        );
+    }
 }

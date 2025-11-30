@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ImagenMedicamentoModel   ;
 
 class MedicationModel extends Model
 {
@@ -13,5 +14,9 @@ class MedicationModel extends Model
     public function prescriptions()
     {
         return $this->hasMany(PrescriptionMedicationModel::class, 'id_medicamento', 'id_medicamento');
+    }
+        public function imagen()
+    {
+        return $this->belongsTo(ImagenMedicamentoModel::class, 'idImagen', 'idImagen');
     }
 }

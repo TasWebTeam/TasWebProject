@@ -14,19 +14,14 @@
         </div>
 
         <x-formulario_escribir_receta />
-
-        <div class="text-center mt-4">
-            <button type="submit" class="btn btn-submit">
-                <i class="fas fa-paper-plane me-2"></i>Enviar receta
-            </button>
-        </div>
     </div>
 
-    <div class="card-footer text-center formulario-receta-footer">
-        <span class="step-badge">
-            <i class="fas fa-check-circle me-2"></i>Paso 2 de 3
-        </span>
-    </div>
+    <div class="card-footer formulario-receta-footer d-flex justify-content-center">
+    <span class="step-badge">
+        <i class="fas fa-check-circle me-2"></i>Paso 2 de 3
+    </span>
+</div>
+
 </div>
 
 @push('styles')

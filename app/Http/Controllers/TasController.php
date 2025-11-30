@@ -84,7 +84,7 @@ class TasController extends Controller
             ],
         ]);
 
-        return redirect()->route('tas_inicioView')->with('success', 'Bienvenido '.$usuario->getNombre());
+        return redirect()->route('tas_inicioView')->with('success', 'Bienvenido ' . $usuario->getNombre());
     }
 
     private function validarDatosCliente(Request $request)
@@ -284,5 +284,23 @@ class TasController extends Controller
         session()->flush();
 
         return redirect()->route('tas_loginView');
+    }
+    public function buscarMedicamentos(Request $request)
+    {
+        $query = $request->input('nombre_medicamento');
+
+        if (!$query || strlen($query) < 3) {
+            return response()->json([]);
+        }
+
+        $medicamentos = $this->tasService->buscarMedicamentos($query);
+
+        return response()->json($medicamentos);
+    }
+    public function obtenerSucursales()
+    {
+        $sucursales = $this->tasService->obtenerSucursales();
+
+        return response()->json($sucursales);
     }
 }

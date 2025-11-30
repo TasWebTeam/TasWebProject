@@ -44,9 +44,7 @@
 @endpush
 
 @push('scripts')
-<script> window.SUCURSALES = @json($sucursales); </script>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://kit.fontawesome.com/a2d9b2dfb1.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ asset('js/mapa-farmacias.js') }}"></script>
 @endpush

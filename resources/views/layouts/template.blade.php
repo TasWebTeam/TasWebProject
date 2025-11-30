@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'TAS')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/navbar-styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-sV..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @stack('styles')
 </head>
-
-<body>
+<body data-authenticated="{{ session()->has('usuario') ? 'true' : 'false' }}">
     <nav class="navbar navbar-expand-lg navbar-custom navbar-dark fixed-top">
         <div class="container-fluid px-4 px-lg-5">
             <a class="navbar-brand fw-bold text-white d-flex align-items-center" href="{{ route('tas_inicioView') }}">
@@ -21,7 +21,6 @@
                 aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
             <div class="collapse navbar-collapse" id="navbarMenu">
                 <ul class="navbar-nav mx-auto justify-content-center mb-2 mb-lg-0">
                     <li class="nav-item">
@@ -30,7 +29,6 @@
                             Inicio
                         </a>
                     </li>
-
                     <li class="nav-item">
                         <a class="nav-link text-white fs-5 {{ request()->routeIs('tas_subir') ? 'active' : '' }}"
                             href="{{ route('tas_subirRecetaView') }}">
@@ -56,7 +54,6 @@
                                 </li>
                             </ul>
                         </div>
-
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                             @csrf
                         </form>
@@ -72,5 +69,9 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @stack('scripts')
+    
+    @if(session()->has('usuario'))
+        <script src="{{ asset('js/gestor-sesiones-script.js') }}"></script>
+    @endif
 </body>
 </html>

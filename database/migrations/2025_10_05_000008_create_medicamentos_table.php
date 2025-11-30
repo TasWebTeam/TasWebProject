@@ -10,10 +10,15 @@ return new class extends Migration
     {
         Schema::create('medicamentos', function (Blueprint $table) {
             $table->id('id_medicamento');
+            $table->unsignedBigInteger('idImagen');
             $table->string('nombre', 50);
             $table->string('especificacion', 255);
             $table->string('laboratorio', 50);
             $table->boolean('es_controlado')->default(false);
+
+            $table->foreign('idImagen')
+                ->references('idImagen')
+                ->on('imagenes_medicamentos');
         });
     }
     public function down(): void

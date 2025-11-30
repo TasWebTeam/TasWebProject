@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\BranchModel;
+use App\Models\MedicationModel; 
 use App\Models\TarjetaModel;
 use App\Models\UsuarioModel;
 use App\Services\Usuario;
@@ -58,8 +59,9 @@ class TasRepository
         }
     }
 
-    public function obtenerTarjetaPorUsuario($idUsuario){
-         try {
+    public function obtenerTarjetaPorUsuario($idUsuario)
+    {
+        try {
             return TarjetaModel::where('id_usuario', $idUsuario)
                 ->first();
         } catch (\Exception $e) {
@@ -68,25 +70,24 @@ class TasRepository
     }
 
     public function actualizarTarjeta($idUsuario, $last4, $brand, $fechaExp)
-{
-    try {
-        $tarjeta = TarjetaModel::where('id_usuario', $idUsuario)->first();
-        
-        if (!$tarjeta) {
+    {
+        try {
+            $tarjeta = TarjetaModel::where('id_usuario', $idUsuario)->first();
+            
+            if (!$tarjeta) {
+                return null;
+            }
+
+            $tarjeta->last4 = $last4;
+            $tarjeta->brand = $brand;
+            $tarjeta->fecha_exp = $fechaExp;
+            $tarjeta->save();
+
+            return $tarjeta;
+        } catch (\Exception $e) {
             return null;
         }
-
-        $tarjeta->last4 = $last4;
-        $tarjeta->brand = $brand;
-        $tarjeta->fecha_exp = $fechaExp;
-        $tarjeta->save();
-
-        return $tarjeta;
-    } catch (\Exception $e) {
-        return null;
     }
-}
-
 
     public function buscarUsuarioPorCorreo(string $correo)
     {
@@ -121,6 +122,27 @@ class TasRepository
             return BranchModel::with('cadena:id_cadena,nombre')
                 ->select('id_sucursal', 'id_cadena', 'nombre', 'latitud', 'longitud')
                 ->get();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    public function buscarMedicamentosPorNombre(string $query, int $limit = 10)
+    {
+        try {
+            return MedicationModel::with('imagen')
+                ->where('nombre', 'LIKE', "{$query}%")
+                ->limit($limit)
+                ->get();  
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    public function obtenerMedicamentoPorId(int $idMedicamento)  
+    {
+        try {
+            return MedicationModel::with('imagen')->find($idMedicamento);
         } catch (\Exception $e) {
             return null;
         }
