@@ -248,19 +248,17 @@ class TasService
             'rol'      => $usuario->getRol(),
         ];
 
-        // Si es empleado, anexamos sucursal/cadena/puesto
         if ($usuario->getRol() === 'empleado') {
             $empleado = $this->tasRepository->obtenerEmpleado($usuario);
-            //$empleadoModel=$this->tasRepository->obtenerEmpleadoModelPorUsuario($usuario);
-
-            if ($empleado && $empleado->getSucursal()) {
-                //AQUI josegas, voy a josear una pizza
+            if ($empleado) {
                 $sessionData['id_sucursal'] = $empleado->getSucursal()->getIdSucursal();
+                $sessionData['id_cadena']=$empleado->getSucursal()->getCadena()->getIdCadena();
+                $sessionData['nombre_sucursal']=$empleado->getSucursal()->getNombre();
+                $sessionData['nombre_cadena']=$empleado->getSucursal()->getCadena()->getNombre();
                 $sessionData['id_puesto']   = $empleado->getPuesto();
             }
         }
 
-        // Guardamos TODO junto en ses1ión
         session(['usuario' => $sessionData]);
 
         return $usuario;

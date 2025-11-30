@@ -7,10 +7,12 @@ use App\Models\CadenaModel;
 use App\Models\TarjetaModel;
 use App\Models\UsuarioModel;
 use App\Models\EmpleadoModel;
+use App\Models\PuestoModel;
 use App\Domain\Usuario;
 use App\Domain\Empleado;
 use App\Domain\Sucursal;
 use App\Domain\Cadena;
+use App\Domain\Puesto;
 use Illuminate\Support\Facades\DB;
 
 class TasRepository
@@ -146,6 +148,7 @@ class TasRepository
             ->first();
 
         if (!$empleadoModel) {
+            dd("no encontre nada");
             return null;
         }
 
@@ -156,7 +159,7 @@ class TasRepository
             $usuario->getApellido(),
             $usuario->getCorreo(),
             $usuario->getNip(),
-            $empleadoModel->puesto ? $empleadoModel->puesto->nombre : '',
+            $this->obtenerPuesto($empleadoModel->id_puesto),
             $this->obtenerSucursal($empleadoModel->id_sucursal)
         );
 
@@ -192,8 +195,8 @@ class TasRepository
         return $sucursalDomain;
     }
 
-    private function obtenerCadena(int $idCadena){
-        $cadenaEloquent = CadenaModel::with('cadena')->find($idCadena);
+    private function obtenerCadena(string $idCadena){
+        $cadenaEloquent = CadenaModel::find($idCadena);
 
         if (!$cadenaEloquent) {
             return null;
@@ -204,6 +207,21 @@ class TasRepository
         );
 
         return $cadenaDomain;
+    }
+
+    private function obtenerPuesto(string $idPuesto){
+        $puestoEloquent = PuestoModel::find($idPuesto);
+
+        if (!$puestoEloquent) {
+            return null;
+        }
+        $puestoDomain = new Puesto(
+            $puestoEloquent->id_puesto,
+            $puestoEloquent->nombre,
+            $puestoEloquent->descripcion
+        );
+
+        return $puestoDomain;
     }
 
 

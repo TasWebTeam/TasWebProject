@@ -22,4 +22,9 @@ class UsuarioModel extends Model
     protected $hidden = ['nip'];
 
     public $timestamps = false;
+
+    public function recetas()
+    {
+        return $this->hasMany(RecetaModel::class, 'id_receta', 'id_receta');
+    }
 }

@@ -3,7 +3,7 @@
 namespace App\Domain;
 
 class Empleado extends Usuario{
-    private int $puesto;
+    private Puesto $puesto;
     private ?Sucursal $sucursal;
 
     public function __construct(
@@ -12,7 +12,7 @@ class Empleado extends Usuario{
         string $apellido,
         string $correo,
         string $nip,
-        int $puesto,
+        Puesto $puesto,
         ?Sucursal $sucursal = null
     ){
         parent::__construct($idUsuario, $nombre, $apellido, $correo, $nip);
@@ -21,12 +21,12 @@ class Empleado extends Usuario{
         $this->setRol('Empleado');
     }
 
-    public function getPuesto(): int
+    public function getPuesto(): Puesto
     {
         return $this->puesto;
     }
 
-    public function setPuesto(int $puesto): void
+    public function setPuesto(Puesto $puesto): void
     {
         $this->puesto = $puesto;
     }

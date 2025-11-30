@@ -10,13 +10,16 @@ class Receta
 {
     // --------- Atributos ---------
     private int $idReceta;
-    private Sucursal $sucursal;
+    /** Puede ser null mientras el paciente no selecciona sucursal */
+    private ?Sucursal $sucursal;
     private string $cedulaProfesional;
-    private DateTime $fechaRegistro;
-    private DateTime $fechaRecoleccion;
+    /** Pueden ser null mientras no se han definido */
+    private ?DateTime $fechaRegistro;
+    private ?DateTime $fechaRecoleccion;
     private string $estadoPedido;
     private array $detallesReceta = [];
-    private Pago $pago;
+    /** Puede ser null si aún no se ha creado el pago */
+    private ?Pago $pago;
 
     // --------- Constructor ---------
     public function __construct(
