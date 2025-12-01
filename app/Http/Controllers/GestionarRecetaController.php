@@ -54,7 +54,7 @@ class GestionarRecetaController extends Controller
     }
 
     
-    // 🔹 Marcar como entregada
+    //  Marcar como entregada
     public function marcarComoEntregada(Request $request, int $id)
     {
         $ok = $this->empleadoService->marcarComoEntregada($id);
