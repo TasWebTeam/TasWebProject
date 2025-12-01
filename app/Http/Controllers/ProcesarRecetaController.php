@@ -35,6 +35,7 @@ class ProcesarRecetaController extends Controller
         // ESTO NO VA ----
         $cadena = "Farmacias Benavides";
         $sucursal = "Pedro Anaya";
+
         $this->introducirSucursal($cadena, $sucursal);  // quitar
     }
 
@@ -46,7 +47,7 @@ class ProcesarRecetaController extends Controller
     }
 
     public function introducirCedulaProfesional(string $cedulaProfesional){
-
+        
         $this->recetaService->introducirCedulaProfesional($cedulaProfesional);
 
         // ESTO NO VA ----
@@ -56,6 +57,8 @@ class ProcesarRecetaController extends Controller
     public function introducirMedicamento(string $nombreMedicamento, int $cantidad){
 
         $this->recetaService->introducirMedicamento($nombreMedicamento, $cantidad);
+
+        $this->TESTING();
     }
 
     public function procesarReceta(int $numTarjeta){
@@ -69,7 +72,7 @@ class ProcesarRecetaController extends Controller
         $cadena1 = new Cadena("BNV", "Farmacias Benavides");
         // Sucursal
         // id - Cadena - nombre - latitud - longitud
-        $sucursal1 = new Sucursal(2, $cadena1, "Pedro Anaya", 24.82146940, -107.38997500);
+        $sucursal1 = new Sucursal(4, $cadena1, 2, "Pedro Anaya", 24.82146940, -107.38997500);
         // Pago
         $pago = new Pago();
         // Receta 1
@@ -82,12 +85,13 @@ class ProcesarRecetaController extends Controller
         
         // DetallesReceta
         $detalle1 = new DetalleReceta($medicamento1, 10, 10.0, []);
-        $detalle2 = new DetalleReceta($medicamento2, 10, 20.0, []);
+        // $detalle2 = new DetalleReceta($medicamento2, 10, 20.0, []);
 
         // Agregar a receta los detalles
         $receta1->agregarDetalleReceta($detalle1);
         //$receta1->agregarDetalleReceta($detalle2);
         // Procesarlo
         $receta1->procesarReceta("1234", $this->sucursalService);
+        dd($receta1->getDetallesReceta());
     }
 }

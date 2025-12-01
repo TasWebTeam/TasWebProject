@@ -1,7 +1,8 @@
 <?php 
 
 namespace App\Domain;
-
+use App\Repositories\ConsultarRepository;
+use App\Repositories\ActualizarRepository;
 class LineaSurtido
 {
     private Sucursal $sucursal;
@@ -54,8 +55,40 @@ class LineaSurtido
         ];
     }
 
-    public function devolverASucursal(int $cantidad): void
+    public function devolverASucursal(int $cantidad, string $nombreMedicamento): void
     {
-       
+        $consultarRepository = new ConsultarRepository();
+        $actualizarRepository = new ActualizarRepository();
+
+        // 🔹 Empezamos transacción a nivel BD
+        $actualizarRepository->beginTransaction();
+
+        try {
+            // 1) Recuperar inventario de esta sucursal + medicamento
+            $inv = $consultarRepository->recuperarInventario(
+                $this->getSucursal()->getCadena(),         // Cadena (dominio)
+                $this->getSucursal()->getIdSucursal(),     // id sucursal
+                $nombreMedicamento                         // o un id, según tu implementación
+            );
+
+            // 2) Actualizar dominio (stockActual += cantidad)
+            $inv->devolverMedicamento($cantidad);
+
+            // 3) Persistir inventario en tabla `inventarios`
+            $actualizarRepository->actualizarInventario(
+                $this->getSucursal()->getCadena(),
+                $this->getSucursal()->getIdSucursal(),
+                $inv
+            );
+
+            // 4) Confirmar transacción
+            $actualizarRepository->commitTransaction();
+
+        } catch (\Exception $e) {
+            // Si algo falla, revertir cambios
+            $actualizarRepository->rollbackTransaction();
+            // opcional: lanzar de nuevo la excepción o loguearla
+            // throw $e;
+        }
     }
 }

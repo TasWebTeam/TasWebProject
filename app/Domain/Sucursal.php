@@ -6,16 +6,16 @@ use App\Repositories\ActualizarRepository;
 class Sucursal
 {
     private int $id;
-    private int $idSucursal;
     private Cadena $cadena;
+    private int $idSucursal;
     private string $nombre;
     private float $latitud;
     private float $longitud;
 
     public function __construct(
         int $id = 0,
-        int $id_sucursal = 0,
         ?Cadena $cadena = null,
+        int $id_sucursal = 0,
         string $nombre = "",
         float $latitud = 0.0,
         float $longitud = 0.0
@@ -34,34 +34,41 @@ class Sucursal
         return $inv;
     }
 
-    public function verificarDisponibilidad(int $cant, Medicamento $med): int{
+    public function verificarDisponibilidad(int $cant, Medicamento $med, ActualizarRepository $actualizarRepository): int{
         //Nota: Modificar el diagrama de interaccion
         $inv = $this->obtenerInventario($med->getNombre());
         $stockExistente = $inv->obtenerStock();
         $cantObtenida = 0;
 
-        if ($stockExistente>0) {       // ASI SE EVITA UNA LLAMADA INNECESARIA             
-            $actualizarRepository = new ActualizarRepository();
+        if ($stockExistente>0) {                   
             if ($stockExistente >= $cant) {
                 $inv->descontarMedicamento($cant);
                 $cantObtenida = $cant;     
             } else {
                 $inv->descontarMedicamento($stockExistente);
+                
                 $cantObtenida = $stockExistente;
             }
-            $idSucursal = $this->getIdSucursal();
+            $idSucursal = $this->getId();
             $cadena = $this->getCadena();
+            // dd($idSucursal, $cadena, $inv->obtenerStock());
             $actualizarRepository->actualizarInventario($cadena, $idSucursal, $inv);
         }
         return $cantObtenida;
     }
 
-    public function devolverReceta(int $idReceta): void{
+    public function devolverReceta(int $idReceta,ConsultarRepository $consultarRepository,ActualizarRepository $actualizarRepository): void
+    {
+        //SE ELIMINARON LOS REPOS Y SE PASARON POR PARAMETROS
+        $receta = $consultarRepository->recuperarReceta($idReceta);
 
+        $receta->devolverMedicamentos(); // tu dominio actualiza estado
+
+        // 🔹 Ahora solo persistimos la receta completa:
+        $actualizarRepository->guardarReceta($receta);
     }
-
     public function confirmarRecetaNoRecogida(int $idReceta, string $estado): void{
-
+        
     }
 
     public function getId(): int {

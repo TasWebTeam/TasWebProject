@@ -53,8 +53,8 @@ class ConsultarRepository
 
         return new Sucursal(
             $sucursalModel->id,
-            $sucursalModel->id_sucursal,
             $cad,
+            $sucursalModel->id_sucursal,
             $sucursalModel->nombre,
             $sucursalModel->latitud,
             $sucursalModel->longitud
@@ -70,9 +70,8 @@ class ConsultarRepository
             ->whereHas('medicamento', function ($q) use ($nombreMedicamento) {
                 $q->where('nombre', $nombreMedicamento);
             })
-            ->lockForUpdate()
             ->firstOrFail();
-        dd($inventarioModel);
+
         return $this->transformarInventarioModelADomain($inventarioModel);
     }
     
@@ -87,6 +86,7 @@ class ConsultarRepository
         );
 
         return new InventarioSucursal(
+            $inventarioModel->id_inventario,
             $sucursalDomain,
             $medicamentoDomain,
             $inventarioModel->stock_minimo,
@@ -94,6 +94,7 @@ class ConsultarRepository
             $inventarioModel->stock_actual,
             $inventarioModel->precio_actual
         );
+
     }
 
     private function transformarMedicamentoModelADomain($medicamentoModel): Medicamento

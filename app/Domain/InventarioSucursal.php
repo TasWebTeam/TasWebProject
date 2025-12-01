@@ -2,8 +2,10 @@
 
 namespace App\Domain;
 
+
 class InventarioSucursal
 {
+    private int $idInventario;
     private Sucursal $sucursal;
     private Medicamento $medicamento;
     private int $stockMinimo;
@@ -11,9 +13,10 @@ class InventarioSucursal
     private int $stockActual;
     private float $precioActual;
 
-    public function __construct(Sucursal $sucursal, Medicamento $medicamento, int $stockMinimo, int $stockMaximo, 
+    public function __construct(int $idInventario,  $sucursal, Medicamento $medicamento, int $stockMinimo, int $stockMaximo, 
     int $stockActual, float $precioActual) 
     {
+        $this->idInventario = $idInventario;
         $this->sucursal = $sucursal;
         $this->medicamento = $medicamento;
         $this->stockMinimo = $stockMinimo;
@@ -96,6 +99,14 @@ class InventarioSucursal
             'stockActual'   => $this->stockActual,
             'precioActual'  => $this->precioActual,
         ];
+    }
+
+    public function getIdInventario(): int{
+        return $this->idInventario;
+    }
+
+    public function setIdInventario(int $idInventario): void{
+        $this->idInventario = $idInventario;
     }
 
 }

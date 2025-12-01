@@ -50,8 +50,6 @@ class RecetaService
     {
         $rec = $this->paciente->getUltimaReceta();
         $rec->introducirCedulaProfesional($cedulaProfesional);
-
-        $this->introducirMedicamento("Paracetamol", 5);
     }
 
     public function introducirMedicamento($nombreMedicamento, $cantidad){
@@ -59,6 +57,14 @@ class RecetaService
         $suc = $rec->getSucursal();
 
         $inv = $suc->obtenerInventario($nombreMedicamento);
+        
+        $med = $inv->obtenerMedicamento();
+        $precio = $inv->obtenerPrecio();
+
+        $rec->crearDetalleReceta($med, $cantidad, $precio);
+        $total = $rec->calcularTotal();
+        $comisionTotal = $rec->calcularComision($total);
+        $rec->obtenerPago()->actualizarComision($comisionTotal);
         // que lo busque en el repository y lo traiga
 
         // que lo busque en el inventario de la sucursal y traiga el precio
@@ -67,6 +73,9 @@ class RecetaService
         // el medicamento, cantidad y precio y lo guarda
 
         // se calcula el pago, y se actualiza
-        $rec->introducirMedicamento($nombreMedicamento, $cantidad);
+        // $rec->introducirMedicamento($nombreMedicamento, $cantidad);
     }
+
+    
 }
+

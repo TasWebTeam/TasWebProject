@@ -18,7 +18,7 @@ class TasService
     {
         $this->tasRepository = $tasRepository;
     }
-
+/*
     public function encontrarUsuario($correo)
     {
         $this->tasRepository->beginTransaction();
@@ -35,8 +35,49 @@ class TasService
             $usuario->correo,
             $usuario->nip,
         );
-    }
+    }*/
 
+    public function encontrarUsuario($correo)
+    {
+        $this->tasRepository->beginTransaction();
+
+        $usuarioModel = $this->tasRepository->buscarUsuarioPorCorreo($correo);
+
+        if (!$usuarioModel) {
+            $this->tasRepository->rollbackTransaction();
+            return null;
+        }
+
+        // Crear dominio con los 5 datos del constructor
+        $usuario = new Usuario(
+            $usuarioModel->id_usuario,
+            $usuarioModel->nombre,
+            $usuarioModel->apellido,
+            $usuarioModel->correo,
+            $usuarioModel->nip
+        );
+
+        // Setters para completar resto de atributos
+        $usuario->setSesionActiva((bool) $usuarioModel->sesion_activa);
+        $usuario->setIntentosLogin((int) $usuarioModel->intentos_login);
+
+        $usuario->setUltimoIntento(
+            $usuarioModel->ultimo_intento
+                ? new DateTime($usuarioModel->ultimo_intento)
+                : null
+        );
+
+        $usuario->setBloqueadoHasta(
+            $usuarioModel->bloqueado_hasta
+                ? new DateTime($usuarioModel->bloqueado_hasta)
+                : null
+        );
+
+        $usuario->setRol($usuarioModel->rol ?? '');
+
+        return $usuario;
+    }
+/*
     public function crearUsuario($correo, $nip, $nombre, $apellido)
     {
         $usuario = $this->encontrarUsuario($correo);
@@ -64,8 +105,53 @@ class TasService
             $usuarioNuevo->nombre,
             $usuarioNuevo->apellido
         );
-    }
+    }*/
 
+    public function crearUsuario($correo, $nip, $nombre, $apellido)
+    {
+        $usuarioExistente = $this->encontrarUsuario($correo);
+        if ($usuarioExistente) {
+            return 'Advertencia: El correo ya se encuentra registrado';
+        }
+
+        $nipHash = Hash::make($nip);
+
+        $usuarioNuevo = $this->tasRepository->crearUsuario($correo, $nipHash, $nombre, $apellido);
+
+        if (!$usuarioNuevo) {
+            return 'Advertencia: No se ha podido crear el usuario';
+        }
+
+        // Crear dominio igual que encontrarUsuario
+        $usuario = new Usuario(
+            $usuarioNuevo->id_usuario,
+            $usuarioNuevo->nombre,
+            $usuarioNuevo->apellido,
+            $usuarioNuevo->correo,
+            $usuarioNuevo->nip
+        );
+
+        // Aplicar setters
+        $usuario->setSesionActiva((bool) $usuarioNuevo->sesion_activa);
+        $usuario->setIntentosLogin((int) $usuarioNuevo->intentos_login);
+
+        $usuario->setUltimoIntento(
+            $usuarioNuevo->ultimo_intento
+                ? new DateTime($usuarioNuevo->ultimo_intento)
+                : null
+        );
+
+        $usuario->setBloqueadoHasta(
+            $usuarioNuevo->bloqueado_hasta
+                ? new DateTime($usuarioNuevo->bloqueado_hasta)
+                : null
+        );
+
+        $usuario->setRol($usuarioNuevo->rol ?? '');
+
+        return $usuario;
+    }
+/*
     private function limpiarNumeroTarjeta(string $numero): string
     {
         return preg_replace('/\D/', '', $numero);
@@ -74,6 +160,37 @@ class TasService
     private function obtenerLast4(string $numeroLimpio): string
     {
         return substr($numeroLimpio, -4);
+    }*/
+    
+    public function crearTarjeta(int $idUsuario, string $numero, string $fechaExp)
+    {
+        $this->tasRepository->beginTransaction();
+
+        $numeroLimpio = preg_replace('/\D/', '', $numero);
+        $last4 = substr($numeroLimpio, -4);
+        $brand = $this->detectarBrand($numeroLimpio);
+
+        $tarjetaModel = $this->tasRepository->crearTarjeta(
+            $idUsuario,
+            $last4,
+            $brand,
+            $fechaExp
+        );
+
+        if (!$tarjetaModel) {
+            $this->tasRepository->rollbackTransaction();
+            return 'Advertencia: No se pudo registrar la tarjeta.';
+        }
+
+        $this->tasRepository->commitTransaction();
+
+        return new Tarjeta(
+            $tarjetaModel->id_tarjeta,
+            $tarjetaModel->id_usuario,
+            $tarjetaModel->last4,
+            $tarjetaModel->brand,
+            $tarjetaModel->fecha_exp
+        );
     }
 
     private function detectarBrand(string $num): string
@@ -90,7 +207,7 @@ class TasService
 
         return 'desconocido';
     }
-
+/*
     public function crearTarjeta(int $idUsuario, string $numero, string $fechaExp)
     {
         $this->tasRepository->beginTransaction();
@@ -121,15 +238,15 @@ class TasService
             $tarjetaModel->brand,
             $tarjetaModel->fecha_exp
         );
-    }
+    }*/
 
     public function actualizarTarjeta(int $idUsuario, string $numero, string $fechaExp)
     {
         $this->tasRepository->beginTransaction();
 
         try {
-            $numeroLimpio = $this->limpiarNumeroTarjeta($numero);
-            $last4 = $this->obtenerLast4($numeroLimpio);
+            $numeroLimpio = preg_replace('/\D/', '', $numero);
+            $last4 = substr($numeroLimpio, -4);
             $brand = $this->detectarBrand($numeroLimpio);
 
             $tarjetaModel = $this->tasRepository->actualizarTarjeta(
@@ -230,6 +347,28 @@ class TasService
         $usuario->iniciarSesion();
         $usuario->reiniciarIntentosLogin();
         $this->actualizarSesion($usuario);
+
+                $sessionData = [
+            'id'       => $usuario->getId(),
+            'correo'   => $usuario->getCorreo(),
+            'nombre'   => $usuario->getNombre(),
+            'apellido' => $usuario->getApellido(),
+            'rol'      => $usuario->getRol(),
+        ];
+
+        if ($usuario->getRol() === 'empleado') {
+            $empleado = $this->tasRepository->obtenerEmpleado($usuario);
+            if ($empleado) {
+                $sessionData['id_sucursal'] = $empleado->getSucursal()->getIdSucursal();
+                $sessionData['id_cadena']=$empleado->getSucursal()->getCadena()->getIdCadena();
+                $sessionData['nombre_sucursal']=$empleado->getSucursal()->getNombre();
+                $sessionData['nombre_cadena']=$empleado->getSucursal()->getCadena()->getNombre();
+                //$sessionData['id_puesto']   = $empleado->getPuesto();
+            }
+        }
+
+        session(['usuario' => $sessionData]);
+        
         return $usuario;
     }
 
@@ -243,7 +382,7 @@ class TasService
         $usuario->cerrarSesion();
         $this->actualizarSesion($usuario);
     }
-
+    
     public function obtenerSucursales()
     {
         $modelos = $this->tasRepository->obtenerSucursales();
@@ -263,8 +402,8 @@ class TasService
                 : null;
             $sucursal = new Sucursal(
                 $s->id,
-                $s->id_sucursal,
                 $cadena,
+                $s->id_sucursal,
                 $s->nombre,
                 $s->latitud,
                 $s->longitud
@@ -272,7 +411,6 @@ class TasService
 
             $sucursales[] = $sucursal->toArray();
         }
-
         return $sucursales;
     }
 }

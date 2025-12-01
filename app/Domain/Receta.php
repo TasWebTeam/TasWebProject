@@ -4,19 +4,25 @@ namespace App\Domain;
 use App\Repositories\ConsultarRepository;
 use App\Services\SucursalService;
 use DateTime;
+use Exception;
 use InvalidArgumentException;
 
 class Receta
 {
     // --------- Atributos ---------
     private int $idReceta;
+    /** Puede ser null mientras el paciente no selecciona sucursal */
     private ?Sucursal $sucursal;
     private string $cedulaProfesional;
+    /** Pueden ser null mientras no se han definido */
     private ?DateTime $fechaRegistro;
     private ?DateTime $fechaRecoleccion;
     private string $estadoPedido;
     private array $detallesReceta = [];
+    /** Puede ser null si aún no se ha creado el pago */
     private ?Pago $pago;
+
+    private array $rutaOptima = [];
 
     // --------- Constructor ---------
     public function __construct(
@@ -27,7 +33,7 @@ class Receta
         ?DateTime $fechaRecoleccion,
         string $estadoPedido = "",
         array $detallesReceta = [],
-        Pago $pago
+        ?Pago $pago
     ) {
         $this->idReceta = $idReceta;
         $this->sucursal = $sucursal;
@@ -41,7 +47,6 @@ class Receta
 
     public static function nueva(): self
     {
-        $pago = new Pago();
         return new self(
             0,
             null,
@@ -50,7 +55,7 @@ class Receta
             null,
             '',
             [],
-            $pago
+            new Pago()
         );
     }
 
@@ -72,22 +77,19 @@ class Receta
         $this->cedulaProfesional = $cedulaProfesional;
     }
 
-    public function introducirMedicamento($nombreMedicamento, $cantidad)
+    public function crearDetalleReceta(Medicamento $med, int $cantidad, float $precio): void
     {
-        
-    }
+        // $inv = $this->sucursal->obtenerInventario($nombreMedicamento);
+        // $med = $inv->obtenerMedicamento();
+        // $precio = $inv->obtenerPrecio();
+        // $dr = new DetalleReceta($med, $cantidad, $precio);
+        // $this->agregarDetalleReceta($dr);
+        // $total = $this->calcularTotal();
+        // $comisionTotal = $this->calcularComision($total);
+        // $this->pago->actualizarComision($comisionTotal);
 
-    public function crearDetalleReceta(string $nombreMedicamento, int $cantidad): void
-    {
-        $inv = $this->sucursal->obtenerInventario($nombreMedicamento);
-        $med = $inv->obtenerMedicamento();
-        $precio = $inv->obtenerPrecio();
         $dr = new DetalleReceta($med, $cantidad, $precio);
         $this->agregarDetalleReceta($dr);
-        $total = $this->calcularTotal();
-        $comisionTotal = $this->calcularComision($total);
-        $this->pago->actualizarComision($comisionTotal);
-        // lógica de dominio pendiente
     }
 
     public function calcularTotal(): float
@@ -105,6 +107,11 @@ class Receta
         return $total * 0.15;
     }
 
+    public function obtenerPago(): Pago 
+    {
+        return $this->pago;
+    }
+
     public function procesarReceta(int $numTarjeta, SucursalService $sucursalService): void
     {
         foreach ($this->detallesReceta as $detalle) {
@@ -114,7 +121,80 @@ class Receta
         $this->pago->validarPago($numTarjeta);
         $this->calcularFecha();
         // lógica de dominio pendiente
+        // calcula y guarda la ruta óptima global
+        //$this->calcularRutaOptimaGlobal($sucursalService);
     }
+
+    // public function calcularRutaOptimaGlobal(SucursalService $sucursalService): array
+    // {
+    //     if ($this->sucursal === null) {
+    //         throw new \RuntimeException("La receta no tiene sucursal asignada.");
+    //     }
+
+    //     $sucursalesProveedoras = [];
+    //     $tmp = [];
+
+    //     foreach ($this->detallesReceta as $detalle) {
+    //         /** @var DetalleReceta $detalle */
+    //         foreach ($detalle->getLineasSurtido() as $linea) {
+    //             /** @var LineaSurtido $linea */
+    //             $suc = $linea->getSucursal();
+
+    //             $key = $suc->getCadena()->getIdCadena()
+    //                  . '-' 
+    //                  . $suc->getIdSucursal();
+
+    //             if (!isset($tmp[$key])) {
+    //                 $tmp[$key] = true;
+    //                 $sucursalesProveedoras[] = $suc;
+    //             }
+    //         }
+    //     }
+
+    //     if (empty($sucursalesProveedoras)) {
+    //         $this->rutaOptima = [];
+    //         return [];
+    //     }
+
+    //     $items = [];
+    //     foreach ($sucursalesProveedoras as $suc) {
+    //         $items[] = [
+    //             'sucursal'     => $suc,
+    //             'distancia_km' => 0.0,
+    //         ];
+    //     }
+
+    //     $this->rutaOptima = $sucursalService->obtenerRutaOptimizadaDesdeItems(
+    //         $this->sucursal,
+    //         $items
+    //     );
+    //     dd($this->rutaOptima);
+    //     return $this->rutaOptima;
+    // }
+
+    // /**
+    //  * DTO para mandar al front (JSON) con la ruta global.
+    //  */
+    // public function construirRutaGlobalDTO(): array
+    // {
+    //     $dto = [];
+
+    //     foreach ($this->rutaOptima as $suc) {
+    //         /** @var Sucursal $suc */
+    //         $dto[] = [
+    //             'id_cadena'    => $suc->getCadena()->getIdCadena(),
+    //             'cadena_nombre'=> method_exists($suc->getCadena(), 'getNombre')
+    //                 ? $suc->getCadena()->getNombre()
+    //                 : null,
+    //             'id_sucursal'  => $suc->getIdSucursal(),
+    //             'nombre'       => method_exists($suc, 'getNombre') ? $suc->getNombre() : null,
+    //             'lat'          => $suc->getLatitud(),
+    //             'lon'          => $suc->getLongitud(),
+    //         ];
+    //     }
+
+    //     return $dto;
+    // }
 
     public function calcularFecha(): void
     {
@@ -196,12 +276,16 @@ class Receta
 
     public function devolverMedicamentos(): void
     {
-        // lógica de dominio pendiente
+        $this->cambiarEstado("devolviendo"); 
+        foreach ($this->detallesReceta as $detalle) {
+            $detalle->realizarDevolucion();
+            //persistencia al detalle individual
+        }
     }
 
-    public function cambiarEstado(string $estado): void
+    private function cambiarEstado(string $estado): void
     {
-        // lógica de dominio pendiente
+        $this->estadoPedido = $estado;
     }
 
     public function agregarDetalleReceta($detalle){
@@ -248,7 +332,6 @@ class Receta
         $this->idReceta = $idReceta;
     }
 
-
     public function setFechaRegistro(DateTime $fechaRegistro): void
     {
         $this->fechaRegistro = $fechaRegistro;
@@ -272,5 +355,4 @@ class Receta
         }
         $this->detallesReceta = $detallesReceta;
     }
-
 }

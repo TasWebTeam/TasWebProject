@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Domain\Sucursal;
 use App\Domain\Medicamento;
-use App\repositories\ConsultarRepository;
+use App\Repositories\ConsultarRepository;
 
 class SucursalService
 {
@@ -18,138 +18,13 @@ class SucursalService
     public function __construct(
         ConsultarRepository $consultarRepo,
         RutaOpenStreetMapService $rutaService,
-        int $limiteBD = 20,          // máximo de sucursales que trae de la BD
-        int $maxCandidatosOSM = 5,   // máximo de sucursales a las que se les pide ruta OSM
-        float $radioKm = 20.0        // radio aproximado de búsqueda para el bounding box
+        int $limiteBD = 4,          // máximo de sucursales que trae de la BD
     ) {
         $this->consultarRepo    = $consultarRepo;
         $this->rutaService      = $rutaService;
         $this->limiteBD         = $limiteBD;
-        $this->maxCandidatosOSM = $maxCandidatosOSM;
-        $this->radioKm          = $radioKm;
     }
-
-    /**
-     * Devuelve la sucursal más cercana que tenga stock del medicamento.
-     *
-     * Flujo:
-     *  1) La BD trae solo sucursales CANDIDATAS:
-     *     - misma cadena
-     *     - dentro de un bounding box alrededor de la sucursal origen
-     *     - con el medicamento y stock_actual > 0
-     *     - ordenadas por distancia Haversine (en SQL)
-     *     - limitadas a $limiteBD
-     *  2) Sobre esas, se toma el top N ($maxCandidatosOSM) y se mide
-     *     la distancia de ruta real usando OSM.
-     *  3) Se regresa la sucursal con menor distancia OSM.
-     */
-    public function obtenerSucursalMasCercanaConStock(  // YA NO SE USA
-        Sucursal $sucursalOrigen,
-        Medicamento $medicamento,
-        int $cantidadRequerida
-    ): ?Sucursal {
-        // 1) Candidatas desde BD (ya filtradas y ordenadas por Haversine)
-
-        $candidatas = $this->consultarRepo->buscarSucursalesCandidatas(
-            $sucursalOrigen,
-            $medicamento,
-            $cantidadRequerida,
-            $this->limiteBD,
-            $this->radioKm
-        );
-
-        if (empty($candidatas)) {
-            return null;
-        }
-        
-        $latO = $sucursalOrigen->getLatitud();
-        $lonO = $sucursalOrigen->getLongitud();
-        
-        // 2) Afinar con OSM sobre las N más cercanas
-        $topCandidatas = array_slice($candidatas, 0, $this->maxCandidatosOSM);
-
-        $mejorSuc    = null;
-        $mejorDistKm = INF;
-
-        foreach ($topCandidatas as $suc) {
-            /** @var Sucursal $suc */
-
-            $distKm = $this->rutaService->obtenerDistanciaKm(
-                $latO,
-                $lonO,
-                $suc->getLatitud(),
-                $suc->getLongitud()
-            );
-
-            if ($distKm === null) {
-                continue;
-            }
-
-            if ($distKm < $mejorDistKm) {
-                $mejorDistKm = $distKm;
-                $mejorSuc    = $suc;
-            }
-        }
-        return $mejorSuc;   // TE REGRESA LA MEJOR SUCURSAL SEGUN HARVENSINE Y OSM
-    }
-
-    public function obtenerSucursalesOrdenadasPorDistanciaReal(
-    Sucursal $sucursalOrigen,
-    Medicamento $medicamento,
-    $cantidadRequerida
-): array {
-    // 1) Candidatas desde BD (Haversine)
-    $candidatas = $this->consultarRepo->buscarSucursalesCandidatas(
-        $sucursalOrigen,
-        $medicamento,
-        limite: $this->limiteBD
-    );
-
-    if (empty($candidatas)) {
-        return [];
-    }
-
-    $latO = $sucursalOrigen->getLatitud();
-    $lonO = $sucursalOrigen->getLongitud();
-
-    $items = [];
-
-    // 2) Calculas distancia OSM para las candidatas
-    foreach ($candidatas as $suc) {
-        /** @var Sucursal $suc */
-
-        $distKm = $this->rutaService->obtenerDistanciaKm(
-            $latO,
-            $lonO,
-            $suc->getLatitud(),
-            $suc->getLongitud()
-        );
-
-        // Si OSM falla, puedes saltar o usar fallback (Haversine)
-        if ($distKm === null) {
-            // opcional: fallback
-            // $distKm = $this->distanciaHaversine(...);
-            continue;
-        }
-
-        $items[] = [
-            'sucursal'     => $suc,
-            'distancia_km' => $distKm,
-        ];
-    }
-
-    // 3) Ordenar por distancia real
-    usort($items, function ($a, $b) {
-        return $a['distancia_km'] <=> $b['distancia_km'];
-    });
-
-    // 4) Devolver solo las sucursales (o el array con distancias si te sirve)
-    return array_map(
-        fn ($item) => $item['sucursal'],
-        $items
-    );
-}
-
+    
     public function obtenerSucursalesOrdenadasPorDistanciaYConStock(
         Sucursal $sucursalDestino,
         Medicamento $medicamento,
@@ -207,4 +82,73 @@ class SucursalService
         usort($items, fn($a, $b) => $a['distancia_km'] <=> $b['distancia_km']);
         return $items;
     }
+
+    
+
+//    public function obtenerRutaOptimizadaDesdeItems(
+//         Sucursal $sucursalDestino,
+//         array $items
+//     ): array {
+//         if (empty($items)) {
+//             return [];
+//         }
+
+//         // 1) construir jobs y mapa jobId -> sucursal
+//         $jobs          = [];
+//         $jobToSucursal = [];
+//         $jobId         = 1;
+
+//         foreach ($items as $item) {
+//             if (!isset($item['sucursal'])) {
+//                 continue;
+//             }
+
+//             /** @var Sucursal $suc */
+//             $suc = $item['sucursal'];
+
+//             $jobs[] = [
+//                 'id'       => $jobId,
+//                 'location' => [$suc->getLongitud(), $suc->getLatitud()], // [lon, lat]
+//             ];
+
+//             $jobToSucursal[$jobId] = $suc;
+//             $jobId++;
+//         }
+
+//         if (empty($jobs)) {
+//             return [];
+//         }
+
+//         // 2) vehículo que sale/regresa a la sucursal destino
+//         $vehicles = [[
+//             'id'    => 1,
+//             'start' => [$sucursalDestino->getLongitud(), $sucursalDestino->getLatitud()],
+//             'end'   => [$sucursalDestino->getLongitud(), $sucursalDestino->getLatitud()],
+//         ]];
+
+//         // 3) llamar a Optimization Service
+//         $data = $this->rutaService->optimizarRutaORS($jobs, $vehicles);
+
+//         if ($data === null || empty($data['routes'][0]['steps'])) {
+//             // Fallback: regresar en el orden original
+//             return array_map(fn($it) => $it['sucursal'], $items);
+//         }
+
+//         // 4) construir la ruta de sucursales en orden
+//         $ruta = [];
+
+//         foreach ($data['routes'][0]['steps'] as $step) {
+//             if (!isset($step['job'])) {
+//                 continue;
+//             }
+
+//             $idJob = $step['job'];
+
+//             if (isset($jobToSucursal[$idJob])) {
+//                 $ruta[] = $jobToSucursal[$idJob];
+//             }
+//         }
+
+//         return $ruta;
+//     }
 }

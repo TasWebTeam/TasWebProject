@@ -44,4 +44,24 @@ class RutaOpenStreetMapService
             return null;
         }
     }
+
+  /*  public function optimizarRutaORS(array $jobs, array $vehicles): ?array
+    {
+        try {
+            $response = $this->http->post('optimization', [
+                'query' => [
+                    'api_key' => env('OSM_ROUTING_API_KEY'),
+                ],
+                'json' => [
+                    'jobs'     => $jobs,
+                    'vehicles' => $vehicles,
+                ],
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (\Throwable $e) {
+            Log::error('Error ORS Optimization: ' . $e->getMessage());
+            return null;
+        }
+    }*/
 }

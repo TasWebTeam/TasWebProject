@@ -14,8 +14,9 @@ class InventarioModel extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'id_sucursal',
+        'id_inventario',
         'id_cadena',
+        'id_sucursal',
         'id_medicamento',
         'stock_minimo',
         'stock_maximo',
