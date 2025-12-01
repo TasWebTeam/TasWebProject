@@ -4,6 +4,7 @@ namespace App\Domain;
 use App\Repositories\ConsultarRepository;
 use App\Services\SucursalService;
 use DateTime;
+use Exception;
 use InvalidArgumentException;
 
 class Receta
@@ -193,12 +194,20 @@ class Receta
 
     public function devolverMedicamentos(): void
     {
-        // lógica de dominio pendiente
+        try{
+            
+            $this->cambiarEstado("devolviendo");
+            foreach ($this->detallesReceta as $detalle) {
+                $detalle->realizarDevolucion();
+            }
+        }catch(Exception $e){
+
+        }
     }
 
-    public function cambiarEstado(string $estado): void
+    private function cambiarEstado(string $estado): void
     {
-        // lógica de dominio pendiente
+        $this->estadoPedido = $estado;
     }
 
     public function agregarDetalleReceta($detalle){

@@ -1,12 +1,15 @@
 <?php 
 
 namespace App\Domain;
+use App\Repositories\ConsultarRepository;
+
 
 class LineaSurtido
 {
     private Sucursal $sucursal;
     private String $estadoEntrega;
     private int $cantidad;
+    private ConsultarRepository $consultarRepo;
 
     public function __construct(Sucursal $sucursal, String $estadoEntrega, int $cantidad)
     {
@@ -54,8 +57,14 @@ class LineaSurtido
         ];
     }
 
-    public function devolverASucursal(int $cantidad): void
+    public function devolverASucursal(int $cantidad,string $nombreMedicamento): void
     {
-       
+       $consultarRepository = new ConsultarRepository();
+       $inv = $consultarRepository->recuperarInventario(
+      $this->getSucursal()->getCadena(),
+       $this->getSucursal()->getIdSucursal(),
+       $nombreMedicamento);
+
+       $inv->devolverMedicamento($cantidad); //dar persistencia
     }
 }

@@ -13,6 +13,7 @@ class DetalleReceta
     private int $cantidad;
     private float $precio;
     private array $lineasSurtido = [];
+    private ConsultarRepository $consultarRepo;
 
     public function __construct(
         ?Medicamento $medicamento = null,
@@ -81,7 +82,24 @@ class DetalleReceta
     }
 
     public function realizarDevolucion(): void{
-        
+        //$consultarRepo = new ConsultarRepository();
+        foreach ($this->getLineasSurtido() as $linea) {
+            $linea->devolverASucursal($linea->getCantidad(),$this->getMedicamento()->getNombre()); //agregue nombre del medicamento
+        }
+    }
+
+    public function getMedicamento(): ?Medicamento
+    {
+        return $this->medicamento;
+    }
+
+    public function setMedicamento(?Medicamento $medicamento): void
+    {
+        if ($medicamento !== null && !$medicamento instanceof Medicamento) {
+            throw new InvalidArgumentException("El valor debe ser un objeto Medicamento o null.");
+        }
+
+        $this->medicamento = $medicamento;
     }
 
     public function getCantidad(): int

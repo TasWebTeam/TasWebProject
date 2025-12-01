@@ -57,7 +57,9 @@ class Sucursal
     }
 
     public function devolverReceta(int $idReceta): void{
-
+        $consultarRepository = new ConsultarRepository();       
+        $receta = $consultarRepository->recuperarReceta($idReceta);
+        $receta->devolverMedicamentos();
     }
 
     public function confirmarRecetaNoRecogida(int $idReceta, string $estado): void{

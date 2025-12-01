@@ -102,7 +102,7 @@ class ConsultarRepository
         );
     }
 
-    //recuperar receta por id en el metodo iran los parametros detalles, idReceta y sucursal
+    //recuperar receta por id en el metodo iran los parametros detalles, idReceta y la sucursal
     public function recuperarReceta($idReceta)
     {
         $recetaModel = RecetaModel::with([
