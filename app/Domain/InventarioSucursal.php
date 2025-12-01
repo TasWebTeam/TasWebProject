@@ -42,6 +42,7 @@ class InventarioSucursal
         return $this->sucursal; 
     }
 
+    //Aqui tambien get me dice
     public function obtenerMedicamento(): Medicamento { 
         return $this->medicamento; 
     }
@@ -57,7 +58,7 @@ class InventarioSucursal
     public function getStockMaximo(): int { 
         return $this->stockMaximo; 
     }
-
+    //Carlos me dice get no olvidar
     public function obtenerStock(): int { 
         return $this->stockActual; 
     }

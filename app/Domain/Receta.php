@@ -194,14 +194,10 @@ class Receta
 
     public function devolverMedicamentos(): void
     {
-        try{
-            
-            $this->cambiarEstado("devolviendo");
-            foreach ($this->detallesReceta as $detalle) {
-                $detalle->realizarDevolucion();
-            }
-        }catch(Exception $e){
-
+        $this->cambiarEstado("devolviendo"); //dar persistencia a receta
+        foreach ($this->detallesReceta as $detalle) {
+            $detalle->realizarDevolucion();
+            //persistencia al detalle individual
         }
     }
 

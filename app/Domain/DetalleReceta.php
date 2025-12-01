@@ -85,8 +85,11 @@ class DetalleReceta
         //$consultarRepo = new ConsultarRepository();
         foreach ($this->getLineasSurtido() as $linea) {
             $linea->devolverASucursal($linea->getCantidad(),$this->getMedicamento()->getNombre()); //agregue nombre del medicamento
+            //persistencia a lineas
         }
     }
+
+
 
     public function getMedicamento(): ?Medicamento
     {

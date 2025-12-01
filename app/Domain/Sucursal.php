@@ -56,10 +56,17 @@ class Sucursal
         return $cantObtenida;
     }
 
-    public function devolverReceta(int $idReceta): void{
-        $consultarRepository = new ConsultarRepository();       
+    public function devolverReceta(int $idReceta): void
+    {
+        $consultarRepository = new ConsultarRepository();
+        $actualizarRepository = new ActualizarRepository();
+
         $receta = $consultarRepository->recuperarReceta($idReceta);
-        $receta->devolverMedicamentos();
+
+        $receta->devolverMedicamentos(); // tu dominio actualiza estado
+
+        // 🔹 Ahora solo persistimos la receta completa:
+        $actualizarRepository->guardarReceta($receta);
     }
 
     public function confirmarRecetaNoRecogida(int $idReceta, string $estado): void{

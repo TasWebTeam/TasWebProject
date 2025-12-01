@@ -255,7 +255,7 @@ class TasService
                 $sessionData['id_cadena']=$empleado->getSucursal()->getCadena()->getIdCadena();
                 $sessionData['nombre_sucursal']=$empleado->getSucursal()->getNombre();
                 $sessionData['nombre_cadena']=$empleado->getSucursal()->getCadena()->getNombre();
-                $sessionData['id_puesto']   = $empleado->getPuesto();
+                //$sessionData['id_puesto']   = $empleado->getPuesto();
             }
         }
 

@@ -20,9 +20,9 @@ class RecetaService
     /**
      * Listar recetas de la sucursal del empleado actual
      */
-    public function obtenerRecetasEmpleado(int $idSucursal): array
+    public function obtenerRecetasEmpleado(string $idCadena,int $idSucursal,?string $estado): array
     {
-        $recetasModel = $this->repo->obtenerPorSucursal($idSucursal);
+        $recetasModel = $this->repo->obtenerPorSucursal($idCadena,$idSucursal,$estado);
         
         $recetas = [];
         foreach ($recetasModel as $r) {
@@ -35,9 +35,9 @@ class RecetaService
     /**
      * Recetas expiradas
      */
-    public function obtenerRecetasExpiradas(int $idSucursal): array
+    public function obtenerRecetasExpiradas(string $idCadena,int $idSucursal): array
     {
-        $recetasModel = $this->repo->obtenerExpiradasPorSucursal($idSucursal);
+        $recetasModel = $this->repo->obtenerExpiradasPorSucursal($idCadena,$idSucursal);
 
         $recetas = [];
         foreach ($recetasModel as $r) {
@@ -53,6 +53,17 @@ class RecetaService
     public function actualizarEstado(int $idReceta, string $estado): bool
     {
         return $this->repo->actualizarEstado($idReceta, $estado);
+    }
+
+
+    public function marcarComoLista(int $idReceta): bool
+    {
+        return $this->repo->actualizarEstado($idReceta, 'lista_para_recoleccion');
+    }
+
+    public function marcarComoEntregada(int $idReceta): bool
+    {
+        return $this->repo->actualizarEstado($idReceta, 'entregada');
     }
 
     /**
@@ -121,5 +132,43 @@ class RecetaService
             null  // más adelante mapeas Pago si lo necesitas
         );
     }
+
+
+        /**
+     * Obtener Sucursal (dominio) a partir de idCadena + idSucursal
+     */
+    public function obtenerSucursalPorCadenaYSucursal(String $idCadena, int $idSucursal): ?Sucursal
+    {
+        $sucursalModel = $this->repo->obtenerSucursalPorCadenaYSucursal($idCadena, $idSucursal);
+
+        if (!$sucursalModel) {
+            return null;
+        }
+
+        // Dominio Cadena
+        $cadenaDomain = null;
+        if ($sucursalModel->cadena) {
+            $cadenaModel = $sucursalModel->cadena;
+            $cadenaDomain = new Cadena(
+                $cadenaModel->id_cadena,
+                $cadenaModel->nombre
+            );
+        }
+
+        // Dominio Sucursal
+        return new Sucursal(
+            $sucursalModel->id_sucursal,
+            $cadenaDomain,
+            $sucursalModel->nombre,
+            $sucursalModel->latitud,
+            $sucursalModel->longitud
+        );
+    }
+
+    
+
+
+
+
 
 }

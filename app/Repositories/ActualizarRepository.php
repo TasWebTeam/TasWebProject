@@ -47,4 +47,24 @@ class ActualizarRepository{
             return false;
         }
     }
+
+    public function guardarReceta(Receta $receta): bool
+    {
+        try {
+            RecetaModel::where('id_receta', $receta->getIdReceta())
+                ->update([
+                    'estado_pedido'      => $receta->getEstadoPedido(),
+                    'fecha_recoleccion'  => $receta->getFechaRecoleccion()
+                        ? $receta->getFechaRecoleccion()->format('Y-m-d H:i:s')
+                        : null
+                ]);
+
+            return true;
+
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    
 }
