@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Domain\Cadena;
 use App\Domain\DetalleReceta;
 use App\Domain\Medicamento;
@@ -13,34 +12,56 @@ use App\Domain\Paciente;
 use App\Domain\Pago;
 use App\Domain\Sucursal;
 use App\Services\SucursalService;
+use App\Services\RecetaService;
+use App\Services\TasService;
 use DateTime;
+
 
 class ProcesarRecetaController extends Controller
 {
     private SucursalService $sucursalService; 
-    public function __construct(SucursalService $sucursalService){
+    private RecetaService $recetaService;
+
+    public function __construct(SucursalService $sucursalService, RecetaService $recetaService)
+    {
         $this->sucursalService = $sucursalService;
+        $this->recetaService = $recetaService;
     }
+    
     public function crearNuevaReceta(){
-        // $paciente = new Paciente();
+        $usuarioCorreo= session('usuario.correo');      // no puede ser por id?
+        $this->recetaService->crearNuevaReceta($usuarioCorreo);
+
+        // ESTO NO VA ----
+        $cadena = "Farmacias Benavides";
+        $sucursal = "Pedro Anaya";
+        $this->introducirSucursal($cadena, $sucursal);  // quitar
     }
 
-    public function introducirSucursal(string $nombreSucursal, string $nombreCadena){
+    public function introducirSucursal(string $nombreCadena, string $nombreSucursal){
+        $this->recetaService->introducirSucursal($nombreCadena, $nombreSucursal);
 
+        // ESTO NO VA ----
+        $this->introducirCedulaProfesional("123456");
     }
 
     public function introducirCedulaProfesional(string $cedulaProfesional){
 
-    }
+        $this->recetaService->introducirCedulaProfesional($cedulaProfesional);
 
+        // ESTO NO VA ----
+        $this->introducirMedicamento("Paracetamol", 5);
+    }
+    
     public function introducirMedicamento(string $nombreMedicamento, int $cantidad){
 
+        $this->recetaService->introducirMedicamento($nombreMedicamento, $cantidad);
     }
 
     public function procesarReceta(int $numTarjeta){
         
     }
-
+    
     public function TESTING(){
         // Aqui tengo que agregar objetos de tipo medicamento
         // Cadena
@@ -60,7 +81,7 @@ class ProcesarRecetaController extends Controller
         $medicamento2 = new Medicamento(2, "Ibuprofeno", 'Capsulas 400 mg', "Bayer");
         
         // DetallesReceta
-        $detalle1 = new DetalleReceta($medicamento1, 5, 10.0, []);
+        $detalle1 = new DetalleReceta($medicamento1, 10, 10.0, []);
         $detalle2 = new DetalleReceta($medicamento2, 10, 20.0, []);
 
         // Agregar a receta los detalles

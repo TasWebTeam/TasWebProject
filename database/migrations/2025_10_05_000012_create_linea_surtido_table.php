@@ -9,6 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('linea_surtido', function (Blueprint $table) {
+
+            $table->id('id_linea_surtido');
+
             $table->unsignedBigInteger('id_receta');
             $table->unsignedBigInteger('id_medicamento');
             $table->char('id_cadenaSurtido',3);
@@ -17,7 +20,7 @@ return new class extends Migration
             $table->string('estado_entrega', 50);
             $table->integer('cantidad');
 
-            $table->primary(['id_receta', 'id_medicamento', 'id_cadenaSurtido', 'id_sucursalSurtido', 'id_empleado']);
+            $table->unique(['id_receta', 'id_medicamento', 'id_cadenaSurtido', 'id_sucursalSurtido'], 'uq_linea_surtido');
 
             $table->foreign('id_receta')->references('id_receta')->on('recetas');
             $table->foreign('id_medicamento')->references('id_medicamento')->on('medicamentos');

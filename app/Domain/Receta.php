@@ -10,13 +10,13 @@ class Receta
 {
     // --------- Atributos ---------
     private int $idReceta;
-    private Sucursal $sucursal;
+    private ?Sucursal $sucursal;
     private string $cedulaProfesional;
-    private DateTime $fechaRegistro;
-    private DateTime $fechaRecoleccion;
+    private ?DateTime $fechaRegistro;
+    private ?DateTime $fechaRecoleccion;
     private string $estadoPedido;
     private array $detallesReceta = [];
-    private Pago $pago;
+    private ?Pago $pago;
 
     // --------- Constructor ---------
     public function __construct(
@@ -27,7 +27,7 @@ class Receta
         ?DateTime $fechaRecoleccion,
         string $estadoPedido = "",
         array $detallesReceta = [],
-        ?Pago $pago
+        Pago $pago
     ) {
         $this->idReceta = $idReceta;
         $this->sucursal = $sucursal;
@@ -41,6 +41,7 @@ class Receta
 
     public static function nueva(): self
     {
+        $pago = new Pago();
         return new self(
             0,
             null,
@@ -49,7 +50,7 @@ class Receta
             null,
             '',
             [],
-            null
+            $pago
         );
     }
 
@@ -69,6 +70,11 @@ class Receta
     public function introducirCedulaProfesional(string $cedulaProfesional): void
     {
         $this->cedulaProfesional = $cedulaProfesional;
+    }
+
+    public function introducirMedicamento($nombreMedicamento, $cantidad)
+    {
+        
     }
 
     public function crearDetalleReceta(string $nombreMedicamento, int $cantidad): void

@@ -10,13 +10,15 @@ return new class extends Migration
     {
         Schema::create('detalle_recetas', function (Blueprint $table) {
 
+            $table->id('id_detalle');
+
             $table->unsignedBigInteger('id_receta');
             $table->unsignedBigInteger('id_medicamento');
 
             $table->integer('cantidad');
             $table->decimal('precio', 10, 2);
 
-            $table->primary(['id_receta', 'id_medicamento']);
+            $table->unique(['id_receta', 'id_medicamento'],'uq_detalle_receta');
 
             $table->foreign('id_receta')
                 ->references('id_receta')
@@ -30,6 +32,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('detalle_receta');
+        Schema::dropIfExists('detalle_recetas');
     }
 };

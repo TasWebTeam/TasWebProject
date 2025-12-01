@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class GestionarRecetaController extends Controller
 {
     public function devolverReceta(int $idReceta){
-
+        
     }
 
     public function confirmarRecetaNoRecogida(int $idReceta){

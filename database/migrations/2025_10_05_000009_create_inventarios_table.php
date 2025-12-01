@@ -9,6 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inventarios', function (Blueprint $table) {
+            $table->id('id_inventario');
+
             $table->char('id_cadena', 3);
             $table->unsignedBigInteger('id_sucursal');
             $table->unsignedBigInteger('id_medicamento');
@@ -18,11 +20,17 @@ return new class extends Migration
             $table->integer('stock_actual');
             $table->decimal('precio_actual', 8, 2);
 
-            $table->primary(['id_cadena', 'id_sucursal', 'id_medicamento'], 'pk_inventarios');
+            $table->unique(['id_sucursal', 'id_medicamento'], 'uq_inventarios');    // creo que no es necesario
 
-            $table->foreign(['id_cadena', 'id_sucursal'], 'fk_inv_suc')
-                ->references(['id_cadena', 'id_sucursal'])
-                ->on('sucursales');
+            // $table->foreign(['id_cadena', 'id_sucursal'], 'fk_inv_suc')
+            //     ->references(['id_cadena', 'id_sucursal'])   // CAMBIO
+            //     ->on('sucursales');
+
+            // FK a la PK REAL de sucursales (id)
+            $table->foreign('id_sucursal', 'fk_inv_suc')
+                ->references('id')
+                ->on('sucursales')
+                ->onDelete('cascade');
 
             $table->foreign('id_medicamento', 'fk_inv_med')
                 ->references('id_medicamento')

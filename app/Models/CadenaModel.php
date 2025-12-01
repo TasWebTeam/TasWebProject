@@ -13,4 +13,9 @@ class CadenaModel extends Model
     protected $primaryKey = 'id_cadena';
     public $incrementing = false;
     protected $keyType = 'string';
+
+    public function sucursales()
+    {
+        return $this->hasMany(SucursalModel::class, 'id_cadena', 'id_cadena');
+    }
 }

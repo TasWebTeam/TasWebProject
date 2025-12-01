@@ -8,11 +8,38 @@ class MedicamentoModel extends Model
 {
     protected $table = 'medicamentos';
     protected $primaryKey = 'id_medicamento';
-    protected $fillable = ['id_medicamento', 'nombre', 'especificacion', 'laboratorio','es_controlado'];
-    public $timestamps =  false;
+    public $timestamps = false;
 
-    public function prescriptions()
+    // No incluyo id_medicamento porque es AUTO_INCREMENT
+    protected $fillable = [
+        'nombre',
+        'especificacion',
+        'laboratorio',
+        'es_controlado',
+    ];
+
+    /**
+     * Detalles de receta donde participa este medicamento
+     * (relación 1 medicamento -> muchos detalles)
+     */
+    public function detallesReceta()
     {
-        return $this->hasMany(DetalleRecetaModel::class, 'id_medicamento', 'id_medicamento');
+        return $this->hasMany(
+            DetalleRecetaModel::class,
+            'id_medicamento',
+            'id_medicamento'
+        );
+    }
+
+    /**
+     * Inventarios en los que aparece este medicamento
+     */
+    public function inventarios()
+    {
+        return $this->hasMany(
+            InventarioModel::class,
+            'id_medicamento',
+            'id_medicamento'
+        );
     }
 }

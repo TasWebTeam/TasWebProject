@@ -16,7 +16,7 @@
         <x-formulario_escribir_receta />
         
         <!-- TESTING -->
-        <form method="POST" action="{{ route('TESTING') }}">   
+        <form method="POST" action="{{ route('crearNuevaReceta') }}">   
                 @csrf
                 <div class="text-center mt-4">
             <button type="submit" class="btn btn-submit">

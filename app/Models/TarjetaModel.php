@@ -13,11 +13,11 @@ class TarjetaModel extends Model
 
     public function usuario()
     {
-        return $this->belongsTo(UsuarioModel::class, 'id_usuario', 'id_usuario');
+        return $this->hasOne(UsuarioModel::class, 'id_usuario', 'id_usuario');
     }
 
     public function pagos()
     {
-        return $this->hasMany(PagoModel::class, 'id_tarjeta', 'id_tarjeta');
+        return $this->hasOne(PagoModel::class, 'id_tarjeta', 'id_tarjeta');
     }
 }

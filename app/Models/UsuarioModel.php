@@ -22,4 +22,22 @@ class UsuarioModel extends Model
     protected $hidden = ['nip'];
 
     public $timestamps = false;
+
+    public function prescription()
+    {
+        return $this->hasMany(RecetaModel::class, 'id_receta', 'id_receta');
+    }
+
+    public function tarjeta()
+    {
+        return $this->hasOne(TarjetaModel::class, 'id_usuario', 'id_usuario');
+    }
+
+    public function empleado()
+    {
+        return $this->hasOne(EmpleadoModel::class, 'id_usuario', 'id_usuario');
+    }
+
+
+
 }

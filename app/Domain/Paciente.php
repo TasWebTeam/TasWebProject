@@ -31,6 +31,15 @@ class Paciente extends Usuario{
         $this->agregarReceta($rec);
     }
 
+    public function getUltimaReceta(): ?Receta
+    {
+        if (empty($this->recetas)) {
+            return null;
+        }
+
+        return $this->recetas[array_key_last($this->recetas)];
+    }
+
     public function notificarReceta(): void{
         
     }

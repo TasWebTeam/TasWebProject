@@ -255,15 +255,14 @@ class TasService
         $sucursales = [];
 
         foreach ($modelos as $s) {
-
             $cadena = $s->cadena
                 ? new Cadena(
                     $s->cadena->id_cadena,
                     $s->cadena->nombre
                 )
                 : null;
-
             $sucursal = new Sucursal(
+                $s->id,
                 $s->id_sucursal,
                 $cadena,
                 $s->nombre,

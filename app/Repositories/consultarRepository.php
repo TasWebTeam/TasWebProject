@@ -21,19 +21,16 @@ use App\Domain\Pago;
 use Illuminate\Support\Facades\DB;
 use DateTime;
 
-
 class ConsultarRepository
 {
     public function recuperarCadena($nombreCadena)
     {
-        //recuperar el modelo de cadena desde la base de datos
         $cadenaModel = CadenaModel::where('nombre', $nombreCadena)->first();
-        //transformar el modelo de cadena a dominio de cadena
+
         return $this->transformarCadenaModelADomain($cadenaModel);
     }
     
-    // transformar cadenamodel a cadenadomain uno por uno
-    private function transformarCadenaModelADomain(CadenaModel $cadenaModel)
+    private function transformarCadenaModelADomain(CadenaModel $cadenaModel): Cadena
     {
         return new Cadena(
             $cadenaModel->id_cadena,
@@ -41,7 +38,8 @@ class ConsultarRepository
         );
     }
     
-    public function recuperarSucursal($nombreSucursal, Cadena $cad){
+    public function recuperarSucursal($nombreSucursal, Cadena $cad): Sucursal
+    {
         $sucursalModel = SucursalModel::with('cadena')
             ->where('nombre', $nombreSucursal)
             ->where('id_cadena', $cad->getIdCadena())
@@ -49,10 +47,12 @@ class ConsultarRepository
         return $this->transformarSucursalModelADomain($sucursalModel);
     }
     
-    private function transformarSucursalModelADomain(SucursalModel $sucursalModel)
+    private function transformarSucursalModelADomain(SucursalModel $sucursalModel): Sucursal
     {
         $cad = $this->transformarCadenaModelADomain($sucursalModel->cadena);
+
         return new Sucursal(
+            $sucursalModel->id,
             $sucursalModel->id_sucursal,
             $cad,
             $sucursalModel->nombre,
@@ -61,21 +61,25 @@ class ConsultarRepository
         );
     }
 
-    public function recuperarInventario($Cadena, $idSuc, $nombreMedicamento){
-        $inventarioModel = InventarioModel::with(['medicamento', 'sucursal', 'cadena'])
+    // ESTE METODO NO SIRVE PARA CONSULTAR. ESTE ES PARA PROCESAR!!!!!!!!!!
+    public function recuperarInventario(Cadena $Cadena, int $idSuc, string $nombreMedicamento): InventarioSucursal
+    {
+        $inventarioModel = InventarioModel::with(['medicamento', 'cadena', 'sucursal'])
             ->where('id_cadena', $Cadena->getIdCadena())
             ->where('id_sucursal', $idSuc)
             ->whereHas('medicamento', function ($q) use ($nombreMedicamento) {
                 $q->where('nombre', $nombreMedicamento);
             })
-            ->first();
+            ->lockForUpdate()
+            ->firstOrFail();
+        dd($inventarioModel);
         return $this->transformarInventarioModelADomain($inventarioModel);
     }
-
-    private function transformarInventarioModelADomain(InventarioModel $inventarioModel)
+    
+    private function transformarInventarioModelADomain(InventarioModel $inventarioModel): InventarioSucursal
     {
-        $sucursalDomain = $this->transformarSucursalModelADomain(       // estan bien los parametros?
-            $inventarioModel->sucursal, $inventarioModel->cadena
+        $sucursalDomain = $this->transformarSucursalModelADomain(
+            $inventarioModel->sucursal
         );
 
         $medicamentoDomain = $this->transformarMedicamentoModelADomain(
@@ -102,39 +106,36 @@ class ConsultarRepository
         );
     }
 
-    //recuperar receta por id en el metodo iran los parametros detalles, idReceta y sucursal
-    public function recuperarReceta($idReceta)
+    public function recuperarReceta(int $idReceta): Receta
     {
         $recetaModel = RecetaModel::with([
-            'detalle.medicamento',
-            'detalle.lineasSurtido.sucursal',   // todos los detalles
-            'sucursal', 
-            'pago' // la sucursal destino
-        ])
-        ->where('id_receta', $idReceta)
-        ->first();
+                'detalles.medicamento',
+                'detalles.lineasSurtido.sucursalSurtido',
+                'sucursalDestino',
+                'pago',
+            ])
+            ->where('id_receta', $idReceta)
+            ->firstOrFail();
 
         return $this->transformarRecetaModelADomain($recetaModel);
     }
 
-   private function transformarPagoModelADomain($pagoModel): Pago
+    private function transformarPagoModelADomain($pagoModel): Pago
     {
         return new Pago(
-            (float)$pagoModel->monto
+            (float) $pagoModel->monto
         );
     }
+
     private function transformarDetallesModelADomain($detallesModel): array
     {
         $detalles = [];
 
         foreach ($detallesModel as $d) {
-
-            // 1) Transformar las lineas_surtido de este detalle
             $lineasDomain = $this->transformarLineasSurtidoModelADomain($d->lineasSurtido);
 
             $medicamentoDomain = $this->transformarMedicamentoModelADomain($d->medicamento);
 
-            // 2) Crear el DetalleReceta de dominio con su arreglo de línea de surtido
             $detalles[] = new DetalleReceta(
                 $medicamentoDomain,
                 $d->cantidad,
@@ -142,6 +143,7 @@ class ConsultarRepository
                 $lineasDomain
             );
         }
+
         return $detalles;
     }
 
@@ -150,14 +152,14 @@ class ConsultarRepository
         $lineas = [];
 
         foreach ($lineasModel as $ls) {
-
-            $sucursalDomain = $this->transformarSucursalModelADomain($ls->sucursal);
+            $sucursalDomain = $this->transformarSucursalModelADomain(
+                $ls->sucursalSurtido
+            );
 
             $lineas[] = new LineaSurtido(
                 $sucursalDomain,
                 $ls->estado_entrega,
                 $ls->cantidad,
-                // lo que tengas en tu clase LineaSurtido
             );
         }
 
@@ -166,17 +168,14 @@ class ConsultarRepository
 
     private function transformarRecetaModelADomain(RecetaModel $recetaModel): Receta
     {
-        // Sucursal de dominio
         $sucursalDomain = $this->transformarSucursalModelADomain(
-            $recetaModel->sucursal
+            $recetaModel->sucursalDestino
         );
 
-        // Detalles de dominio (cada uno con sus líneas de surtido y sucursal)
         $detallesDomain = $this->transformarDetallesModelADomain(
-            $recetaModel->detalle
+            $recetaModel->detalles
         );
 
-        // Pago de dominio (si existe)
         $pagoDomain = null;
         if ($recetaModel->pago) {
             $pagoDomain = $this->transformarPagoModelADomain($recetaModel->pago);
@@ -208,11 +207,12 @@ class ConsultarRepository
 
         return $this->transformarPacienteModelADomain($usuarioModel);
     }
+
     public function recuperarPacienteRecetas(int $idUsuario): ?Paciente
     {
         $usuarioModel = UsuarioModel::with([
-                'recetas.detalle.lineasSurtido.sucursal', // si quieres toda la cascada
-                'recetas.sucursal',
+                'recetas.detalles.lineasSurtido.sucursalSurtido',
+                'recetas.sucursalDestino',
                 'recetas.pago',
             ])
             ->where('id_usuario', $idUsuario)
@@ -221,12 +221,12 @@ class ConsultarRepository
         if (!$usuarioModel) {
             return null;
         }
+
         return $this->transformarPacienteModelADomain($usuarioModel);
     }
 
-   private function transformarPacienteModelADomain(UsuarioModel $usuarioModel): Paciente
-   {
-        // transformar recetas
+    private function transformarPacienteModelADomain(UsuarioModel $usuarioModel): Paciente
+    {
         $recetasDomain = [];
 
         if ($usuarioModel->relationLoaded('recetas')) {
@@ -243,14 +243,12 @@ class ConsultarRepository
             $usuarioModel->nip,
             $recetasDomain
         );
-   }
+    }
 
     public function buscarSucursalesCandidatas(
         Sucursal $sucursalOrigen,
         Medicamento $medicamento,
-        int $cantidadRequerida,
         int $limite = 20,
-        float $radioKm = 20.0
     ): array {
         $idMed = $medicamento->getIdMedicamento();
 
@@ -259,16 +257,6 @@ class ConsultarRepository
 
         $table = (new SucursalModel())->getTable(); // 'sucursales'
 
-        // 1) Bounding box
-        $deltaLat = $radioKm / 111.0;
-        $deltaLon = $radioKm / (111.0 * max(cos(deg2rad($lat0)), 0.00001));
-
-        $latMin = $lat0 - $deltaLat;
-        $latMax = $lat0 + $deltaLat;
-        $lonMin = $lon0 - $deltaLon;
-        $lonMax = $lon0 + $deltaLon;
-
-        // 2) Haversine
         $haversine = "
             6371 * 2 * ASIN(
                 SQRT(
@@ -279,29 +267,24 @@ class ConsultarRepository
             )
         ";
 
-        // 3) Consulta
         $query = SucursalModel::with('cadena')
             ->select("$table.*")
             ->selectRaw("$haversine AS distancia", [$lat0, $lat0, $lon0])
-            ->whereBetween("$table.latitud",  [$latMin, $latMax])
-            ->whereBetween("$table.longitud", [$lonMin, $lonMax])
             ->whereHas('inventarios', function ($q) use ($idMed) {
                 $q->where('inventarios.id_medicamento', $idMed)
-                ->where('inventarios.stock_actual', '>', 0);
+                  ->where('inventarios.stock_actual', '>', 0);
             })
             ->orderBy('distancia', 'asc')
             ->limit($limite);
 
-        // dd($query->toSql(), $query->getBindings());
-
         $sucursalesModel = $query->get();
 
-        // 4) Transformar a dominio
         $resultado = [];
 
         foreach ($sucursalesModel as $sucModel) {
-            $mismaSucursal = $sucModel->id_sucursal === $sucursalOrigen->getIdSucursal()
-            && $sucModel->id_cadena   === $sucursalOrigen->getCadena()->getIdCadena();
+            $mismaSucursal =
+                $sucModel->id_sucursal === $sucursalOrigen->getIdSucursal()
+                && $sucModel->id_cadena === $sucursalOrigen->getCadena()->getIdCadena();
 
             if ($mismaSucursal) {
                 continue;
@@ -309,7 +292,7 @@ class ConsultarRepository
 
             $resultado[] = $this->transformarSucursalModelADomain($sucModel);
         }
+
         return $resultado;
     }
-
 }

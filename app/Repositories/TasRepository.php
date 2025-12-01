@@ -118,7 +118,7 @@ class TasRepository
     {
         try {
             return SucursalModel::with('cadena:id_cadena,nombre')
-                ->select('id_cadena', 'id_sucursal', 'nombre', 'latitud', 'longitud')
+                ->select('id','id_cadena', 'id_sucursal', 'nombre', 'latitud', 'longitud')
                 ->get();
         } catch (\Exception $e) {
             return null;

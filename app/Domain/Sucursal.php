@@ -5,6 +5,7 @@ use App\repositories\ConsultarRepository;
 use App\Repositories\ActualizarRepository;
 class Sucursal
 {
+    private int $id;
     private int $idSucursal;
     private Cadena $cadena;
     private string $nombre;
@@ -12,12 +13,14 @@ class Sucursal
     private float $longitud;
 
     public function __construct(
+        int $id = 0,
         int $id_sucursal = 0,
         ?Cadena $cadena = null,
         string $nombre = "",
         float $latitud = 0.0,
         float $longitud = 0.0
     ) {
+        $this->id = $id;
         $this->idSucursal = $id_sucursal;
         $this->cadena = $cadena;
         $this->nombre = $nombre;
@@ -27,21 +30,18 @@ class Sucursal
     
     public function obtenerInventario(string $nombreMedicamento): InventarioSucursal{
         $consultarRepository = new ConsultarRepository();       // NO SE INDICA EN EL DIAGRAMA
-        $inv = $consultarRepository->recuperarInventario ($this->getCadena(), $this->getIdSucursal(), $nombreMedicamento);
+        $inv = $consultarRepository->recuperarInventario($this->getCadena(), $this->getId(), $nombreMedicamento);   // CAMBIO DE GETIDSUCURSAL
         return $inv;
     }
 
     public function verificarDisponibilidad(int $cant, Medicamento $med): int{
         //Nota: Modificar el diagrama de interaccion
         $inv = $this->obtenerInventario($med->getNombre());
-        $hayStock = $inv->verificarStock();
-        $stockExistente = 0;
+        $stockExistente = $inv->obtenerStock();
         $cantObtenida = 0;
-        $cadena = $this->getCadena();
-        $actualizarRepository = new ActualizarRepository();
-        $actualizarRepository->beginTransaction();
-        if ($hayStock) {
-            $stockExistente = $inv->obtenerStock();
+
+        if ($stockExistente>0) {       // ASI SE EVITA UNA LLAMADA INNECESARIA             
+            $actualizarRepository = new ActualizarRepository();
             if ($stockExistente >= $cant) {
                 $inv->descontarMedicamento($cant);
                 $cantObtenida = $cant;     
@@ -50,9 +50,9 @@ class Sucursal
                 $cantObtenida = $stockExistente;
             }
             $idSucursal = $this->getIdSucursal();
+            $cadena = $this->getCadena();
             $actualizarRepository->actualizarInventario($cadena, $idSucursal, $inv);
         }
-        $actualizarRepository->commitTransaction();
         return $cantObtenida;
     }
 
@@ -62,6 +62,10 @@ class Sucursal
 
     public function confirmarRecetaNoRecogida(int $idReceta, string $estado): void{
 
+    }
+
+    public function getId(): int {
+        return $this->id;
     }
 
     public function getIdSucursal(): int { 
@@ -82,6 +86,10 @@ class Sucursal
 
     public function getLongitud(): float { 
         return $this->longitud; 
+    }
+
+    public function setId(int $id): void {
+        $this->id = $id;
     }
 
     public function setIdSucursal(int $idSucursal): void { 

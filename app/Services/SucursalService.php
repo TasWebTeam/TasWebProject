@@ -43,12 +43,13 @@ class SucursalService
      *     la distancia de ruta real usando OSM.
      *  3) Se regresa la sucursal con menor distancia OSM.
      */
-    public function obtenerSucursalMasCercanaConStock(
+    public function obtenerSucursalMasCercanaConStock(  // YA NO SE USA
         Sucursal $sucursalOrigen,
         Medicamento $medicamento,
         int $cantidadRequerida
     ): ?Sucursal {
         // 1) Candidatas desde BD (ya filtradas y ordenadas por Haversine)
+
         $candidatas = $this->consultarRepo->buscarSucursalesCandidatas(
             $sucursalOrigen,
             $medicamento,
@@ -89,7 +90,121 @@ class SucursalService
                 $mejorSuc    = $suc;
             }
         }
+        return $mejorSuc;   // TE REGRESA LA MEJOR SUCURSAL SEGUN HARVENSINE Y OSM
+    }
 
-        return $mejorSuc;
+    public function obtenerSucursalesOrdenadasPorDistanciaReal(
+    Sucursal $sucursalOrigen,
+    Medicamento $medicamento,
+    $cantidadRequerida
+): array {
+    // 1) Candidatas desde BD (Haversine)
+    $candidatas = $this->consultarRepo->buscarSucursalesCandidatas(
+        $sucursalOrigen,
+        $medicamento,
+        limite: $this->limiteBD
+    );
+
+    if (empty($candidatas)) {
+        return [];
+    }
+
+    $latO = $sucursalOrigen->getLatitud();
+    $lonO = $sucursalOrigen->getLongitud();
+
+    $items = [];
+
+    // 2) Calculas distancia OSM para las candidatas
+    foreach ($candidatas as $suc) {
+        /** @var Sucursal $suc */
+
+        $distKm = $this->rutaService->obtenerDistanciaKm(
+            $latO,
+            $lonO,
+            $suc->getLatitud(),
+            $suc->getLongitud()
+        );
+
+        // Si OSM falla, puedes saltar o usar fallback (Haversine)
+        if ($distKm === null) {
+            // opcional: fallback
+            // $distKm = $this->distanciaHaversine(...);
+            continue;
+        }
+
+        $items[] = [
+            'sucursal'     => $suc,
+            'distancia_km' => $distKm,
+        ];
+    }
+
+    // 3) Ordenar por distancia real
+    usort($items, function ($a, $b) {
+        return $a['distancia_km'] <=> $b['distancia_km'];
+    });
+
+    // 4) Devolver solo las sucursales (o el array con distancias si te sirve)
+    return array_map(
+        fn ($item) => $item['sucursal'],
+        $items
+    );
+}
+
+    public function obtenerSucursalesOrdenadasPorDistanciaYConStock(
+        Sucursal $sucursalDestino,
+        Medicamento $medicamento,
+        $cantidadRequerida
+    ): array {
+        $limiteBD = max($this->limiteBD, $cantidadRequerida);
+        // 1) Buscar sucursales candidatas usando Haversine en BD
+        $candidatas = $this->consultarRepo->buscarSucursalesCandidatas(
+            $sucursalDestino,
+            $medicamento,
+            $limiteBD
+            //radioKm: $this->radioKm
+        );
+
+        if (empty($candidatas)) {
+            return [];
+        }
+
+        // Coordenadas del DESTINO (la sucursal que solicita surtido)
+        $latD = $sucursalDestino->getLatitud();
+        $lonD = $sucursalDestino->getLongitud();
+
+        $items = [];
+
+        foreach ($candidatas as $sucOrigen) {
+
+            /** @var Sucursal $sucOrigen */
+
+            // 2) Calcular distancia REAL con OSM: ORIGEN -> DESTINO
+            $distKm = $this->rutaService->obtenerDistanciaKm(
+                $sucOrigen->getLatitud(),
+                $sucOrigen->getLongitud(),
+                $latD,
+                $lonD
+            );
+
+            // Si la API falla → descartar (o poner un fallback)
+            if ($distKm === null) {
+                continue;
+            }
+
+            // 3) STOCK REAL desde dominio
+            // $stock = $sucOrigen->verificarDisponibilidad(PHP_INT_MAX, $medicamento);
+            // if ($stock <= 0) continue;
+
+            // 4) Agregar al arreglo
+            $items[] = [
+                'sucursal'     => $sucOrigen,
+                'distancia_km' => $distKm,
+                // 'stock'        => $stock,
+            ];
+        }
+
+        // 5) Ordenar por distancia real
+        usort($items, fn($a, $b) => $a['distancia_km'] <=> $b['distancia_km']);
+        return $items;
     }
 }

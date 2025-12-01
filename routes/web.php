@@ -35,8 +35,11 @@ Route::post('/logout', [TasController::class, 'logout'])
     ->name('logout');
 
     
-Route::post('/TESTING', [ProcesarRecetaController::class, 'TESTING'])
-    ->name('TESTING');
+// Route::post('/TESTING', [ProcesarRecetaController::class, 'TESTING'])
+//     ->name('TESTING');
+
+Route::post('/crearNuevaReceta', [ProcesarRecetaController::class, 'crearNuevaReceta'])
+    ->name('crearNuevaReceta');
 
 Route::view('/acerca', 'tas.acerca')->name('acerca');
 Route::view('/servicio', 'tas.servicio')->name('servicio');
