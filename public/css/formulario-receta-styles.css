@@ -22,24 +22,6 @@
     color: white;
 }
 
-.map-container {
-    height: 500px;
-    width: 100%;
-    border-radius: 10px;
-    border: 2px solid #e3e3e3;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-}
-
-.card {
-    border-radius: 15px !important;
-}
-
-.card-header.rounded-top {
-    border-top-left-radius: 15px !important;
-    border-top-right-radius: 15px !important;
-}
-
 .formulario-receta-card {
     max-width: 900px;
     margin: 2rem auto;
@@ -141,141 +123,6 @@
     border-radius: 2px;
 }
 
-.d-flex.gap-3 {
-    justify-content: center;
-    margin-bottom: 30px;
-}
-
-.option-button {
-    border: 2px solid var(--color-cyan);
-    color: var(--color-cyan);
-    background: white;
-    padding: 25px 40px;
-    border-radius: 15px;
-    font-weight: 600;
-    font-size: 1.1em;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    min-width: 240px;
-}
-
-.option-button::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: var(--color-cyan);
-    transform: translate(-50%, -50%);
-    transition: width 0.4s ease, height 0.4s ease;
-}
-
-.option-button:hover {
-    border-color: var(--color-cyan);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 15px rgba(0,168,204,0.3);
-}
-
-.option-button:hover::before {
-    width: 400px;
-    height: 400px;
-}
-
-.option-button i,
-.option-button span {
-    position: relative;
-    z-index: 1;
-}
-
-.option-button i {
-    font-size: 1.3em;
-}
-
-.option-button input[type="file"] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-}
-
-#textarea-container {
-    animation: slideDown 0.4s ease-out;
-    margin-bottom: 30px;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        max-height: 0;
-    }
-    to {
-        opacity: 1;
-        max-height: 400px;
-    }
-}
-
-.receta-textarea {
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 20px;
-    font-size: 1.05em;
-    min-height: 200px;
-    transition: all 0.3s ease;
-}
-
-.receta-textarea:focus {
-    border-color: var(--color-cyan);
-    box-shadow: 0 0 0 3px rgba(0,168,204,0.1);
-}
-
-.text-center.mt-4 {
-    margin-top: 40px !important;
-}
-
-.btn-submit {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    border: none;
-    color: white;
-    padding: 18px 50px;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 1.2em;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(40,167,69,0.3);
-}
-
-.btn-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(40,167,69,0.4);
-}
-
-.btn-submit i {
-    font-size: 1.1em;
-}
-
-.formulario-receta-footer {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 25px;
-    border-top: 3px solid var(--color-cyan);
-}
-
-.step-badge {
-    background: linear-gradient(135deg, var(--color-principal), var(--color-cyan));
-    color: white;
-    padding: 10px 25px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 1.05em;
-    display: inline-block;
-}
-
 .cedula-section {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     padding: 25px;
@@ -289,22 +136,22 @@
 }
 
 .form-control:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    border-color: var(--color-cyan);
+    box-shadow: 0 0 0 0.25rem rgba(0, 168, 204, 0.25);
 }
 
 #seccion-medicamentos {
     animation: slideDown 0.4s ease-out;
 }
 
-@keyframes fadeOut {
+@keyframes slideDown {
     from {
-        opacity: 1;
-        transform: scale(1);
+        opacity: 0;
+        max-height: 0;
     }
     to {
-        opacity: 0;
-        transform: scale(0.95);
+        opacity: 1;
+        max-height: 2000px;
     }
 }
 
@@ -351,6 +198,201 @@
     animation: slideDown 0.3s ease-out;
 }
 
+.btn-submit {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    color: white;
+    padding: 18px 50px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.2em;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+}
+
+.btn-submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40,167,69,0.4);
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-submit i {
+    font-size: 1.1em;
+}
+
+.formulario-receta-footer {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 25px;
+    border-top: 3px solid var(--color-cyan);
+}
+
+/* Estilos del popup de búsqueda */
+.search-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.search-popup.active {
+    display: flex;
+}
+
+.search-popup-content {
+    background: white;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease-out;
+}
+
+.search-header {
+    padding: 25px 30px;
+    border-bottom: 2px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--color-principal) 0%, var(--color-cyan) 100%);
+    color: white;
+}
+
+.search-header h5 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.search-results {
+    overflow-y: auto;
+    max-height: calc(80vh - 80px);
+    padding: 20px;
+}
+
+.medicamento-item {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.medicamento-item:hover {
+    border-color: var(--color-cyan);
+    background: linear-gradient(135deg, #f8f9ff 0%, #e8f4f8 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 168, 204, 0.2);
+}
+
+.medicamento-imagen {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+    border: 2px solid #e0e0e0;
+}
+
+.medicamento-info {
+    flex: 1;
+}
+
+.medicamento-nombre {
+    font-weight: bold;
+    color: var(--color-principal);
+    margin-bottom: 5px;
+    font-size: 1.05em;
+}
+
+.medicamento-descripcion {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.medicamento-laboratorio {
+    color: #888;
+    font-size: 0.85em;
+}
+
+.medicamento-controlado {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.75em;
+    margin-top: 5px;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
+}
+
+.no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.no-results i {
+    color: #ccc;
+    margin-bottom: 15px;
+}
+
+.no-results p {
+    font-size: 1.1em;
+    margin: 0;
+}
+
+.close-popup {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: white;
+    padding: 5px;
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-popup:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+/* Responsive */
 @media (max-width: 768px) {
     .formulario-receta-card {
         max-width: 100%;
@@ -360,15 +402,20 @@
     .card-body {
         padding: 40px 30px !important;
     }
+
+    .search-popup-content {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .medicamento-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
 }
 
 @media (max-width: 576px) {
-    .option-button {
-        min-width: 100%;
-        padding: 20px 30px;
-        font-size: 1em;
-    }
-    
     .formulario-receta-header {
         padding: 30px 20px;
     }
@@ -385,5 +432,10 @@
         width: 100%;
         padding: 16px 40px;
         font-size: 1.1em;
+    }
+
+    .medicamento-imagen {
+        width: 60px;
+        height: 60px;
     }
 }

@@ -1,3 +1,6 @@
+/* ========================================
+   VARIABLES
+======================================== */
 :root {
     --stepper-primary: #005B96;
     --stepper-primary-light: rgba(0, 91, 150, 0.1);
@@ -8,11 +11,122 @@
     --stepper-text-muted: #6c757d;
 }
 
-body {
-    margin-bottom: 70px;
+/* ========================================
+   ANIMACIONES DE TRANSICIÓN
+======================================== */
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
+@keyframes slideOutLeft {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+}
+
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 0 6px var(--stepper-primary-light), 0 4px 12px rgba(0, 91, 150, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(0, 91, 150, 0.05), 0 6px 16px rgba(0, 91, 150, 0.4);
+    }
+}
+
+@keyframes checkPop {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ========================================
+   PASOS DEL FORMULARIO
+======================================== */
+
+.form-step {
+    display: none;
+    width: 100%;
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+}
+
+.form-step.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-step.slide-out-left {
+    animation-name: slideOutLeft;
+}
+
+.form-step.slide-in-right {
+    animation-name: slideInRight;
+}
+
+.form-step.slide-out-right {
+    animation-name: slideOutRight;
+}
+
+.form-step.slide-in-left {
+    animation-name: slideInLeft;
+}
+
+/* ========================================
+   STEPPER CONTAINER
+======================================== */
+
 .stepper-container {
+    width: 100%;
+    margin-bottom: 25px;
     padding: 35px 25px;
     background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 50%, #f0f8ff 100%);
     border-radius: 20px;
@@ -33,24 +147,29 @@ body {
     animation: gradientShift 3s ease infinite;
 }
 
-@keyframes gradientShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-}
+/* ========================================
+   STEPPER WRAPPER
+======================================== */
 
 .stepper-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
-    max-width: 650px;
     margin: 0 auto;
+    max-width: 400px;
+    padding: 0 10px;
 }
+
+/* ========================================
+   STEPPER ITEMS
+======================================== */
 
 .stepper-item {
     display: flex;
     flex-direction: column;
     align-items: center;
     position: relative;
+    flex: 0;
     z-index: 1;
 }
 
@@ -61,8 +180,8 @@ body {
     background-color: var(--stepper-inactive);
     border: 4px solid var(--stepper-inactive);
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     font-weight: 700;
     font-size: 20px;
     color: var(--stepper-text-muted);
@@ -97,6 +216,10 @@ body {
     letter-spacing: 0.3px;
 }
 
+/* ========================================
+   STEPPER STATES - ACTIVE
+======================================== */
+
 .stepper-item.active .step-counter {
     background: linear-gradient(135deg, var(--stepper-primary) 0%, var(--stepper-cyan) 100%);
     border-color: var(--stepper-primary);
@@ -111,6 +234,10 @@ body {
     font-weight: 700;
     transform: translateY(-2px);
 }
+
+/* ========================================
+   STEPPER STATES - COMPLETED
+======================================== */
 
 .stepper-item.completed .step-counter {
     background: linear-gradient(135deg, var(--stepper-success) 0%, #20c997 100%);
@@ -140,24 +267,14 @@ body {
     animation: checkPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-@keyframes checkPop {
-    0% {
-        transform: scale(0);
-        opacity: 0;
-    }
-    50% {
-        transform: scale(1.2);
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
 .stepper-item.completed .step-name {
     color: var(--stepper-success);
     font-weight: 700;
 }
+
+/* ========================================
+   STEPPER LINE
+======================================== */
 
 .stepper-line {
     flex: 1;
@@ -191,18 +308,81 @@ body {
     box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
 }
 
-@keyframes pulseGlow {
-    0%, 100% {
-        box-shadow: 0 0 0 6px var(--stepper-primary-light), 0 4px 12px rgba(0, 91, 150, 0.3);
-    }
-    50% {
-        box-shadow: 0 0 0 10px rgba(0, 91, 150, 0.05), 0 6px 16px rgba(0, 91, 150, 0.4);
-    }
+/* ========================================
+   ELEMENTOS DEL FORMULARIO
+======================================== */
+
+.step-description {
+    font-size: 13px !important;
+    color: #666 !important;
+    margin: 5px 0 15px !important;
+    text-align: center;
 }
+
+.input-group {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 10px;
+    width: 100%;
+}
+
+.input-group input {
+    margin: 10px 0 !important;
+}
+
+/* ========================================
+   BOTONES
+======================================== */
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.button-group button {
+    flex: 1;
+    margin-top: 0 !important;
+}
+
+.btn-secondary {
+    background: #6c757d !important;
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3) !important;
+}
+
+.btn-secondary:hover {
+    background: #5a6268 !important;
+    box-shadow: 0 6px 25px rgba(108, 117, 125, 0.4) !important;
+}
+
+.btn-skip {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+}
+
+.btn-skip:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #495057 100%) !important;
+}
+
+/* ========================================
+   UTILIDADES
+======================================== */
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+/* ========================================
+   RESPONSIVE
+======================================== */
 
 @media (max-width: 768px) {
     .stepper-container {
         padding: 30px 20px;
+    }
+
+    .stepper-wrapper {
+        max-width: 350px;
     }
 
     .step-counter {
@@ -221,26 +401,27 @@ body {
 }
 
 @media (max-width: 576px) {
-    .stepper-wrapper {
-        max-width: 100%;
-    }
-    
     .stepper-container {
         padding: 25px 15px;
         border-radius: 15px;
     }
-    
+
+    .stepper-wrapper {
+        max-width: 300px;
+        padding: 0 5px;
+    }
+
     .step-counter {
         width: 45px;
         height: 45px;
         font-size: 16px;
         border-width: 3px;
     }
-    
+
     .step-name {
         font-size: 11px;
     }
-    
+
     .stepper-line {
         margin: 0 8px 35px 8px;
         height: 3px;
@@ -252,5 +433,38 @@ body {
         font-size: 10px;
         top: -4px;
         right: -4px;
+    }
+
+    .step-description {
+        font-size: 12px !important;
+    }
+
+    .input-group {
+        gap: 8px;
+    }
+
+    .button-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .button-group button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .stepper-container {
+        margin-bottom: 20px;
+    }
+
+    .step-counter {
+        width: 45px;
+        height: 45px;
+        font-size: 16px;
+    }
+
+    .step-name {
+        font-size: 11px;
     }
 }

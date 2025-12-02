@@ -7,7 +7,7 @@
 
     {{-- Título dinámico --}}
     <h1 class="mb-4" style="color:#003865;">
-        Recetas pendientes por surtir — {{ $nombreSucursal ?? 'Sucursal' }}
+        Recetas pendientes por surtir — {{ $nombreCadena ?? 'Cadena' }} - {{ $nombreSucursal ?? 'Sucursal' }}
     </h1>
 
     <p class="text-muted mb-4">
@@ -52,7 +52,7 @@
                         <tr>
                             <th>Folio</th>
                             <th>Fecha registro</th>
-                            <th>Fecha recolección</th>
+                            <th>Fecha recolección estimada</th>
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
@@ -85,8 +85,10 @@
                                 </td>
 
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-outline-primary">Ver detalles</a>
-
+                                    <a href="{{ route('empleado_recetas.mapa', ['id' => $receta->getIdReceta()]) }}"
+                                        class="btn btn-sm btn-outline-primary">
+                                            Ver ruta
+                                    </a>
                                     @if ($receta->getEstadoPedido() === 'en_proceso')
                                         <button class="btn btn-sm btn-success ms-1"
                                             data-bs-toggle="modal"

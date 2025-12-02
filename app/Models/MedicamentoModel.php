@@ -12,16 +12,13 @@ class MedicamentoModel extends Model
 
     // No incluyo id_medicamento porque es AUTO_INCREMENT
     protected $fillable = [
+        'id_medicamento',
         'nombre',
         'especificacion',
         'laboratorio',
         'es_controlado',
     ];
 
-    /**
-     * Detalles de receta donde participa este medicamento
-     * (relación 1 medicamento -> muchos detalles)
-     */
     public function detallesReceta()
     {
         return $this->hasMany(
@@ -31,9 +28,11 @@ class MedicamentoModel extends Model
         );
     }
 
-    /**
-     * Inventarios en los que aparece este medicamento
-     */
+         public function imagen()
+    {
+        return $this->belongsTo(ImagenMedicamentoModel::class, 'idImagen', 'idImagen');
+    }
+
     public function inventarios()
     {
         return $this->hasMany(

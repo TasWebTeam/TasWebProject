@@ -30,7 +30,7 @@ class ProcesarRecetaController extends Controller
     }
     
     public function crearNuevaReceta(){
-        $usuarioCorreo= session('usuario.correo');      // no puede ser por id?
+        $usuarioCorreo= session('usuario.correo');      // no puede ser por id? Y SI VA AQUI?
         $this->recetaService->crearNuevaReceta($usuarioCorreo);
 
         // ESTO NO VA ----
@@ -47,21 +47,27 @@ class ProcesarRecetaController extends Controller
         $this->introducirCedulaProfesional("123456");
     }
 
+    public function medicamentoSeleccionado(Request $request){
+        dd("hola");
+    }
+
     public function introducirCedulaProfesional(string $cedulaProfesional){
         
         $this->recetaService->introducirCedulaProfesional($cedulaProfesional);
 
         // ESTO NO VA ----
-        $this->introducirMedicamento("Paracetamol", 5);
+        $this->introducirMedicamento("Paracetamol", 20);
     }
     
     public function introducirMedicamento(string $nombreMedicamento, int $cantidad){
         $this->recetaService->introducirMedicamento($nombreMedicamento, $cantidad);
-        $this->TESTING();
+
+        // $this->TESTING();
     }
 
     public function procesarReceta(int $numTarjeta){
-        
+        // COLOCAR BIEN EL PARAMETRO
+        $this->recetaService->procesarReceta("12345");
     }
     
     public function TESTING(){
@@ -69,9 +75,11 @@ class ProcesarRecetaController extends Controller
         // Cadena
         // id - nombre
         $cadena1 = new Cadena("BNV", "Farmacias Benavides");
+        // $cadena1 = new Cadena("AHO", "Farmacias del Ahorro");
         // Sucursal
         // id - Cadena - nombre - latitud - longitud
         $sucursal1 = new Sucursal(4, $cadena1, 2, "Pedro Anaya", 24.82146940, -107.38997500);
+        // $sucursal1 = new Sucursal(1, $cadena1, 1, "Cedros", 24.78899860, -107.37250180);
         // Pago
         $pago = new Pago();
         // Receta 1
@@ -79,18 +87,19 @@ class ProcesarRecetaController extends Controller
         $receta1 = new Receta(1, $sucursal1, "123456", $date, $date, "Pedido", [], $pago);
         // Medicamentos
         // id - nombre - especificacion - laboratorio
-        $medicamento1 = new Medicamento(1, "Paracetamol", 'Tabletas 500 mg', "Genfar");
-        $medicamento2 = new Medicamento(2, "Ibuprofeno", 'Capsulas 400 mg', "Bayer");
+        // $medicamento1 = new Medicamento(1, "Paracetamol", 'Tabletas 500 mg', "Genfar");
+        // $medicamento2 = new Medicamento(2, "Ibuprofeno", 'Capsulas 400 mg', "Bayer");
         
         // DetallesReceta
-        $detalle1 = new DetalleReceta($medicamento1, 20, 10.0, []);
+        // $detalle1 = new DetalleReceta($medicamento1, 20, 10.0, []);
         // $detalle2 = new DetalleReceta($medicamento2, 10, 20.0, []);
 
         // Agregar a receta los detalles
-        $receta1->agregarDetalleReceta($detalle1);
+        // $receta1->agregarDetalleReceta($detalle1);
+        // $this->recetaService->procesarReceta("123");
         //$receta1->agregarDetalleReceta($detalle2);
         // Procesarlo
-        $receta1->procesarReceta("1234", $this->sucursalService);
-        dd($receta1->getDetallesReceta());
+        // $receta1->procesarReceta("1234", $this->sucursalService);
+        // dd($receta1->getDetallesReceta());
     }
 }

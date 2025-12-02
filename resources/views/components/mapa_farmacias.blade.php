@@ -25,9 +25,6 @@
                 <i class="fas fa-hand-pointer me-2"></i>
                 Haz clic en una farmacia para seleccionarla
             </p>
-            <small class="text-muted footer-attribution">
-                <i class="fas fa-map me-1"></i>Fuente del mapa: OpenStreetMap (Leaflet.js)
-            </small>
         </div>
     </div>
 
@@ -44,9 +41,7 @@
 @endpush
 
 @push('scripts')
-<script> window.SUCURSALES = @json($sucursales); </script>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://kit.fontawesome.com/a2d9b2dfb1.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ asset('js/mapa-farmacias.js') }}"></script>
 @endpush

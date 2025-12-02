@@ -8,7 +8,6 @@ class LineaSurtidoModel extends Model
 {
     protected $table = 'linea_surtido';
 
-    // PK artificial de la migración
     protected $primaryKey = 'id_linea_surtido';
     public $incrementing = true;
     public $timestamps = false;
@@ -18,14 +17,12 @@ class LineaSurtidoModel extends Model
         'id_medicamento',
         'id_cadenaSurtido',
         'id_sucursalSurtido',
+        'id_detalle_receta',
         'id_empleado',
         'estado_entrega',
-        'cantidad',
+        'cantidad'
     ];
-
-    /**
-     * Línea de surtido pertenece a una Receta
-     */
+    
     public function receta()
     {
         return $this->belongsTo(
@@ -35,9 +32,14 @@ class LineaSurtidoModel extends Model
         );
     }
 
-    /**
-     * Línea de surtido pertenece a un Medicamento
-     */
+    public function detalleReceta(){
+        return $this->belongsTo(
+            DetalleRecetaModel::class,
+            'id_detalle_receta',
+            'id_detalle_receta'
+        );
+    }
+
     public function medicamento()
     {
         return $this->belongsTo(
@@ -47,42 +49,12 @@ class LineaSurtidoModel extends Model
         );
     }
 
-    /**
-     * (Opcional) Helper para obtener el DetalleReceta exacto
-     * por (id_receta + id_medicamento).
-     * No es una relación Eloquent “pura”, es un método de utilidad.
-     */
-    public function detalleReceta()
-    {
-        return DetalleRecetaModel::where('id_receta', $this->id_receta)
-            ->where('id_medicamento', $this->id_medicamento)
-            ->first();
-    }
-
-    /**
-     * Sucursal donde se surte la línea (por id_sucursalSurtido)
-     * La parte de id_cadenaSurtido la manejas en lógica de negocio
-     * o con un índice UNIQUE en la BD.
-     */
     public function sucursalSurtido()
     {
         return $this->belongsTo(
             SucursalModel::class,
             'id_sucursalSurtido',
-            'id_sucursal'
-        );
-    }
-
-    /**
-     * Empleado que surtió la línea
-     * linea_surtido.id_empleado -> empleados.id_usuario
-     */
-    public function empleado()
-    {
-        return $this->belongsTo(
-            EmpleadoModel::class,
-            'id_empleado',   // FK en linea_surtido
-            'id_usuario'     // PK en empleados
+            'id'
         );
     }
 }

@@ -11,6 +11,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+    {{-- SweetAlert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     {{-- Navbar --}}
     <link rel="stylesheet" href="{{ asset('css/navbar-styles.css') }}">
 
@@ -18,7 +21,7 @@
     @stack('styles')
 </head>
 
-<body>
+<body data-authenticated="{{ session()->has('usuario') ? 'true' : 'false' }}">
 
     {{-- NAVBAR --}}
     <nav class="navbar navbar-expand-lg navbar-custom navbar-dark fixed-top">
@@ -91,7 +94,7 @@
                         {{-- MENÚ DE USUARIO LOGUEADO --}}
                         <div class="dropdown">
                             <button class="btn btn-accent dropdown-toggle d-flex align-items-center" type="button"
-                                id="userMenu" data-bs-toggle="dropdown">
+                                id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user-circle me-2"></i>
                                 {{ $usuario['nombre'] ?? 'Usuario' }}
                             </button>
@@ -140,6 +143,11 @@
 
     {{-- Scripts específicos de cada vista --}}
     @stack('scripts')
+
+    {{-- Gestor de sesiones (solo si está autenticado) --}}
+    @if(session()->has('usuario'))
+        <script src="{{ asset('js/gestor-sesiones-script.js') }}"></script>
+    @endif
 
 </body>
 </html>

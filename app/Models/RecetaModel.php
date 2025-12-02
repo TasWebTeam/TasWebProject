@@ -11,6 +11,7 @@ class RecetaModel extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'id_receta',
         'id_usuario',
         'id_cadenaDestino',
         'id_sucursalDestino',
@@ -20,9 +21,6 @@ class RecetaModel extends Model
         'estado_pedido'
     ];
 
-    /**
-     * Relación: una receta tiene muchos detalles
-     */
     public function detalles()
     {
         return $this->hasMany(
@@ -32,9 +30,6 @@ class RecetaModel extends Model
         );
     }
 
-    /**
-     * Relación: receta pertenece a un usuario
-     */
     public function usuario()
     {
         return $this->belongsTo(
@@ -44,24 +39,15 @@ class RecetaModel extends Model
         );
     }
 
-    /**
-     * Relación: receta pertenece a la sucursal destino
-     * Solo usamos id_sucursalDestino → id_sucursal,
-     * porque Eloquent NO soporta claves compuestas en belongsTo.
-     */
     public function sucursalDestino()
     {
         return $this->belongsTo(
             SucursalModel::class,
-            'id_sucursalDestino', // FK en recetas
-            'id_sucursal'         // clave en sucursales
+            'id_sucursalDestino', 
+            'id'         
         );
     }
 
-    /**
-     * Relación: receta tiene un pago
-     * pagos.id_receta → recetas.id_receta
-     */
     public function pago()
     {
         return $this->hasOne(

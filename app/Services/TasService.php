@@ -10,6 +10,7 @@ use App\Domain\Tarjeta;
 use App\Domain\Medicamento;
 use App\Domain\Sucursal;
 use App\Domain\Cadena;
+use App\Domain\ImagenMedicamento;
 
 class TasService
 {
@@ -103,7 +104,7 @@ class TasService
         );
 
         $usuario->setRol($usuarioNuevo->rol ?? '');
-
+        $this->tasRepository->commitTransaction();
         return $usuario;
     }
 
@@ -194,7 +195,6 @@ class TasService
                 $tarjetaModel->brand,
                 $tarjetaModel->fecha_exp
             );
-
         } catch (\Exception $e) {
             $this->tasRepository->rollbackTransaction();
             return 'Error: ' . $e->getMessage();
@@ -239,7 +239,7 @@ class TasService
             $this->actualizarSesion($usuario);
             $fecha = $usuario->getBloqueadoHasta()->format('Y-m-d H:i:s');
 
-            return 'Advertencia: Esta cuenta ha sido bloqueada hasta '.$fecha;
+            return 'Advertencia: Esta cuenta ha sido bloqueada hasta ' . $fecha;
         }
 
         if (! Hash::check($nip, $usuario->getNip())) {
@@ -254,7 +254,7 @@ class TasService
                 $this->actualizarSesion($usuario);
                 $fecha = $usuario->getBloqueadoHasta()->format('Y-m-d H:i:s');
 
-                return 'Advertencia: Esta cuenta ha sido bloqueada hasta '.$fecha;
+                return 'Advertencia: Esta cuenta ha sido bloqueada hasta ' . $fecha;
             }
 
             $this->actualizarSesion($usuario);
@@ -286,10 +286,10 @@ class TasService
         if ($usuario->getRol() === 'empleado') {
             $empleado = $this->tasRepository->obtenerEmpleado($usuario);
             if ($empleado) {
-                $sessionData['id_sucursal'] = $empleado->getSucursal()->getIdSucursal();
-                $sessionData['id_cadena']=$empleado->getSucursal()->getCadena()->getIdCadena();
-                $sessionData['nombre_sucursal']=$empleado->getSucursal()->getNombre();
-                $sessionData['nombre_cadena']=$empleado->getSucursal()->getCadena()->getNombre();
+                $sessionData['id_sucursal'] = $empleado->getSucursal()->getId();
+                $sessionData['id_cadena'] = $empleado->getSucursal()->getCadena()->getIdCadena();
+                $sessionData['nombre_sucursal'] = $empleado->getSucursal()->getNombre();
+                $sessionData['nombre_cadena'] = $empleado->getSucursal()->getCadena()->getNombre();
                 //$sessionData['id_puesto']   = $empleado->getPuesto();
             }
         }
@@ -328,14 +328,13 @@ class TasService
                     $s->cadena->nombre
                 )
                 : null;
-
             $sucursal = new Sucursal(
-                $s->id_sucursal,
+                $s->id,
                 $cadena,
-                $s->id_cadena,
+                $s->id_sucursal,
                 $s->nombre,
                 $s->latitud,
-                $s->longitud,
+                $s->longitud
             );
 
             $sucursales[] = $sucursal->toArray();
@@ -343,58 +342,66 @@ class TasService
 
         return $sucursales;
     }
-    
-    // public function buscarMedicamentos(string $query): array
-    // {
-    //     $modelos = $this->tasRepository->buscarMedicamentosPorNombre($query);
 
-    //     if (!$modelos || $modelos->isEmpty()) {
-    //         return [];
-    //     }
+    public function buscarMedicamentos(string $query): array
+    {
+        $modelos = $this->tasRepository->buscarMedicamentosPorNombre($query);
 
-    //     $medicamentos = [];
+        if (!$modelos || $modelos->isEmpty()) {
+            return [];
+        }
 
-    //     foreach ($modelos as $m) {
-    //         $url = $m->imagen 
-    //             ? asset($m->imagen->URL) 
-    //             : asset('images/medicamentos/default.png');
+        $medicamentos = [];
 
-    //         $medicamento = new Medicamento(
-    //             $m->id_medicamento,
-    //             $m->idImagen,
-    //             $m->nombre,
-    //             $m->especificacion,
-    //             $m->laboratorio,
-    //             $m->es_controlado,
-    //             $url
-    //         );
+        foreach ($modelos as $m) {
 
-    //         $medicamentos[] = $medicamento->toArray();
-    //     }
+            $imagenDomain = $m->imagen
+                ? new ImagenMedicamento(
+                    $m->imagen->idImagen,
+                    asset($m->imagen->URL)
+                )
+                : null;
 
-    //     return $medicamentos;
-    // }
+            $medicamento = new Medicamento(
+                $m->id_medicamento,
+                $m->idImagen,
+                $m->nombre,
+                $m->especificacion,
+                $m->laboratorio,
+                $m->es_controlado,
+                $imagenDomain
+            );
 
-    // public function obtenerMedicamentos(int $idMedicamento): ?Medicamento
-    // {
-    //     $modelo = $this->tasRepository->obtenerMedicamentoPorId($idMedicamento);
+            $medicamentos[] = $medicamento->toArray();
+        }
 
-    //     if (!$modelo) {
-    //         return null;
-    //     }
+        return $medicamentos;
+    }
 
-    //     $url = $modelo->imagen 
-    //         ? asset($modelo->imagen->URL) 
-    //         : asset('images/medicamentos/default.png');
 
-    //     return new Medicamento(
-    //         $modelo->id_medicamento,
-    //         $modelo->idImagen,
-    //         $modelo->nombre,
-    //         $modelo->especificacion,
-    //         $modelo->laboratorio,
-    //         $modelo->es_controlado,
-    //         $url
-    //     );
-    // }
+    public function obtenerMedicamentos(int $idMedicamento): ?Medicamento
+    {
+        $modelo = $this->tasRepository->obtenerMedicamentoPorId($idMedicamento);
+
+        if (!$modelo) {
+            return null;
+        }
+
+        $imagenDomain = $modelo->imagen
+            ? new ImagenMedicamento(
+                $modelo->imagen->idImagen,
+                asset($modelo->imagen->URL)
+            )
+            : null;
+
+        return new Medicamento(
+            $modelo->id_medicamento,
+            $modelo->idImagen,
+            $modelo->nombre,
+            $modelo->especificacion,
+            $modelo->laboratorio,
+            (bool) $modelo->es_controlado,
+            $imagenDomain
+        );
+    }
 }

@@ -28,6 +28,9 @@ Route::get('/metodo_pago', [TasController::class, 'tas_metodoPagoView'])
     ->middleware('verificar.sesion')
     ->name('tas_metodoPagoView');
 
+Route::get('/medicamentos/buscar', [TasController::class, 'buscarMedicamentos']);
+Route::get('/sucursales', [TasController::class, 'obtenerSucursales']);
+
 Route::post('/metodo-pago/actualizar', [TasController::class, 'tas_actualizarTarjeta'])
     ->name('tas_actualizarTarjeta');
 
@@ -65,8 +68,14 @@ Route::middleware(['verificar.sesion', 'solo.empleado'])->group(function () {
     Route::post('/empleado/recetas/{idReceta}/devolver', [GestionarRecetaController::class, 'devolverReceta'])
         ->name('empleado_recetas_devolver');
 
+    Route::get('/empleado/recetas/{id}/mapa', [GestionarRecetaController::class, 'mostrarMapa'])
+    ->name('empleado_recetas.mapa');
+
     Route::post(
     '/empleado/recetas/{idReceta}/confirmar-no-recogida',
-    [GestionarRecetaController::class, 'confirmarNoRecogida']
+    [GestionarRecetaController::class, 'confirmarRecetaNoRecogida']
     )->name('empleado_recetas_confirmar_no_recogida');
+
+Route::post('/medicamentos/seleccionado', [ProcesarRecetaController::class, 'medicamentoSeleccionado'])
+    ->name('medicamentos.seleccionado');
 });

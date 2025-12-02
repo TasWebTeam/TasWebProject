@@ -33,66 +33,76 @@ class DetalleReceta
         return $this->cantidad * $this->precio;
     }
 
-    public function procesar(Sucursal $sucursal, SucursalService $sucursalService): void
+    public function registrarSurtido(Sucursal $sucursal, int $cantidadSurtida, String $estado): void
     {
-        $cantidadRequerida = $this->cantidad;
-        $sucursalActual    = $sucursal;
-        $buscarSucursales = true;
-        $actualizarRepository = new ActualizarRepository();
-        $actualizarRepository->beginTransaction();
-        $fueSurtido = false;
-
-        while ($cantidadRequerida > 0) {
-
-            $cantObtenida = $sucursalActual->verificarDisponibilidad(
-                $cantidadRequerida,
-                $this->medicamento,
-                $actualizarRepository
-            );
-
-            if ($cantObtenida > 0) {
-                $linea = new LineaSurtido(
-                    $sucursalActual,
-                    $this->precio,
-                    $cantObtenida
-                );
-                $this->agregarLineaSurtido($linea);
-
-                $cantidadRequerida -= $cantObtenida;
-            }
-
-            if ($cantidadRequerida <= 0) {
-                $fueSurtido = true;
-                break;
-            }
-
-            if($buscarSucursales) {
-                $buscarSucursales = false;
-                $candidatas = $sucursalService->obtenerSucursalesOrdenadasPorDistanciaYConStock(
-                    $sucursal,
-                    $this->medicamento,
-                    $cantidadRequerida
-                );
-            }
-            
-            if (empty($candidatas)) {
-                // ya no hay más sucursales, no se pudo surtir todo
-                // INDICAR A MI TIO Y UN ROLLBACK
-                $actualizarRepository->rollbackTransaction();
-                dd("nambre se nos acabo el medicamentoo");
-                break;
-            }
-            // tomar la siguiente sucursal candidata (la más cercana disponible)
-            $infoSucursal = array_shift($candidatas);
-            $sucursalActual = $infoSucursal['sucursal'];
-        }
-        if($fueSurtido == false){
-            dd("No se pudo surtir el medicamento " . $this->getMedicamento()->getNombre());
-            $actualizarRepository->rollbackTransaction();
-        }
-        $actualizarRepository->commitTransaction();
-        dd($this->getLineasSurtido());
+        $linea = new LineaSurtido(
+            $sucursal,
+            $estado,
+            $cantidadSurtida
+        );
+        $this->agregarLineaSurtido($linea);
     }
+
+    // public function procesar(Sucursal $sucursal, SucursalService $sucursalService): void
+    // {
+    //     $cantidadRequerida = $this->cantidad;
+    //     $sucursalActual    = $sucursal;
+    //     $buscarSucursales = true;
+    //     $actualizarRepository = new ActualizarRepository();
+    //     $actualizarRepository->beginTransaction();
+    //     $fueSurtido = false;
+
+    //     while ($cantidadRequerida > 0) {
+
+    //         $cantObtenida = $sucursalActual->verificarDisponibilidad(
+    //             $cantidadRequerida,
+    //             $this->medicamento,
+    //             $actualizarRepository
+    //         );
+
+    //         if ($cantObtenida > 0) {
+    //             $linea = new LineaSurtido(
+    //                 $sucursalActual,
+    //                 $this->precio,
+    //                 $cantObtenida
+    //             );
+    //             $this->agregarLineaSurtido($linea);
+
+    //             $cantidadRequerida -= $cantObtenida;
+    //         }
+
+    //         if ($cantidadRequerida <= 0) {
+    //             $fueSurtido = true;
+    //             break;
+    //         }
+
+    //         if($buscarSucursales) {
+    //             $buscarSucursales = false;
+    //             $candidatas = $sucursalService->obtenerSucursalesOrdenadasPorDistanciaYConStock(
+    //                 $sucursal,
+    //                 $this->medicamento,
+    //                 $cantidadRequerida
+    //             );
+    //         }
+            
+    //         if (empty($candidatas)) {
+    //             // ya no hay más sucursales, no se pudo surtir todo
+    //             // INDICAR A MI TIO Y UN ROLLBACK
+    //             $actualizarRepository->rollbackTransaction();
+    //             dd("nambre se nos acabo el medicamentoo");
+    //             break;
+    //         }
+    //         // tomar la siguiente sucursal candidata (la más cercana disponible)
+    //         $infoSucursal = array_shift($candidatas);
+    //         $sucursalActual = $infoSucursal['sucursal'];
+    //     }
+    //     if($fueSurtido == false){
+    //         dd("No se pudo surtir el medicamento " . $this->getMedicamento()->getNombre());
+    //         $actualizarRepository->rollbackTransaction();
+    //     }
+    //     $actualizarRepository->commitTransaction();
+    //     dd($this->getLineasSurtido());
+    // }
 
     public function abastecer(): void{
         

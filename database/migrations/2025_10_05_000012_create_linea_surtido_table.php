@@ -11,22 +11,21 @@ return new class extends Migration
         Schema::create('linea_surtido', function (Blueprint $table) {
 
             $table->id('id_linea_surtido');
-
+            $table->unsignedBigInteger('id_detalle_receta');
             $table->unsignedBigInteger('id_receta');
             $table->unsignedBigInteger('id_medicamento');
             $table->char('id_cadenaSurtido',3);
             $table->unsignedBigInteger('id_sucursalSurtido');
-            $table->unsignedBigInteger('id_empleado');
             $table->string('estado_entrega', 50);
             $table->integer('cantidad');
-
+            
             $table->unique(['id_receta', 'id_medicamento', 'id_cadenaSurtido', 'id_sucursalSurtido'], 'uq_linea_surtido');
-
+            
+            $table->foreign('id_detalle_receta')->references('id_detalle_receta')->on('detalle_recetas');
             $table->foreign('id_receta')->references('id_receta')->on('recetas');
             $table->foreign('id_medicamento')->references('id_medicamento')->on('medicamentos');
-            $table->foreign(['id_cadenaSurtido','id_sucursalSurtido'])->references(['id_cadena','id_sucursal'])->on('sucursales');
-            //$table->foreign('id_sucursalSurtido')->references('id_sucursal')->on('sucursales');
-            $table->foreign('id_empleado')->references('id_usuario')->on('empleados');
+            $table->foreign('id_cadenaSurtido')->references('id_cadena')->on('cadenas');
+            $table->foreign('id_sucursalSurtido')->references('id')->on('sucursales');
         });
     }
 

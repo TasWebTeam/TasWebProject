@@ -28,35 +28,35 @@ class Sucursal
         $this->longitud = $longitud;
     }
     
-    public function obtenerInventario(string $nombreMedicamento): InventarioSucursal{
-        $consultarRepository = new ConsultarRepository();       // NO SE INDICA EN EL DIAGRAMA
-        $inv = $consultarRepository->recuperarInventario($this->getCadena(), $this->getId(), $nombreMedicamento);   // CAMBIO DE GETIDSUCURSAL
-        return $inv;
-    }
+    // public function obtenerInventario(string $nombreMedicamento): InventarioSucursal{
+    //     $consultarRepository = new ConsultarRepository();       // NO SE INDICA EN EL DIAGRAMA
+    //     $inv = $consultarRepository->recuperarInventarioConsultar($this->getCadena(), $this->getId(), $nombreMedicamento);   // CAMBIO DE GETIDSUCURSAL
+    //     return $inv;
+    // }
 
-    public function verificarDisponibilidad(int $cant, Medicamento $med, ActualizarRepository $actualizarRepository): int{
-        //Nota: Modificar el diagrama de interaccion
-        $inv = $this->obtenerInventario($med->getNombre());
-        $stockExistente = $inv->obtenerStock();
-        $cantObtenida = 0;
+    // public function verificarDisponibilidad(int $cant, Medicamento $med, ActualizarRepository $actualizarRepository): int{
+    //     //Nota: Modificar el diagrama de interaccion
+    //     $inv = $this->obtenerInventario($med->getNombre());
+    //     $stockExistente = $inv->obtenerStock();
+    //     $cantObtenida = 0;
 
-        if ($stockExistente>0) {                   
-            if ($stockExistente >= $cant) {
-                $inv->descontarMedicamento($cant);
-                $cantObtenida = $cant;     
-            } else {
-                $inv->descontarMedicamento($stockExistente);
+    //     if ($stockExistente>0) {                   
+    //         if ($stockExistente >= $cant) {
+    //             $inv->descontarMedicamento($cant);
+    //             $cantObtenida = $cant;     
+    //         } else {
+    //             $inv->descontarMedicamento($stockExistente);
                 
-                $cantObtenida = $stockExistente;
-            }
-            $idSucursal = $this->getId();
-            $cadena = $this->getCadena();
-            // dd($idSucursal, $cadena, $inv->obtenerStock());
-            $actualizarRepository->actualizarInventario($cadena, $idSucursal, $inv);
-        }
-        return $cantObtenida;
-    }
-
+    //             $cantObtenida = $stockExistente;
+    //         }
+    //         $idSucursal = $this->getId();
+    //         $cadena = $this->getCadena();
+    //         // dd($idSucursal, $cadena, $inv->obtenerStock());
+    //         $actualizarRepository->actualizarInventario($cadena, $idSucursal, $inv);
+    //     }
+    //     return $cantObtenida;
+    // }
+/*
     public function devolverReceta(int $idReceta,ConsultarRepository $consultarRepository,ActualizarRepository $actualizarRepository): void
     {
         //SE ELIMINARON LOS REPOS Y SE PASARON POR PARAMETROS
@@ -66,7 +66,7 @@ class Sucursal
 
         // 🔹 Ahora solo persistimos la receta completa:
         $actualizarRepository->guardarReceta($receta);
-    }
+    }*/
     public function confirmarRecetaNoRecogida(int $idReceta, string $estado): void{
         
     }

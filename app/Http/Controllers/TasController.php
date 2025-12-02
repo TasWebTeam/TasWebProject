@@ -186,27 +186,72 @@ class TasController extends Controller
         });
     }
 
-    private function validarDatosTarjeta(Request $request)
+   private function validarDatosTarjeta(Request $request)
     {
         $this->agregarReglaLuhn();
+        $this->agregarReglaFechaNoExpirada();
+        $this->agregarReglaCvvValido();
 
         $validator = Validator::make($request->all(), [
             'numero_tarjeta' => ['required', 'regex:/^\d{4}\s\d{4}\s\d{4}\s\d{4}$/', 'luhn'],
-            'nombre_tarjeta' => ['required', 'string'],
-            'fecha_vencimiento' => ['required', 'regex:/^(0[1-9]|1[0-2])\/\d{2}$/'],
-            'cvv' => ['required', 'digits_between:3,4'],
+            'nombre_tarjeta' => ['required', 'string', 'regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/'],
+            'fecha_vencimiento' => ['required', 'regex:/^(0[1-9]|1[0-2])\/\d{2}$/', 'fecha_no_expirada'],
+            'cvv' => ['required', 'cvv_valido'],
         ], [
             'numero_tarjeta.required' => 'El número de tarjeta es obligatorio.',
             'numero_tarjeta.regex' => 'Debe ser XXXX XXXX XXXX XXXX.',
             'numero_tarjeta.luhn' => 'El número de tarjeta no es válido.',
             'nombre_tarjeta.required' => 'El nombre en la tarjeta es obligatorio.',
+            'nombre_tarjeta.regex' => 'El nombre solo puede contener letras.',
             'fecha_vencimiento.required' => 'La fecha de vencimiento es obligatoria.',
             'fecha_vencimiento.regex' => 'Formato inválido (MM/AA).',
+            'fecha_vencimiento.fecha_no_expirada' => 'La tarjeta está expirada.',
             'cvv.required' => 'El CVV es obligatorio.',
-            'cvv.digits_between' => 'El CVV debe tener 3 o 4 dígitos.',
+            'cvv.cvv_valido' => 'El CVV debe tener 3 dígitos (o 4 para American Express).',
         ]);
 
         return $validator->fails() ? $validator->errors() : true;
+    }
+
+       private function agregarReglaFechaNoExpirada()
+    {
+        Validator::extend('fecha_no_expirada', function ($attribute, $value) {
+            if (! preg_match('/^(0[1-9]|1[0-2])\/\d{2}$/', $value)) {
+                return false;
+            }
+
+            [$mes, $anio] = explode('/', $value);
+
+            $anioCompleto = 2000 + intval($anio);
+
+            $fechaExpiracion = \DateTime::createFromFormat('Y-m-d', "$anioCompleto-$mes-01");
+            $fechaExpiracion->modify('last day of this month');
+            $fechaExpiracion->setTime(23, 59, 59);
+
+            $fechaActual = new \DateTime;
+
+            return $fechaExpiracion >= $fechaActual;
+        });
+    }
+
+    private function agregarReglaCvvValido()
+    {
+        Validator::extend('cvv_valido', function ($attribute, $value, $parameters, $validator) {
+            if (! preg_match('/^\d+$/', $value)) {
+                return false;
+            }
+
+            $numeroTarjeta = $validator->getData()['numero_tarjeta'] ?? '';
+            $numeroLimpio = preg_replace('/\D/', '', $numeroTarjeta);
+
+            $esAmex = preg_match('/^3[47]/', $numeroLimpio);
+
+            if ($esAmex) {
+                return strlen($value) === 4;
+            } else {
+                return strlen($value) === 3;
+            }
+        });
     }
 
     public function tas_crearCuenta(Request $request)
@@ -247,6 +292,34 @@ class TasController extends Controller
         return redirect()->route('tas_loginView')->with('success', 'Usuario creado correctamente');
     }
 
+     public function tas_actualizarTarjeta(Request $request)
+    {
+        $usuario = session('usuario');
+        if (! $usuario) {
+            return redirect()->route('tas_loginView')->with('error', 'Debes iniciar sesión.');
+        }
+
+        $validacion = $this->validarDatosTarjeta($request);
+
+        if ($validacion !== true) {
+            return back()->withErrors($validacion, 'editarTarjeta')->withInput();
+        }
+
+        $resultado = $this->tasService->actualizarTarjeta(
+            $usuario['id'],
+            $request->numero_tarjeta,
+            $request->fecha_vencimiento,
+            $request->cvv,
+            $request->nombre_tarjeta,
+        );
+
+        if (is_string($resultado)) {
+            return back()->with('error', $resultado);
+        }
+
+        return redirect()->route('tas_metodoPagoView')->with('success', 'Método de pago actualizado correctamente');
+    }
+
     public function logout()
     {
         $usuario = session('usuario');
@@ -256,5 +329,23 @@ class TasController extends Controller
         session()->flush();
 
         return redirect()->route('tas_loginView');
+    }
+    public function buscarMedicamentos(Request $request)
+    {
+        $query = $request->input('nombre_medicamento');
+
+        if (!$query || strlen($query) < 3) {
+            return response()->json([]);
+        }
+
+        $medicamentos = $this->tasService->buscarMedicamentos($query);
+
+        return response()->json($medicamentos);
+    }
+    public function obtenerSucursales()
+    {
+        $sucursales = $this->tasService->obtenerSucursales();
+
+        return response()->json($sucursales);
     }
 }

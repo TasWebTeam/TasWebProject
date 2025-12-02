@@ -45,6 +45,43 @@ class RutaOpenStreetMapService
         }
     }
 
+    public function obtenerRutaCoordenadas(
+        float $latOrigen,
+        float $lonOrigen,
+        float $latDestino,
+        float $lonDestino
+    ): array {
+        try {
+            $response = $this->http->get('v2/directions/driving-car', [
+                'query' => [
+                    'api_key' => env('OSM_ROUTING_API_KEY'),
+                    'start'   => $lonOrigen . ',' . $latOrigen,
+                    'end'     => $lonDestino . ',' . $latDestino,
+                ],
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            $coords = $data['features'][0]['geometry']['coordinates'] ?? [];
+
+            $puntos = [];
+
+            foreach ($coords as $par) {
+                // [lon, lat]
+                $puntos[] = [
+                    'lat' => $par[1],
+                    'lng' => $par[0],
+                ];
+            }
+
+            return $puntos;
+
+        } catch (\Throwable $e) {
+            Log::error('Error consultando ruta OSM (coordenadas): ' . $e->getMessage());
+            return [];
+        }
+    }
+
   /*  public function optimizarRutaORS(array $jobs, array $vehicles): ?array
     {
         try {

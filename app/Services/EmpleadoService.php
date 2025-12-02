@@ -8,15 +8,20 @@ use App\Domain\Sucursal;
 use App\Domain\Cadena;
 use App\Repositories\ActualizarRepository;
 use App\Repositories\ConsultarRepository;
+use App\Services\RutaOpenStreetMapService;
 use DateTime;
 
 class EmpleadoService
 {
     private EmpleadoRepository $repo;
+    private ConsultarRepository $consultarRepository;
+    private RutaOpenStreetMapService $rutaService;
 
-    public function __construct(EmpleadoRepository $repo)
+    public function __construct(EmpleadoRepository $repo , ConsultarRepository $consultarRepository, RutaOpenStreetMapService $rutaService)
     {
         $this->repo = $repo;
+        $this->consultarRepository = $consultarRepository;
+        $this->rutaService = $rutaService;
     }
 
     /**
@@ -27,7 +32,7 @@ class EmpleadoService
         //$consultarRepository = new ConsultarRepository();
         //$actualizarRepository = new ActualizarRepository();
         $recetasModel = $this->repo->obtenerPorSucursal($idCadena,$idSucursal,$estado);
-        dd($recetasModel);
+        //dd($recetasModel);
         $recetas = [];
         foreach ($recetasModel as $r) {
             $recetas[] = $this->mapToDomain($r);
@@ -107,8 +112,9 @@ class EmpleadoService
             }
 
             $sucursalDomain = new Sucursal(
-                $suc->id_sucursal,
+                $suc->id,
                 $cadenaDomain,
+                $suc->id_sucursal,
                 $suc->nombre,
                 $suc->latitud,
                 $suc->longitud
@@ -167,6 +173,49 @@ class EmpleadoService
             $sucursalModel->latitud,
             $sucursalModel->longitud
         );
+    }
+
+      public function construirSegmentosMapaReceta(int $idReceta): array
+    {
+        // 1) Recuperar receta de dominio
+        $receta = $this->consultarRepository->recuperarReceta($idReceta);
+
+        $sucDestino = $receta->getSucursal();
+        $segmentos = [];
+
+        foreach ($receta->getDetallesReceta() as $detalle) {
+            foreach ($detalle->getLineasSurtido() as $linea) {
+                $sucursalOrigen = $linea->getSucursal();
+
+                // 2) Pedir ruta a ORS mediante tu service
+                $ruta = $this->rutaService->obtenerRutaCoordenadas(
+                    $sucursalOrigen->getLatitud(),
+                    $sucursalOrigen->getLongitud(),
+                    $sucDestino->getLatitud(),
+                    $sucDestino->getLongitud()
+                );
+
+                // 3) Armar DTO para la vista
+                $segmentos[] = [
+                    'origen' => [
+                        'lat'    => $sucursalOrigen->getLatitud(),
+                        'lng'    => $sucursalOrigen->getLongitud(),
+                        'nombre' => $sucursalOrigen->getNombre(),
+                        'cadena' => $sucursalOrigen->getCadena()->getNombre(),
+                    ],
+                    'destino' => [
+                        'lat'    => $sucDestino->getLatitud(),
+                        'lng'    => $sucDestino->getLongitud(),
+                        'nombre' => $sucDestino->getNombre(),
+                        'cadena' => $sucDestino->getCadena()->getNombre(),
+                    ],
+                    'ruta' => $ruta, // array de puntos [ ['lat'=>..,'lng'=>..], ... ]
+                ];
+            }
+        }
+        // DEBUG para ver qué se manda finalmente
+        // dd($segmentos);
+        return $segmentos;
     }
 
 

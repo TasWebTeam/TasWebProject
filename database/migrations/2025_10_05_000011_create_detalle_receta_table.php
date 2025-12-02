@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('detalle_recetas', function (Blueprint $table) {
 
-            $table->id('id_detalle');
+            $table->id('id_detalle_receta');
 
             $table->unsignedBigInteger('id_receta');
             $table->unsignedBigInteger('id_medicamento');

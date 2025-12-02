@@ -1,4 +1,17 @@
 /* ========================================
+   VARIABLES
+======================================== */
+:root {
+    --stepper-primary: #005B96;
+    --stepper-primary-light: rgba(0, 91, 150, 0.1);
+    --stepper-cyan: #00A8CC;
+    --stepper-success: #28a745;
+    --stepper-success-light: rgba(40, 167, 69, 0.1);
+    --stepper-inactive: #e9ecef;
+    --stepper-text-muted: #6c757d;
+}
+
+/* ========================================
    ANIMACIONES DE TRANSICIÓN
 ======================================== */
 
@@ -46,6 +59,34 @@
     }
 }
 
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 0 6px var(--stepper-primary-light), 0 4px 12px rgba(0, 91, 150, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(0, 91, 150, 0.05), 0 6px 16px rgba(0, 91, 150, 0.4);
+    }
+}
+
+@keyframes checkPop {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 /* ========================================
    PASOS DEL FORMULARIO
 ======================================== */
@@ -80,22 +121,48 @@
 }
 
 /* ========================================
-   STEPPER
+   STEPPER CONTAINER
 ======================================== */
 
 .stepper-container {
     width: 100%;
     margin-bottom: 25px;
+    padding: 35px 25px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 50%, #f0f8ff 100%);
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 91, 150, 0.08);
+    position: relative;
+    overflow: hidden;
 }
+
+.stepper-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--stepper-primary), var(--stepper-cyan), var(--stepper-primary));
+    background-size: 200% 100%;
+    animation: gradientShift 3s ease infinite;
+}
+
+/* ========================================
+   STEPPER WRAPPER
+======================================== */
 
 .stepper-wrapper {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     margin: 0 auto;
     max-width: 400px;
     padding: 0 10px;
 }
+
+/* ========================================
+   STEPPER ITEMS
+======================================== */
 
 .stepper-item {
     display: flex;
@@ -103,66 +170,142 @@
     align-items: center;
     position: relative;
     flex: 0;
+    z-index: 1;
 }
 
 .step-counter {
-    width: 45px;
-    height: 45px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    background: #e0e0e0;
+    background-color: var(--stepper-inactive);
+    border: 4px solid var(--stepper-inactive);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 16px;
-    color: #666;
-    transition: all 0.4s ease;
-    margin-bottom: 8px;
-    border: 3px solid #e0e0e0;
+    font-size: 20px;
+    color: var(--stepper-text-muted);
+    margin-bottom: 12px;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.stepper-item.active .step-counter {
-    background: linear-gradient(135deg, #003c69 0%, #004d7a 100%);
-    color: #fff;
-    border-color: #003c69;
-    box-shadow: 0 4px 15px rgba(0, 60, 105, 0.3);
+.step-counter::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: inherit;
+    z-index: -1;
+    transition: transform 0.3s ease;
+}
+
+.stepper-item:hover .step-counter::before {
     transform: scale(1.1);
 }
 
-.stepper-item.completed .step-counter {
-    background: #28a745;
-    color: #fff;
-    border-color: #28a745;
+.step-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--stepper-text-muted);
+    text-align: center;
+    line-height: 1.4;
+    transition: all 0.3s ease;
+    letter-spacing: 0.3px;
 }
 
-.step-name {
-    font-size: 11px;
-    color: #666;
-    text-align: center;
-    line-height: 1.3;
-    font-weight: 500;
-    transition: all 0.3s ease;
+/* ========================================
+   STEPPER STATES - ACTIVE
+======================================== */
+
+.stepper-item.active .step-counter {
+    background: linear-gradient(135deg, var(--stepper-primary) 0%, var(--stepper-cyan) 100%);
+    border-color: var(--stepper-primary);
+    color: white;
+    box-shadow: 0 0 0 6px var(--stepper-primary-light), 0 4px 12px rgba(0, 91, 150, 0.3);
+    animation: pulseGlow 2s ease-in-out infinite;
+    transform: scale(1.1);
 }
 
 .stepper-item.active .step-name {
-    color: #003c69;
-    font-weight: 600;
+    color: var(--stepper-primary);
+    font-weight: 700;
+    transform: translateY(-2px);
+}
+
+/* ========================================
+   STEPPER STATES - COMPLETED
+======================================== */
+
+.stepper-item.completed .step-counter {
+    background: linear-gradient(135deg, var(--stepper-success) 0%, #20c997 100%);
+    border-color: var(--stepper-success);
+    color: white;
+    box-shadow: 0 0 0 4px var(--stepper-success-light), 0 4px 12px rgba(40, 167, 69, 0.25);
+    position: relative;
+}
+
+.stepper-item.completed .step-counter::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    font-size: 12px;
+    top: -5px;
+    right: -5px;
+    background: white;
+    color: var(--stepper-success);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    animation: checkPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .stepper-item.completed .step-name {
-    color: #28a745;
+    color: var(--stepper-success);
+    font-weight: 700;
 }
+
+/* ========================================
+   STEPPER LINE
+======================================== */
 
 .stepper-line {
     flex: 1;
-    height: 3px;
-    background: #e0e0e0;
-    margin: 0 10px 25px 10px;
-    transition: all 0.4s ease;
+    height: 4px;
+    background: linear-gradient(90deg, var(--stepper-inactive) 0%, #dee2e6 100%);
+    margin: 0 15px 45px 15px;
+    transition: all 0.5s ease;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+.stepper-line::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--stepper-success), #20c997);
+    transition: width 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border-radius: 2px;
+}
+
+.stepper-line.completed::before {
+    width: 100%;
 }
 
 .stepper-line.completed {
-    background: #28a745;
+    background: linear-gradient(90deg, var(--stepper-success) 0%, #20c997 100%);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
 }
 
 /* ========================================
@@ -234,45 +377,62 @@
 ======================================== */
 
 @media (max-width: 768px) {
+    .stepper-container {
+        padding: 30px 20px;
+    }
+
     .stepper-wrapper {
         max-width: 350px;
     }
 
     .step-counter {
-        width: 40px;
-        height: 40px;
-        font-size: 14px;
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
     }
 
     .step-name {
-        font-size: 10px;
+        font-size: 12px;
     }
 
     .stepper-line {
-        margin: 0 8px 22px 8px;
+        margin: 0 10px 40px 10px;
     }
 }
 
 @media (max-width: 576px) {
+    .stepper-container {
+        padding: 25px 15px;
+        border-radius: 15px;
+    }
+
     .stepper-wrapper {
         max-width: 300px;
         padding: 0 5px;
     }
 
     .step-counter {
-        width: 35px;
-        height: 35px;
-        font-size: 13px;
-        border-width: 2px;
+        width: 45px;
+        height: 45px;
+        font-size: 16px;
+        border-width: 3px;
     }
 
     .step-name {
-        font-size: 9px;
+        font-size: 11px;
     }
 
     .stepper-line {
-        margin: 0 6px 20px 6px;
-        height: 2px;
+        margin: 0 8px 35px 8px;
+        height: 3px;
+    }
+
+    .stepper-item.completed .step-counter::after {
+        width: 18px;
+        height: 18px;
+        font-size: 10px;
+        top: -4px;
+        right: -4px;
     }
 
     .step-description {
@@ -299,13 +459,12 @@
     }
 
     .step-counter {
-        width: 32px;
-        height: 32px;
-        font-size: 12px;
+        width: 45px;
+        height: 45px;
+        font-size: 16px;
     }
 
     .step-name {
-        font-size: 8px;
+        font-size: 11px;
     }
-    
 }

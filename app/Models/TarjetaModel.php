@@ -9,7 +9,7 @@ class TarjetaModel extends Model
     protected $table = 'tarjetas';
     protected $primaryKey = 'id_tarjeta';
     public $timestamps = false;
-    protected $fillable = ['id_usuario', 'last4', 'brand', 'fecha_exp'];
+    protected $fillable = ['id_tarjeta','id_usuario', 'last4', 'brand', 'fecha_exp'];
 
     public function usuario()
     {

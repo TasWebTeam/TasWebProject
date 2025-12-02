@@ -6,7 +6,6 @@
 
     <h1 class="text-center fw-bold mb-5" style="color:#003865;">Servicio al Cliente</h1>
 
-    <!-- Preguntas frecuentes -->
     <section id="faq" class="mb-5 servicio-section">
         <h2 class="mb-4"><i class="fas fa-question-circle me-2 text-primary"></i>Preguntas Frecuentes</h2>
         <div class="faq-card p-4">
@@ -23,7 +22,6 @@
         </div>
     </section>
 
-    <!-- Contacto -->
     <section id="contacto" class="mb-5 servicio-section">
         <h2 class="mb-4"><i class="fas fa-envelope me-2 text-primary"></i>Contacto</h2>
         <div class="contact-card p-4">
@@ -37,7 +35,6 @@
         </div>
     </section>
 
-    <!-- Retiro en sucursal -->
     <section id="retiro" class="mb-5 servicio-section">
         <h2 class="mb-4"><i class="fas fa-store me-2 text-primary"></i>Retiro en Sucursal</h2>
         <div class="retiro-card p-4">
@@ -54,7 +51,6 @@
 
 </div>
 
-{{-- Footer al final del contenido --}}
 @include('layouts.footer')  {{-- si tu carpeta se llama "lyouts", cámbialo a @include('lyouts.footer') --}}
 
 @endsection

@@ -20,6 +20,7 @@ use App\Domain\Pago;
 
 use Illuminate\Support\Facades\DB;
 use DateTime;
+use Exception;
 
 class ConsultarRepository
 {
@@ -61,18 +62,39 @@ class ConsultarRepository
         );
     }
 
-    // ESTE METODO NO SIRVE PARA CONSULTAR. ESTE ES PARA PROCESAR!!!!!!!!!!
-    public function recuperarInventario(Cadena $Cadena, int $idSuc, string $nombreMedicamento): InventarioSucursal
+    public function recuperarInventarioConsultar(Cadena $Cadena, int $idSuc, string $nombreMedicamento)
     {
-        $inventarioModel = InventarioModel::with(['medicamento', 'cadena', 'sucursal'])
+        try{
+            $inventarioModel = InventarioModel::with(['medicamento', 'cadena', 'sucursal'])
             ->where('id_cadena', $Cadena->getIdCadena())
             ->where('id_sucursal', $idSuc)
             ->whereHas('medicamento', function ($q) use ($nombreMedicamento) {
                 $q->where('nombre', $nombreMedicamento);
             })
-            ->firstOrFail();
+            ->first();
+            $inventario = $this->transformarInventarioModelADomain($inventarioModel);
+            return $inventario;
+        } catch (Exception $e) {
+            return null;
+        }
+    }
 
-        return $this->transformarInventarioModelADomain($inventarioModel);
+    public function recuperarInventario(Cadena $Cadena, int $idSuc, string $nombreMedicamento)
+    {
+        try{
+            $inventarioModel = InventarioModel::with(['medicamento', 'cadena', 'sucursal'])
+            ->where('id_cadena', $Cadena->getIdCadena())
+            ->where('id_sucursal', $idSuc)
+            ->whereHas('medicamento', function ($q) use ($nombreMedicamento) {
+                $q->where('nombre', $nombreMedicamento);
+            })
+            ->lockForUpdate()
+            ->first();
+            $inventario = $this->transformarInventarioModelADomain($inventarioModel);
+            return $inventario;
+        } catch (Exception $e) {
+            return null;
+        }
     }
     
     private function transformarInventarioModelADomain(InventarioModel $inventarioModel): InventarioSucursal
@@ -84,7 +106,6 @@ class ConsultarRepository
         $medicamentoDomain = $this->transformarMedicamentoModelADomain(
             $inventarioModel->medicamento
         );
-
         return new InventarioSucursal(
             $inventarioModel->id_inventario,
             $sucursalDomain,
@@ -100,9 +121,11 @@ class ConsultarRepository
     {
         return new Medicamento(
             $medicamentoModel->id_medicamento,
+            null,
             $medicamentoModel->nombre,
             $medicamentoModel->especificacion,
-            $medicamentoModel->laboratorio
+            $medicamentoModel->laboratorio,
+            $medicamentoModel->es_controlado
         );
     }
 
@@ -159,7 +182,7 @@ class ConsultarRepository
             $lineas[] = new LineaSurtido(
                 $sucursalDomain,
                 $ls->estado_entrega,
-                $ls->cantidad,
+                $ls->cantidad
             );
         }
 

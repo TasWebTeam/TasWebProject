@@ -22,11 +22,6 @@ return new class extends Migration
 
             $table->unique(['id_sucursal', 'id_medicamento'], 'uq_inventarios');    // creo que no es necesario
 
-            // $table->foreign(['id_cadena', 'id_sucursal'], 'fk_inv_suc')
-            //     ->references(['id_cadena', 'id_sucursal'])   // CAMBIO
-            //     ->on('sucursales');
-
-            // FK a la PK REAL de sucursales (id)
             $table->foreign('id_sucursal', 'fk_inv_suc')
                 ->references('id')
                 ->on('sucursales')
@@ -35,6 +30,10 @@ return new class extends Migration
             $table->foreign('id_medicamento', 'fk_inv_med')
                 ->references('id_medicamento')
                 ->on('medicamentos');
+
+            $table->foreign('id_cadena', 'fk_inv_cad')
+                ->references('id_cadena')
+                ->on('cadenas');
         });
     }
 

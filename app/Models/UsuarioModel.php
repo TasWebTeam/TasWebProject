@@ -9,7 +9,7 @@ class UsuarioModel extends Model
     protected $table = 'usuarios';
     protected $primaryKey = 'id_usuario';
     protected $fillable = [
-        'correo', 
+        'correo',
         'nip',
         'nombre',
         'apellido',
@@ -23,9 +23,9 @@ class UsuarioModel extends Model
 
     public $timestamps = false;
 
-    public function prescription()
+    public function recetas()
     {
-        return $this->hasMany(RecetaModel::class, 'id_receta', 'id_receta');
+        return $this->hasMany(RecetaModel::class, 'id_usuario', 'id_usuario');
     }
 
     public function tarjeta()
@@ -37,7 +37,4 @@ class UsuarioModel extends Model
     {
         return $this->hasOne(EmpleadoModel::class, 'id_usuario', 'id_usuario');
     }
-
-
-
 }

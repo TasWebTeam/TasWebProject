@@ -1,16 +1,34 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     const map = L.map("map").setView([24.8091, -107.394], 13);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "&copy; OpenStreetMap contributors",
     }).addTo(map);
 
-    const sucursales = window.SUCURSALES || [];
+    let sucursales = [];
     let markers = [];
     const filtro = document.getElementById("filtro_cadena");
 
-    llenarFiltros(sucursales);
-    mostrarSucursales(sucursales);
+    try {
+        const response = await fetch('/sucursales');
+        
+        if (!response.ok) {
+            throw new Error('Error al cargar sucursales');
+        }
+        
+        sucursales = await response.json();
+        
+        llenarFiltros(sucursales);
+        mostrarSucursales(sucursales);
+        
+    } catch (error) {
+        console.error('Error al cargar sucursales:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudieron cargar las sucursales',
+        });
+    }
 
     function llenarFiltros(data) {
         const cadenas = [

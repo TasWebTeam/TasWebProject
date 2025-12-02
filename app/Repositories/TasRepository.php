@@ -12,7 +12,9 @@ use App\Domain\Usuario;
 use App\Domain\Empleado;
 use App\Domain\Sucursal;
 use App\Domain\Cadena;
+use App\Domain\Medicamento;
 use App\Domain\Puesto;
+use App\Models\MedicamentoModel;
 use Illuminate\Support\Facades\DB;
 
 class TasRepository
@@ -131,6 +133,26 @@ class TasRepository
         }
     }
 
+       public function buscarMedicamentosPorNombre(string $query, int $limit = 10)
+    {
+        try {
+            return MedicamentoModel::with('imagen')
+                ->where('nombre', 'LIKE', "{$query}%")
+                ->limit($limit)
+                ->get();  
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    public function obtenerMedicamentoPorId(int $idMedicamento)  
+    {
+        try {
+            return MedicamentoModel::with('imagen')->find($idMedicamento);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
 
      public function obtenerEmpleado(Usuario $usuario): ?Empleado
     {
@@ -139,7 +161,6 @@ class TasRepository
             $empleadoModel = EmpleadoModel::with('puesto')
                 ->where('id_usuario', $usuario->getId())
                 ->first();
-
             if (!$empleadoModel) {
                 dd("no encontre nada");
                 return null;
@@ -217,7 +238,5 @@ class TasRepository
 
         return $puestoDomain;
     }
-
-
 
 }
