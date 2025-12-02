@@ -75,7 +75,5 @@ class RecetaService
         // se calcula el pago, y se actualiza
         // $rec->introducirMedicamento($nombreMedicamento, $cantidad);
     }
-
-    
 }
 

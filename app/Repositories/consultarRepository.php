@@ -94,7 +94,6 @@ class ConsultarRepository
             $inventarioModel->stock_actual,
             $inventarioModel->precio_actual
         );
-
     }
 
     private function transformarMedicamentoModelADomain($medicamentoModel): Medicamento

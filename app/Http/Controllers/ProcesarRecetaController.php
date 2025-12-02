@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Domain\Paciente;
 use App\Domain\Pago;
 use App\Domain\Sucursal;
+use App\Models\CadenaModel;
 use App\Services\SucursalService;
 use App\Services\RecetaService;
 use App\Services\TasService;
@@ -55,9 +56,7 @@ class ProcesarRecetaController extends Controller
     }
     
     public function introducirMedicamento(string $nombreMedicamento, int $cantidad){
-
         $this->recetaService->introducirMedicamento($nombreMedicamento, $cantidad);
-
         $this->TESTING();
     }
 
@@ -84,7 +83,7 @@ class ProcesarRecetaController extends Controller
         $medicamento2 = new Medicamento(2, "Ibuprofeno", 'Capsulas 400 mg', "Bayer");
         
         // DetallesReceta
-        $detalle1 = new DetalleReceta($medicamento1, 10, 10.0, []);
+        $detalle1 = new DetalleReceta($medicamento1, 20, 10.0, []);
         // $detalle2 = new DetalleReceta($medicamento2, 10, 20.0, []);
 
         // Agregar a receta los detalles

@@ -39,9 +39,9 @@ class DetalleReceta
         $sucursalActual    = $sucursal;
         $buscarSucursales = true;
         $actualizarRepository = new ActualizarRepository();
-        // $actualizarRepository->beginTransaction();
+        $actualizarRepository->beginTransaction();
         $fueSurtido = false;
-        // obtener todas las sucursales candidatas una sola vez
+
         while ($cantidadRequerida > 0) {
 
             $cantObtenida = $sucursalActual->verificarDisponibilidad(
@@ -79,7 +79,7 @@ class DetalleReceta
                 // ya no hay más sucursales, no se pudo surtir todo
                 // INDICAR A MI TIO Y UN ROLLBACK
                 $actualizarRepository->rollbackTransaction();
-                dd("nambre");
+                dd("nambre se nos acabo el medicamentoo");
                 break;
             }
             // tomar la siguiente sucursal candidata (la más cercana disponible)
@@ -88,9 +88,9 @@ class DetalleReceta
         }
         if($fueSurtido == false){
             dd("No se pudo surtir el medicamento " . $this->getMedicamento()->getNombre());
-            // $actualizarRepository->rollbackTransaction();
+            $actualizarRepository->rollbackTransaction();
         }
-        // $actualizarRepository->commitTransaction();
+        $actualizarRepository->commitTransaction();
         dd($this->getLineasSurtido());
     }
 
