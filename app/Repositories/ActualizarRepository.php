@@ -63,4 +63,20 @@ class ActualizarRepository{
             return false;
         }
     }
+
+    // En ActualizarRepository
+    public function actualizarEstadoReceta(Receta $receta): bool
+    {
+        try {
+            RecetaModel::find($receta->getidReceta());
+            if (!$receta) {
+                return false;
+            }
+            //$receta->save();
+                return true;
+            } catch (\Exception $e) {
+                return false;
+            }
+        }
+
 }

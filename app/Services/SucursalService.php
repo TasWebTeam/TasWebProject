@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Domain\Sucursal;
 use App\Domain\Medicamento;
 use App\Repositories\ConsultarRepository;
+use App\Repositories\ActualizarRepository;
+use App\Domain\LineaSurtido;
 
 class SucursalService
 {
@@ -13,14 +15,17 @@ class SucursalService
     private float $radioKm;
 
     private ConsultarRepository $consultarRepo;
+    private ActualizarRepository $actualizarRepo;
     private RutaOpenStreetMapService $rutaService;
 
     public function __construct(
         ConsultarRepository $consultarRepo,
+        ActualizarRepository $actualizarRepo,
         RutaOpenStreetMapService $rutaService,
         int $limiteBD = 4,          // máximo de sucursales que trae de la BD
     ) {
         $this->consultarRepo    = $consultarRepo;
+        $this->actualizarRepo = $actualizarRepo;
         $this->rutaService      = $rutaService;
         $this->limiteBD         = $limiteBD;
     }
@@ -82,6 +87,96 @@ class SucursalService
         usort($items, fn($a, $b) => $a['distancia_km'] <=> $b['distancia_km']);
         return $items;
     }
+
+    /*public function devolverReceta(int $idReceta): void
+    {
+        $receta = $this->consultarRepo->recuperarReceta($idReceta);
+
+        //$receta->devolverMedicamentos(); 
+        //AQUI VAS A IMPRIMIR EN UN DD LA RECETA CON SUS DETALLES Y CON SUS LINEAS, ES O n al cuadrado
+
+        $this->actualizarRepo->guardarReceta($receta);
+    }
+     public function devolverReceta(int $idReceta)
+    {
+        $receta = $this->consultarRepo->recuperarReceta($idReceta);
+        $detalles = $receta->getDetallesReceta();
+        $lineasGenerales = [];
+        foreach($detalles as $detalle){
+            $lineas = $detalle->getLineasSurtido();
+            foreach($lineas as $linea){
+                $lineasGenerales[] = $linea;
+            }
+        }
+        
+    }*/
+
+
+    public function devolverReceta(int $idReceta): void
+    {
+        // 1) Recuperar la receta del dominio
+        $receta = $this->consultarRepo->recuperarReceta($idReceta);
+        //dd($receta);
+        // 3) Iniciar sección crítica (transacción)
+        dd( $receta);
+
+        $this->actualizarRepo->beginTransaction();
+
+        try {
+            // 4) Devolver cada línea a su sucursal correspondiente
+           
+            $this->devolverLineasASucursal($receta);
+                
+            $receta->cambiarEstado("devolviendo");
+            $this->actualizarRepo->actualizarEstadoReceta($receta);
+
+            // 5) Confirmar cambios
+            $this->actualizarRepo->commitTransaction();
+        } catch (\Throwable $e) {
+            // 6) Revertir todo si algo falla
+            $this->actualizarRepo->rollbackTransaction();
+            throw $e;  // se re-lanza para que el controller lo maneje
+        }
+    }
+
+
+    //Metod privado
+    private function devolverLineasASucursal($receta): void
+    {
+        // 🔹 Asumo que LineaSurtido tiene estos getters:
+        // getIdCadena(), getIdSucursal(), getIdMedicamento(), getCantidad()
+
+         foreach ($receta->getDetallesReceta() as $detalle){
+                foreach ($detalle->getLineasSurtido() as $linea) {
+                $cadena      = $receta->getSucursal()->getCadena();
+                $idSucursal    = $receta->getSucursal()->getId();
+                $medicamento = $detalle->getMedicamento();
+                $cantidad      = $linea->getCantidad();
+
+                // 1) Recuperar inventario (esto adentro lleva lockForUpdate)
+                //dd($cadena->getNombre(),$receta->getSucursal()->getNombre());
+                //dd($idSucursal);
+                $inventario = $this->consultarRepo->recuperarInventario(
+                    $cadena,
+                    $idSucursal,
+                    $medicamento->getNombre()
+                );
+
+
+                // 2) Actualizar dominio (stock_actual += cantidad)
+                $inventario->devolverMedicamento($cantidad);
+
+                // 3) Persistir cambios
+                $this->actualizarRepo->actualizarInventario(
+                    $cadena,       
+                    $idSucursal,   
+                    $inventario                         
+                );
+            }
+        }
+    }
+
+
 
     
 

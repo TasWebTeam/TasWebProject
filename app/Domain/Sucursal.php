@@ -57,8 +57,10 @@ class Sucursal
         return $cantObtenida;
     }
 
+    /*
     public function devolverReceta(int $idReceta,ConsultarRepository $consultarRepository,ActualizarRepository $actualizarRepository): void
     {
+        //
         //SE ELIMINARON LOS REPOS Y SE PASARON POR PARAMETROS
         $receta = $consultarRepository->recuperarReceta($idReceta);
 
@@ -66,7 +68,8 @@ class Sucursal
 
         // 🔹 Ahora solo persistimos la receta completa:
         $actualizarRepository->guardarReceta($receta);
-    }
+    }*/
+        
     public function confirmarRecetaNoRecogida(int $idReceta, string $estado): void{
         
     }

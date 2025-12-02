@@ -7,7 +7,7 @@
 
     {{-- Título dinámico --}}
     <h1 class="mb-4" style="color:#003865;">
-        Recetas pendientes por surtir — {{ $nombreSucursal ?? 'Sucursal' }}
+        Recetas pendientes por surtir — {{ $nombreCadena ?? 'Cadena' }} - {{ $nombreSucursal ?? 'Sucursal' }}
     </h1>
 
     <p class="text-muted mb-4">
@@ -52,7 +52,7 @@
                         <tr>
                             <th>Folio</th>
                             <th>Fecha registro</th>
-                            <th>Fecha recolección</th>
+                            <th>Fecha recolección estimada</th>
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>

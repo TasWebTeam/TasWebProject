@@ -27,7 +27,6 @@ class EmpleadoService
         //$consultarRepository = new ConsultarRepository();
         //$actualizarRepository = new ActualizarRepository();
         $recetasModel = $this->repo->obtenerPorSucursal($idCadena,$idSucursal,$estado);
-        dd($recetasModel);
         $recetas = [];
         foreach ($recetasModel as $r) {
             $recetas[] = $this->mapToDomain($r);
@@ -107,12 +106,14 @@ class EmpleadoService
             }
 
             $sucursalDomain = new Sucursal(
-                $suc->id_sucursal,
+                $suc->id,
                 $cadenaDomain,
+                $suc->id_sucursal,
                 $suc->nombre,
                 $suc->latitud,
                 $suc->longitud
             );
+
         }
 
         // 2) Fechas que pueden venir null
@@ -161,12 +162,13 @@ class EmpleadoService
 
         // Dominio Sucursal
         return new Sucursal(
-            $sucursalModel->id_sucursal,
-            $cadenaDomain,
-            $sucursalModel->nombre,
-            $sucursalModel->latitud,
-            $sucursalModel->longitud
-        );
+                $sucursalModel->id,
+                $cadenaDomain,
+                $sucursalModel->id_sucursal,
+                $sucursalModel->nombre,
+                $sucursalModel->latitud,
+                $sucursalModel->longitud
+            );
     }
 
 

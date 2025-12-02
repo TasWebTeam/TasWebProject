@@ -79,7 +79,7 @@ class DetalleReceta
                 // ya no hay más sucursales, no se pudo surtir todo
                 // INDICAR A MI TIO Y UN ROLLBACK
                 $actualizarRepository->rollbackTransaction();
-                dd("nambre se nos acabo el medicamentoo");
+                //dd("nambre se nos acabo el medicamentoo");
                 break;
             }
             // tomar la siguiente sucursal candidata (la más cercana disponible)
@@ -87,11 +87,11 @@ class DetalleReceta
             $sucursalActual = $infoSucursal['sucursal'];
         }
         if($fueSurtido == false){
-            dd("No se pudo surtir el medicamento " . $this->getMedicamento()->getNombre());
+            //dd("No se pudo surtir el medicamento " . $this->getMedicamento()->getNombre());
             $actualizarRepository->rollbackTransaction();
         }
         $actualizarRepository->commitTransaction();
-        dd($this->getLineasSurtido());
+        //dd($this->getLineasSurtido());
     }
 
     public function abastecer(): void{
@@ -101,10 +101,12 @@ class DetalleReceta
     public function obtenerSucursalCercana(Sucursal $suc): void{
         
     }
-
+/*
     public function realizarDevolucion(): void{
-        
-    }
+        foreach ($this->getLineasSurtido() as $linea) {
+            //$linea->devolverASucursal($linea->getCantidad(),$this->getMedicamento()->getNombre()); //agregue nombre del medicamento
+        }
+    }*/
 
     public function getMedicamento(){
         return $this->medicamento;

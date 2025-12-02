@@ -54,12 +54,9 @@ class LineaSurtido
             'cantidad' => $this->cantidad,
         ];
     }
-
+/*
     public function devolverASucursal(int $cantidad, string $nombreMedicamento): void
     {
-        $consultarRepository = new ConsultarRepository();
-        $actualizarRepository = new ActualizarRepository();
-
         // 🔹 Empezamos transacción a nivel BD
         $actualizarRepository->beginTransaction();
 
@@ -90,5 +87,5 @@ class LineaSurtido
             // opcional: lanzar de nuevo la excepción o loguearla
             // throw $e;
         }
-    }
+    }*/
 }

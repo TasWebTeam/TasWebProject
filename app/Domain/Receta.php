@@ -276,14 +276,13 @@ class Receta
 
     public function devolverMedicamentos(): void
     {
-        $this->cambiarEstado("devolviendo"); 
+        //$this->cambiarEstado("devolviendo"); 
         foreach ($this->detallesReceta as $detalle) {
             $detalle->realizarDevolucion();
-            //persistencia al detalle individual
         }
     }
 
-    private function cambiarEstado(string $estado): void
+    public function cambiarEstado(string $estado): void
     {
         $this->estadoPedido = $estado;
     }

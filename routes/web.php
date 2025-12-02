@@ -67,6 +67,6 @@ Route::middleware(['verificar.sesion', 'solo.empleado'])->group(function () {
 
     Route::post(
     '/empleado/recetas/{idReceta}/confirmar-no-recogida',
-    [GestionarRecetaController::class, 'confirmarNoRecogida']
+    [GestionarRecetaController::class, 'confirmarRecetaNoRecogida']
     )->name('empleado_recetas_confirmar_no_recogida');
 });

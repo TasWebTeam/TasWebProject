@@ -62,8 +62,10 @@ class ConsultarRepository
     }
 
     // ESTE METODO NO SIRVE PARA CONSULTAR. ESTE ES PARA PROCESAR!!!!!!!!!!
-    public function recuperarInventario(Cadena $Cadena, int $idSuc, string $nombreMedicamento): InventarioSucursal
-    {
+public function recuperarInventario(Cadena $Cadena, int $idSuc, string $nombreMedicamento): InventarioSucursal
+{
+    try {
+
         $inventarioModel = InventarioModel::with(['medicamento', 'cadena', 'sucursal'])
             ->where('id_cadena', $Cadena->getIdCadena())
             ->where('id_sucursal', $idSuc)
@@ -73,7 +75,13 @@ class ConsultarRepository
             ->firstOrFail();
 
         return $this->transformarInventarioModelADomain($inventarioModel);
+
+    } catch (\Throwable $e) {
+
+    
     }
+}
+
     
     private function transformarInventarioModelADomain(InventarioModel $inventarioModel): InventarioSucursal
     {
