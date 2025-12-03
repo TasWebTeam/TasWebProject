@@ -77,24 +77,24 @@ class TasRepository
     }
 
     public function actualizarTarjeta($idUsuario, $last4, $brand, $fechaExp)
-{
-    try {
-        $tarjeta = TarjetaModel::where('id_usuario', $idUsuario)->first();
-        
-        if (!$tarjeta) {
+    {
+        try {
+            $tarjeta = TarjetaModel::where('id_usuario', $idUsuario)->first();
+            
+            if (!$tarjeta) {
+                return null;
+            }
+
+            $tarjeta->last4 = $last4;
+            $tarjeta->brand = $brand;
+            $tarjeta->fecha_exp = $fechaExp;
+            $tarjeta->save();
+
+            return $tarjeta;
+        } catch (\Exception $e) {
             return null;
         }
-
-        $tarjeta->last4 = $last4;
-        $tarjeta->brand = $brand;
-        $tarjeta->fecha_exp = $fechaExp;
-        $tarjeta->save();
-
-        return $tarjeta;
-    } catch (\Exception $e) {
-        return null;
     }
-}
 
     public function buscarUsuarioPorCorreo(string $correo)
     {
@@ -133,7 +133,7 @@ class TasRepository
         }
     }
 
-       public function buscarMedicamentosPorNombre(string $query, int $limit = 10)
+    public function buscarMedicamentosPorNombre(string $query, int $limit = 10)
     {
         try {
             return MedicamentoModel::with('imagen')
@@ -154,19 +154,16 @@ class TasRepository
         }
     }
 
-     public function obtenerEmpleado(Usuario $usuario): ?Empleado
+    public function obtenerEmpleado(Usuario $usuario): ?Empleado
     {
         try {
-            // Traemos también el puesto (relación en EmpleadoModel)
             $empleadoModel = EmpleadoModel::with('puesto')
                 ->where('id_usuario', $usuario->getId())
                 ->first();
             if (!$empleadoModel) {
-                dd("no encontre nada");
                 return null;
             }
 
-            // Construimos el dominio Empleado a partir del Usuario + puesto
             $empleado = new Empleado(
                 $usuario->getId(),
                 $usuario->getNombre(),
@@ -177,7 +174,6 @@ class TasRepository
                 $this->obtenerSucursal($empleadoModel->id_sucursal)
             );
 
-            // Copiamos el estado de sesión & bloqueo desde el Usuario
             $empleado->setSesionActiva($usuario->isSesionActiva());
             $empleado->setIntentosLogin($usuario->getIntentosLogin());
             $empleado->setUltimoIntento($usuario->getUltimoIntento());

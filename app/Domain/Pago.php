@@ -14,6 +14,5 @@ class Pago {
     }
 
     public function validarPago(string $numTarjeta): void{
-        // FALTA IMPLEMENTACION
     }
 }

@@ -29,77 +29,55 @@ class ProcesarRecetaController extends Controller
         $this->recetaService = $recetaService;
     }
     
-    public function crearNuevaReceta(){
-        $usuarioCorreo= session('usuario.correo');      // no puede ser por id? Y SI VA AQUI?
+    public function crearNuevaReceta(){             
+        $usuarioCorreo= session('usuario.correo');      
         $this->recetaService->crearNuevaReceta($usuarioCorreo);
 
-        // ESTO NO VA ----
-        $cadena = "Farmacias Benavides";
-        $sucursal = "Pedro Anaya";
+        $cadena = "Farmacias del Ahorro";
+        $sucursal = "Cedros";
 
-        $this->introducirSucursal($cadena, $sucursal);  // quitar
+        $this->introducirSucursal($cadena, $sucursal);  
     }
 
-    public function introducirSucursal(string $nombreCadena, string $nombreSucursal){
+    public function introducirSucursal(string $nombreCadena, string $nombreSucursal){   
         $this->recetaService->introducirSucursal($nombreCadena, $nombreSucursal);
-
-        // ESTO NO VA ----
-        $this->introducirCedulaProfesional("123456");
     }
 
-    public function medicamentoSeleccionado(Request $request){
-        dd("hola");
-    }
-
-    public function introducirCedulaProfesional(string $cedulaProfesional){
-        
+    public function introducirCedulaProfesional(string $cedulaProfesional){    
         $this->recetaService->introducirCedulaProfesional($cedulaProfesional);
-
-        // ESTO NO VA ----
-        $this->introducirMedicamento("Paracetamol", 20);
     }
     
-    public function introducirMedicamento(string $nombreMedicamento, int $cantidad){
+    public function introducirMedicamento($nombreMedicamento, $cantidad){
         $this->recetaService->introducirMedicamento($nombreMedicamento, $cantidad);
-
-        // $this->TESTING();
     }
 
-    public function procesarReceta(int $numTarjeta){
-        // COLOCAR BIEN EL PARAMETRO
-        $this->recetaService->procesarReceta("12345");
-    }
-    
-    public function TESTING(){
-        // Aqui tengo que agregar objetos de tipo medicamento
-        // Cadena
-        // id - nombre
-        $cadena1 = new Cadena("BNV", "Farmacias Benavides");
-        // $cadena1 = new Cadena("AHO", "Farmacias del Ahorro");
-        // Sucursal
-        // id - Cadena - nombre - latitud - longitud
-        $sucursal1 = new Sucursal(4, $cadena1, 2, "Pedro Anaya", 24.82146940, -107.38997500);
-        // $sucursal1 = new Sucursal(1, $cadena1, 1, "Cedros", 24.78899860, -107.37250180);
-        // Pago
-        $pago = new Pago();
-        // Receta 1
-        $date = new DateTime();
-        $receta1 = new Receta(1, $sucursal1, "123456", $date, $date, "Pedido", [], $pago);
-        // Medicamentos
-        // id - nombre - especificacion - laboratorio
-        // $medicamento1 = new Medicamento(1, "Paracetamol", 'Tabletas 500 mg', "Genfar");
-        // $medicamento2 = new Medicamento(2, "Ibuprofeno", 'Capsulas 400 mg', "Bayer");
-        
-        // DetallesReceta
-        // $detalle1 = new DetalleReceta($medicamento1, 20, 10.0, []);
-        // $detalle2 = new DetalleReceta($medicamento2, 10, 20.0, []);
+    public function procesarReceta(Request $request){
+        $this->crearNuevaReceta();
+        $this->introducirCedulaProfesional("12345678");
+        $this->introducirMedicamento("Paracetamol 500mg",7);
 
-        // Agregar a receta los detalles
-        // $receta1->agregarDetalleReceta($detalle1);
-        // $this->recetaService->procesarReceta("123");
-        //$receta1->agregarDetalleReceta($detalle2);
-        // Procesarlo
-        // $receta1->procesarReceta("1234", $this->sucursalService);
-        // dd($receta1->getDetallesReceta());
+        $numTarjeta = "1234 1234 1234 1234"; 
+
+        $resultado = $this->recetaService->procesarReceta($numTarjeta);
+                    
+        $fechaRecoleccion = now()->addDay()->setTime(10, 0)->format('d/m/Y H:i');
+        if($resultado == true){
+            return view('tas.resultado', [
+                'exito' => true,
+                'numeroPedido' => 1,
+                'cedulaProfesional' => "12345678",
+                'farmacia' => "Farmacias del Ahorro" . ' - Sucursal Cedros',
+                'medicamentos' => [],
+                'fechaRecoleccion' => $fechaRecoleccion,
+                'mensaje' => 'Receta procesada correctamente'
+            ]);
+        }
+        return view('tas.resultado', [
+            'exito' => false,
+            'mensaje' => "No se pudo surtir todos los medicamentos",
+            'cedulaProfesional' => $request->cedula_profesional ?? 'N/A',
+            'farmacia' => ($request->farmacia_cadena ?? 'N/A') . ' - Sucursal ' . ($request->farmacia_sucursal ?? 'N/A'),
+            'medicamentos' => []
+        ]);
     }
 }

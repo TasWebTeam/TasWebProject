@@ -11,7 +11,6 @@ class RecetaModel extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'id_receta',
         'id_usuario',
         'id_cadenaDestino',
         'id_sucursalDestino',

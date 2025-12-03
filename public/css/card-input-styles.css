@@ -1,4 +1,3 @@
-/* Estilos para input de tarjeta con imagen */
 .fila-tarjeta {
     position: relative;
     width: 100%;
@@ -26,7 +25,6 @@
     display: none;
 }
 
-/* Estilos para el grupo de inputs de fecha y CVV */
 .input-group {
     display: flex;
     gap: 10px;
@@ -39,7 +37,6 @@
     margin: 0;
 }
 
-/* Estilos para el grupo de botones */
 .button-group {
     display: flex;
     gap: 10px;
@@ -52,7 +49,6 @@
     margin: 0;
 }
 
-/* Descripción del paso */
 .step-description {
     font-size: 13px;
     color: #666;
@@ -60,7 +56,6 @@
     text-align: center;
 }
 
-/* Responsivo */
 @media (max-width: 480px) {
     .fila-tarjeta input {
         padding-left: 45px !important;

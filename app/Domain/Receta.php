@@ -19,7 +19,7 @@ class Receta
     private ?Pago $pago;
 
     public function __construct(
-        int $idReceta,
+        int $idReceta = 0,
         ?Sucursal $sucursal,
         string $cedulaProfesional,
         ?DateTime $fechaRegistro,
@@ -51,14 +51,6 @@ class Receta
             new Pago()
         );
     }
-
-    // public function obtenerSucursal(string $nombreSucursal, string $nombreCadena ): void
-    // {
-    //     $consultarRepository = new ConsultarRepository();               // Esta bien no indicar que se creó este objeto en el diagrama 2?
-    //     $cad = $consultarRepository->recuperarCadena($nombreCadena);
-    //     $suc = $consultarRepository->recuperarSucursal($nombreSucursal, $cad);
-    //     $this->asignarSucursal($suc);
-    // }
 
     public function asignarSucursal($suc): void
     {
@@ -98,28 +90,22 @@ class Receta
 
     public function calcularFecha(): void
     {
-        // 1) Fecha de registro = ahora
         $fechaRegistro = new DateTime();
         $this->setFechaRegistro($fechaRegistro);
 
-        // 2) Tiempo base
-        $tiempoMinutos = 10; // validaciones, captura, etc.
-
+        $tiempoMinutos = 10; 
         $sucursalesInvolucradas = [];
 
         foreach ($this->detallesReceta as $detalle) {
             foreach ($detalle->getLineasSurtido() as $linea) {
-                // 2.1 tiempo por línea
                 $tiempoMinutos += 5;
 
-                // 2.2 registrar sucursal
                 $sucursal = $linea->getSucursal();
                 $idSuc    = $sucursal->getIdSucursal();
                 $sucursalesInvolucradas[$idSuc] = true;
             }
         }
 
-        // 2.3 tiempo por sucursal distinta
         $tiempoPorSucursal = 30;
         $tiempoMinutos += count($sucursalesInvolucradas) * $tiempoPorSucursal;
 

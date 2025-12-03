@@ -11,21 +11,19 @@ class RutaOpenStreetMapService
     public function __construct()
     {
         $this->http = new Client([
-            'base_uri' => env('OSM_ROUTING_BASE_URL'), // ej: 'https://api.openrouteservice.org/'
+            'base_uri' => env('OSM_ROUTING_BASE_URL'), 
             'timeout'  => 10.0,
         ]);
     }
 
-    /**
-     * Calcula la distancia en km entre dos puntos usando tu API de rutas OSM.
-     */
+
     public function obtenerDistanciaKm(float $latOrigen, float $lonOrigen, float $latDestino, float $lonDestino): ?float
     {
         try {
             $response = $this->http->get('v2/directions/driving-car', [
                 'query' => [
                     'api_key' => env('OSM_ROUTING_API_KEY'),
-                    'start'   => $lonOrigen . ',' . $latOrigen,   // muchas APIs usan lon,lat
+                    'start'   => $lonOrigen . ',' . $latOrigen,  
                     'end'     => $lonDestino . ',' . $latDestino,
                 ],
             ]);
@@ -38,7 +36,7 @@ class RutaOpenStreetMapService
                 return null;
             }
 
-            return $metros / 1000.0; // a kilómetros
+            return $metros / 1000.0;
         } catch (\Throwable $e) {
             Log::error('Error consultando ruta OSM: ' . $e->getMessage());
             return null;
@@ -67,7 +65,6 @@ class RutaOpenStreetMapService
             $puntos = [];
 
             foreach ($coords as $par) {
-                // [lon, lat]
                 $puntos[] = [
                     'lat' => $par[1],
                     'lng' => $par[0],
@@ -81,24 +78,4 @@ class RutaOpenStreetMapService
             return [];
         }
     }
-
-  /*  public function optimizarRutaORS(array $jobs, array $vehicles): ?array
-    {
-        try {
-            $response = $this->http->post('optimization', [
-                'query' => [
-                    'api_key' => env('OSM_ROUTING_API_KEY'),
-                ],
-                'json' => [
-                    'jobs'     => $jobs,
-                    'vehicles' => $vehicles,
-                ],
-            ]);
-
-            return json_decode($response->getBody()->getContents(), true);
-        } catch (\Throwable $e) {
-            Log::error('Error ORS Optimization: ' . $e->getMessage());
-            return null;
-        }
-    }*/
 }

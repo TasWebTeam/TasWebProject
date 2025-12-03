@@ -11,22 +11,22 @@ use App\Domain\InventarioSucursal;
 
 use App\Repositories\ActualizarRepository;
 use App\Repositories\ConsultarRepository;
+use Illuminate\Support\Facades\Log;
 
 class RecetaService 
 {
     private TasService $tasService;
-    private Paciente $paciente;
+    private ?Paciente $paciente = null;
     private ConsultarRepository $consultarRepository;
     private ActualizarRepository $actualizarRepository;
-
     private SucursalService $sucursalService;
 
     public function __construct(
         TasService $tasService, 
         ConsultarRepository $consultarRepository, 
         ActualizarRepository $actualizarRepository,
-        SucursalService $sucursalService)
-    {
+        SucursalService $sucursalService
+    ) {
         $this->tasService = $tasService;
         $this->consultarRepository = $consultarRepository;
         $this->actualizarRepository = $actualizarRepository;
@@ -51,74 +51,148 @@ class RecetaService
     {
         $paciente = $this->obtenerPaciente($correo);
         $paciente->crearNuevaReceta();
+        
+        Log::info('Nueva receta creada para paciente', [
+            'paciente_id' => $paciente->getId(),
+            'correo' => $correo
+        ]);
     }
 
-    public function introducirSucursal($nombreCadena, $nombreSucursal) // no sera mejor con el id del paciente?
+    public function introducirSucursal($nombreCadena, $nombreSucursal) 
     {
+        $this->verificarPacienteInicializado();
+        
         $rec = $this->paciente->getUltimaReceta();
         $cad = $this->consultarRepository->recuperarCadena($nombreCadena);
         $suc = $this->consultarRepository->recuperarSucursal($nombreSucursal, $cad);
         $rec->asignarSucursal($suc);
+        
+        Log::info('Sucursal asignada a receta', [
+            'cadena' => $nombreCadena,
+            'sucursal' => $nombreSucursal
+        ]);
     }
 
     public function introducirCedulaProfesional($cedulaProfesional)
     {
+        $this->verificarPacienteInicializado();
+        
         $rec = $this->paciente->getUltimaReceta();
         $rec->introducirCedulaProfesional($cedulaProfesional);
+        
+        Log::info('Cédula profesional introducida', [
+            'cedula' => $cedulaProfesional
+        ]);
     }
 
-    public function introducirMedicamento($nombreMedicamento, $cantidad){
-        $rec = $this->paciente->getUltimaReceta();
-        $suc = $rec->getSucursal();
+    public function introducirMedicamento($nombreMedicamento, $cantidad)
+    {
+        try {
+            $this->verificarPacienteInicializado();
+            
+            Log::info('Introduciendo medicamento', [
+                'medicamento' => $nombreMedicamento,
+                'cantidad' => $cantidad
+            ]);
+            
+            $rec = $this->paciente->getUltimaReceta();
+            $suc = $rec->getSucursal();
 
-        $cadena = $suc->getCadena();
-        $id = $suc->getId();
+            if (!$suc) {
+                throw new \Exception('No hay sucursal asignada a la receta');
+            }
 
-        $inv = $this->consultarRepository->recuperarInventario($cadena, $id, $nombreMedicamento);
-        $med = $inv->obtenerMedicamento();
-        $precio = $inv->obtenerPrecio();
+            $cadena = $suc->getCadena();
+            $idSucursal = $suc->getId(); // ✅ USAR getIdSucursal()
 
-        $rec->crearDetalleReceta($med, $cantidad, $precio);
-        $total = $rec->calcularTotal();
-        $comisionTotal = $rec->calcularComision($total);
-        $rec->obtenerPago()->actualizarComision($comisionTotal);
+            Log::info('Buscando medicamento en inventario', [
+                'cadena' => $cadena->getIdCadena(),
+                'sucursal_id' => $idSucursal,
+                'medicamento' => $nombreMedicamento
+            ]);
+
+            // Usar recuperarInventarioConsultar (sin lock) para agregar medicamentos
+            $inv = $this->consultarRepository->recuperarInventarioConsultar($cadena, $idSucursal, $nombreMedicamento);
+            
+            $med = $inv->obtenerMedicamento();
+            $precio = $inv->obtenerPrecio();
+
+            $rec->crearDetalleReceta($med, $cantidad, $precio);
+            $total = $rec->calcularTotal();
+            $comisionTotal = $rec->calcularComision($total);
+            $rec->obtenerPago()->actualizarComision($comisionTotal);
+            
+            Log::info('Medicamento agregado exitosamente', [
+                'medicamento' => $nombreMedicamento,
+                'cantidad' => $cantidad,
+                'precio' => $precio,
+                'total_receta' => $total,
+                'comision' => $comisionTotal
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error al introducir medicamento', [
+                'error' => $e->getMessage(),
+                'medicamento' => $nombreMedicamento,
+                'cantidad' => $cantidad,
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
     }
     
-    public function procesarReceta($numTarjeta){
+    public function procesarReceta($numTarjeta)
+    {
+        $this->verificarPacienteInicializado();
+        
+        $rec = $this->paciente->getUltimaReceta();
         
         $this->actualizarRepository->beginTransaction();
-        $rec = $this->paciente->getUltimaReceta();
+        
         try {
             $sucursalOrigen = $rec->getSucursal();
 
             foreach ($rec->getDetallesReceta() as $detalle) {
-                $this->procesarDetalle($detalle, $sucursalOrigen);
+                $resultado = $this->procesarDetalle($detalle, $sucursalOrigen);
+                
+                if ($resultado === false) {
+                    $this->actualizarRepository->rollbackTransaction();
+                    return false;
+                }
             }
-
-            // Validar pago en dominio
+            
+            // Validar pago
             $rec->obtenerPago()->validarPago((string)$numTarjeta);
-            dd($rec);
-            // Calcular fecha de recolección (dominio)
+            
+            // Calcular fecha de recolección
             $rec->calcularFecha();
+            
+            // Cambiar estado
+            $rec->cambiarEstado('en_proceso');
 
-            // (Opcional) Cambiar estado
-            $rec->cambiarEstado('En preparacion');
-
+            // Guardar todo en la base de datos
             $this->actualizarRepository->guardarRecetaCompleta($this->paciente, $rec);
-
+            
             $this->actualizarRepository->commitTransaction();
+            
+            return true;
+            
         } catch (\Throwable $e) {
             $this->actualizarRepository->rollbackTransaction();
-            throw $e;
+            return false;            
         }
     }
 
-    private function procesarDetalle(DetalleReceta $detalle, Sucursal $sucursalOrigen): void
+    /**
+     * Procesa un detalle de la receta, intentando surtir el medicamento
+     * desde la sucursal origen y otras sucursales si es necesario
+     */
+    private function procesarDetalle(DetalleReceta $detalle, Sucursal $sucursalOrigen)
     {
         $cantidadRequerida = $detalle->getCantidad();
         $sucursalActual    = $sucursalOrigen;
 
-        $rec = $this->paciente->getUltimaReceta();
+        // $rec = $this->paciente->getUltimaReceta();
 
         $buscarSucursales = true;
         $candidatas       = [];
@@ -152,9 +226,7 @@ class RecetaService
             }
 
             if (empty($candidatas)) {
-                throw new \RuntimeException(
-                    "No se pudo surtir el medicamento " . $detalle->getMedicamento()->getNombre()
-                );
+                return false;
             }
 
             $infoSucursal   = array_shift($candidatas);
@@ -162,35 +234,91 @@ class RecetaService
         }
     }
 
+    /**
+     * Verifica la disponibilidad de un medicamento en una sucursal
+     * y descuenta del inventario si hay stock disponible
+     */
     private function verificarDisponibilidadEnSucursal(
         Sucursal $sucursal,
         Medicamento $medicamento,
         int $cantidadSolicitada
     ): int {
-        $inv = $this->consultarRepository->recuperarInventario(
-            $sucursal->getCadena(),
-            $sucursal->getId(),
-            $medicamento->getNombre()
-        );
-        $stockExistente = $inv->obtenerStock();
-        $cantObtenida   = 0;
+        try {
+            Log::info('Verificando disponibilidad en sucursal', [
+                'sucursal' => $sucursal->getNombre(),
+                'medicamento' => $medicamento->getNombre(),
+                'cantidad_solicitada' => $cantidadSolicitada
+            ]);
 
-        if ($stockExistente > 0) {
-            if ($stockExistente >= $cantidadSolicitada) {
-                $inv->descontarMedicamento($cantidadSolicitada);
-                $cantObtenida = $cantidadSolicitada;
-            } else {
-                $inv->descontarMedicamento($stockExistente);
-                $cantObtenida = $stockExistente;
-            }
+            $idSucursal = $sucursal->getId(); // ✅ USAR getIdSucursal()
 
-            $this->actualizarRepository->actualizarInventario(
+            // Usar recuperarInventario (con lock) para actualizaciones
+            $inv = $this->consultarRepository->recuperarInventario(
                 $sucursal->getCadena(),
-                $sucursal->getIdSucursal(),
-                $inv
+                $idSucursal, // ✅ CORREGIDO
+                $medicamento->getNombre()
+            );
+            
+            $stockExistente = $inv->obtenerStock();
+            $cantObtenida = 0;
+
+            Log::info('Stock encontrado en sucursal', [
+                'sucursal' => $sucursal->getNombre(),
+                'stock_existente' => $stockExistente
+            ]);
+
+            if ($stockExistente > 0) {
+                if ($stockExistente >= $cantidadSolicitada) {
+                    // Hay suficiente stock para toda la cantidad
+                    $inv->descontarMedicamento($cantidadSolicitada);
+                    $cantObtenida = $cantidadSolicitada;
+                } else {
+                    // Solo hay stock parcial
+                    $inv->descontarMedicamento($stockExistente);
+                    $cantObtenida = $stockExistente;
+                }
+
+                // Actualizar el inventario en la base de datos
+                $this->actualizarRepository->actualizarInventario(
+                    $sucursal->getCadena(),
+                    $idSucursal, // ✅ USAR LA MISMA VARIABLE
+                    $inv
+                );
+                
+                Log::info('Inventario actualizado en sucursal', [
+                    'sucursal' => $sucursal->getNombre(),
+                    'cantidad_descontada' => $cantObtenida,
+                    'stock_nuevo' => $inv->obtenerStock()
+                ]);
+            } else {
+                Log::info('Sin stock disponible en sucursal', [
+                    'sucursal' => $sucursal->getNombre()
+                ]);
+            }
+            
+            return $cantObtenida;
+            
+        } catch (\Exception $e) {
+            Log::error('Error al verificar disponibilidad en sucursal', [
+                'error' => $e->getMessage(),
+                'sucursal' => $sucursal->getNombre(),
+                'medicamento' => $medicamento->getNombre(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            // Retornar 0 si hay error, no detener el proceso completamente
+            return 0;
+        }
+    }
+
+    /**
+     * Verifica que el paciente esté inicializado antes de realizar operaciones
+     */
+    private function verificarPacienteInicializado(): void
+    {
+        if ($this->paciente === null) {
+            throw new \Exception(
+                'No hay un paciente/receta activa. Debe llamar a crearNuevaReceta() primero.'
             );
         }
-        
-        return $cantObtenida;
     }
 }

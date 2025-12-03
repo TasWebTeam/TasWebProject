@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 document.getElementById('precio').value = data.precio ?? 'No disponible';
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error);
     });
 });
+
+// nigga

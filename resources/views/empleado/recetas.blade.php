@@ -85,9 +85,9 @@
                                 </td>
 
                                 <td>
-                                    <a href="{{ route('empleado_recetas.mapa', ['id' => $receta->getIdReceta()]) }}"
+                                    <a href="{{ route('empleado_detalles.receta', ['id' => $receta->getIdReceta()]) }}"
                                         class="btn btn-sm btn-outline-primary">
-                                            Ver ruta
+                                            Ver Detalles
                                     </a>
                                     @if ($receta->getEstadoPedido() === 'en_proceso')
                                         <button class="btn btn-sm btn-success ms-1"
@@ -125,10 +125,6 @@
     </div>
 </div>
 
-
-{{-- ========================= --}}
-{{--     MODAL: MARCAR LISTA   --}}
-{{-- ========================= --}}
 <div class="modal fade" id="modalLista" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -149,10 +145,6 @@
     </div>
 </div>
 
-
-{{-- ========================= --}}
-{{--   MODAL: MARCAR ENTREGADA --}}
-{{-- ========================= --}}
 <div class="modal fade" id="modalEntregada" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -173,11 +165,6 @@
     </div>
 </div>
 
-
-
-{{-- ========================= --}}
-{{--      JS MODALES AJAX      --}}
-{{-- ========================= --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -185,7 +172,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const token = '{{ csrf_token() }}';
     const baseUrl = "{{ url('/empleado/recetas') }}";
 
-    // Modal LISTA
     const modalLista = document.getElementById('modalLista');
     modalLista.addEventListener('show.bs.modal', function (event) {
         idSeleccionado = event.relatedTarget.getAttribute('data-id');
@@ -207,7 +193,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Modal ENTREGADA
     const modalEntregada = document.getElementById('modalEntregada');
     modalEntregada.addEventListener('show.bs.modal', function (event) {
         idSeleccionado = event.relatedTarget.getAttribute('data-id');

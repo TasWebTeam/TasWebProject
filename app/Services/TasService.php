@@ -23,13 +23,11 @@ class TasService
 
     public function encontrarUsuario($correo)
     {
-        // tran
         $this->tasRepository->beginTransaction();
         $usuarioModel = $this->tasRepository->buscarUsuarioPorCorreo($correo);
         if (! $usuarioModel) {
             return null;
         }
-        // cerrar
         $this->tasRepository->commitTransaction();
 
         $usuario = new Usuario(
@@ -272,9 +270,6 @@ class TasService
         $usuario->reiniciarIntentosLogin();
         $this->actualizarSesion($usuario);
 
-        // ----------------------------------
-        // Construimos los datos de sesión
-        // ----------------------------------
         $sessionData = [
             'id'       => $usuario->getId(),
             'correo'   => $usuario->getCorreo(),
@@ -286,11 +281,10 @@ class TasService
         if ($usuario->getRol() === 'empleado') {
             $empleado = $this->tasRepository->obtenerEmpleado($usuario);
             if ($empleado) {
-                $sessionData['id_sucursal'] = $empleado->getSucursal()->getId();
+                $sessionData['id_sucursal'] = $empleado->getSucursal()->getId(); 
                 $sessionData['id_cadena'] = $empleado->getSucursal()->getCadena()->getIdCadena();
                 $sessionData['nombre_sucursal'] = $empleado->getSucursal()->getNombre();
                 $sessionData['nombre_cadena'] = $empleado->getSucursal()->getCadena()->getNombre();
-                //$sessionData['id_puesto']   = $empleado->getPuesto();
             }
         }
 

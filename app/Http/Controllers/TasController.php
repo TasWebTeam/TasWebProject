@@ -51,48 +51,7 @@ class TasController extends Controller
         return view('tas.metodo_pago', compact('tarjeta'));
     }
 
-    /*public function tas_inicioSesion(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'correo' => ['required', 'string', 'regex:/^[\w\.-]+@[\w\.-]+\.\w{2,4}$/'],
-            'nip' => ['required', 'string'],
-        ], [
-            'correo.required' => 'El correo es obligatorio.',
-            'correo.regex' => 'El correo no tiene un formato válido.',
-            'nip.required' => 'El nip es obligatorio.',
-        ]);
 
-        if ($validator->fails()) {
-            return back()->withErrors($validator, 'login')->withInput();
-        }
-
-        $usuario = $this->tasService->iniciarSesion($request->correo, $request->nip);
-
-        if (! $usuario) {
-            return back()->with('error', 'Ha ocurrido un error');
-        }
-
-        if (! $usuario instanceof Usuario) {
-            return back()->with('error', $usuario);
-        }
-
-        session([
-            'usuario' => [
-                'id' => $usuario->getId(),
-                'correo' => $usuario->getCorreo(),
-                'nombre' => $usuario->getNombre(),
-                //Nueva cosa agregada 28/11/2025
-                'rol' => $usuario->getRol()
-            ],
-        ]);
-
-        //Nuevo tambien 
-        if ($usuario->getRol() === 'empleado') {
-            return redirect()->route('empleado_recetas')->with('success', 'Bienvenido '.$usuario->getNombre());
-        }
-
-        return redirect()->route('tas_inicioView')->with('success', 'Bienvenido '.$usuario->getNombre());
-    }*/
     public function tas_inicioSesion(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -110,22 +69,18 @@ class TasController extends Controller
 
         $resultado = $this->tasService->iniciarSesion($request->correo, $request->nip);
 
-        // Si iniciarSesion devuelve string, es mensaje de error
         if (is_string($resultado)) {
             return back()->with('error', $resultado)->withInput();
         }
 
-        /** @var \App\Domain\Usuario $usuario */
         $usuario = $resultado;
 
-        // Redirección según rol
         if ($usuario->getRol() === 'empleado') {
             return redirect()
                 ->route('empleado_recetas')
                 ->with('success', 'Bienvenido '.$usuario->getNombre());
         }
 
-        // Paciente (o cualquier otro rol)
         return redirect()
             ->route('tas_inicioView')
             ->with('success', 'Bienvenido '.$usuario->getNombre());

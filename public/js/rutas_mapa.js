@@ -2,10 +2,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const segmentos = window.segmentosMapa || [];
 
     if (!Array.isArray(segmentos) || segmentos.length === 0) {
-        console.warn("No hay líneas de surtido para mostrar");
         return;
     }
-     // === 1) Definir iconos ===
     const iconCentral = L.icon({
         iconUrl: "/images/farmacias/icon_central.png",
         iconSize: [60, 60],
@@ -24,7 +22,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!nombreCadena) return iconCadenaDefault;
         const n = nombreCadena;
 
-        // aquí puedes hacer includes según tus cadenas reales
         if (n.includes("Farmacias del Ahorro"))    return L.icon({
             iconUrl: "/images/farmacias/aho.png",
             iconSize: [60, 60],
@@ -60,9 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         return iconCadenaDefault;
     }
-    console.log("SEGMENTOS:", segmentos);
 
-    // === 1) La sucursal CENTRAL es el DESTINO del primer segmento ===
     const central = segmentos[0].destino;
     const map = L.map("map").setView([central.lat, central.lng], 13);
 
@@ -73,17 +68,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const allLatLngs = [];
 
-     // Marcador central (destino) – TAS
     L.marker([central.lat, central.lng], { icon: iconCentral })
         .addTo(map)
         .bindPopup("Sucursal Destino: " + central.nombre);
 
     allLatLngs.push([central.lat, central.lng]);
 
-    // === 2) Dibujar líneas ORIGEN -> CENTRO ===
     segmentos.forEach((seg) => {
         const origen = seg.origen;
-        const destino = seg.destino; // debería ser siempre la central
+        const destino = seg.destino;
 
         if (!origen || origen.lat == null || origen.lng == null) return;
 
@@ -93,10 +86,8 @@ document.addEventListener("DOMContentLoaded", function () {
         let latlngs = null;
 
         if (!mismoPunto && seg.ruta && seg.ruta.length > 1) {
-            // usar ruta con varios puntos
             latlngs = seg.ruta.map((p) => [p.lat, p.lng]);
         } else if (!mismoPunto) {
-            // línea recta origen -> central
             latlngs = [
                 [origen.lat, origen.lng],
                 [destino.lat, destino.lng],
@@ -106,7 +97,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (latlngs) {
             latlngs.forEach((ll) => allLatLngs.push(ll));
 
-            // línea roja simple
             L.polyline(latlngs, {
                 color: "red",
                 weight: 3,
@@ -114,7 +104,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }).addTo(map);
         }
 
-        // marcador de sucursal origen con icono de cadena
         const iconOrigen = iconoPorCadena(origen.cadena);
         L.marker([origen.lat, origen.lng], { icon: iconOrigen })
             .addTo(map)
@@ -126,7 +115,6 @@ document.addEventListener("DOMContentLoaded", function () {
             );
     });
 
-    // === 3) Ajustar vista ===
     if (allLatLngs.length > 0) {
         const bounds = L.latLngBounds(allLatLngs);
         map.fitBounds(bounds, { padding: [30, 30] });

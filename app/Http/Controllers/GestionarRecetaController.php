@@ -8,12 +8,13 @@ use App\Services\EmpleadoService;
 use App\Services\SucursalService;
 use Illuminate\Support\Facades\Log;
 
+
 class GestionarRecetaController extends Controller
 {
     private EmpleadoService $empleadoService;
     private SucursalService $sucursalService;
 
-    public function __construct(EmpleadoService $empleadoService,SucursalService $sucursalService)
+    public function __construct(EmpleadoService $empleadoService, SucursalService $sucursalService)
     {
         $this->empleadoService = $empleadoService;
         $this->sucursalService = $sucursalService;
@@ -21,28 +22,26 @@ class GestionarRecetaController extends Controller
 
     public function recetas(Request $request)
     {
-        $idSucursal = session('usuario.id');
-        // dd($idSucursal);
+        $idSucursal = session('usuario.id_sucursal');
         $idCadena = session(key: 'usuario.id_cadena');
         $estado = $request->query(key: 'estado');
         $nombreSucursal = session('usuario.nombre_sucursal');
         $nombreCadena = session('usuario.nombre_cadena');
-        $recetas = $this->empleadoService->obtenerRecetasEmpleado($idCadena,$idSucursal, $estado); 
-        return view('empleado.recetas', compact('recetas', 'estado', 'nombreSucursal','nombreCadena'));
+        $recetas = $this->empleadoService->obtenerRecetasEmpleado($idCadena, $idSucursal, $estado); 
+        return view('empleado.recetas', compact('recetas', 'estado', 'nombreSucursal', 'nombreCadena'));
     }
 
     public function recetasExpiradas()
     {
-        $idSucursal = session('usuario.id');
+        $idSucursal = session('usuario.id_sucursal');
         $idCadena = session('usuario.id_cadena');
         $nombreSucursal = session('usuario.nombre_sucursal');
         $nombreCadena = session('usuario.nombre_cadena');    
-        $recetas = $this->empleadoService->obtenerRecetasExpiradas($idCadena,$idSucursal);
+        $recetas = $this->empleadoService->obtenerRecetasExpiradas($idCadena, $idSucursal);
 
-        return view('empleado.recetas_expiradas', compact('recetas','nombreSucursal','nombreCadena'));
+        return view('empleado.recetas_expiradas', compact('recetas', 'nombreSucursal', 'nombreCadena'));
     }
 
-    // 🔹 Marcar como lista_para_recoleccion
     public function marcarComoLista(Request $request, int $id)
     {
         $ok = $this->empleadoService->marcarComoLista($id);
@@ -59,9 +58,7 @@ class GestionarRecetaController extends Controller
             $ok ? 'Receta marcada como lista para recolección.' : 'No se pudo actualizar la receta.'
         );
     }
-
     
-    // 🔹 Marcar como entregada
     public function marcarComoEntregada(Request $request, int $id)
     {
         $ok = $this->empleadoService->marcarComoEntregada($id);
@@ -79,100 +76,98 @@ class GestionarRecetaController extends Controller
         );
     }
 
-    /*public function recetas()
-    { 
-        return view('empleado.recetas');
-    }
-
-    public function recetasExpiradas()
+    public function devolverReceta(Request $request, int $idReceta)
     {
-        // Más adelante aquí traerás recetas expiradas
-        return view('empleado.recetas_expiradas');
-    }*/
-    /**
-     * Obtiene la sucursal del empleado desde la sesión.
-     * OJO: debes guardar 'id_sucursal' del empleado en la sesión al iniciar sesión.
-     */
-
-
-    /*public function devolverReceta(int $idReceta){
-        $idSucursal = session('usuario.id_sucursal');
-        $idCadena = session(key: 'usuario.id_cadena');
-        // 🔹 obtenemos la sucursal como objeto de dominio
-        $sucursal = $this->recetaService->obtenerSucursalPorCadenaYSucursal($idCadena, $idSucursal);
-        $sucursal->devolverReceta($idReceta);
-    }*/
-    /*public function devolverReceta(Request $request, int $idReceta)
-    {
-        $idSucursal = session('usuario.id_sucursal');
-        $idCadena   = session('usuario.id_cadena');
-
-        if (!$idSucursal || !$idCadena) {
-            return response()->json([
-                'ok'      => false,
-                'message' => 'No se encontró sucursal/cadena en la sesión.'
-            ], 400);
-        }
-
         try {
-            // 🔹 Obtenemos la sucursal de dominio (ya tienes este método)
-            $sucursal = $this->empleadoService
-                             ->obtenerSucursalPorCadenaYSucursal($idCadena, $idSucursal);
+            Log::info('Iniciando devolución de receta', ['idReceta' => $idReceta]);
 
-            if (!$sucursal) {
-                return response()->json([
-                    'ok'      => false,
-                    'message' => 'No se encontró la sucursal.'
-                ], 404);
+            // Verificar que la receta existe antes de intentar devolverla
+            $receta = \App\Models\RecetaModel::find($idReceta);
+            if (!$receta) {
+                Log::error('Receta no encontrada', ['idReceta' => $idReceta]);
+                
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'ok' => false,
+                        'message' => 'La receta no existe.',
+                    ], 404);
+                }
+
+                return redirect()->back()->with('error', 'La receta no existe.');
             }
 
-            // 🔹 Llamas a tu dominio, que ya hace toda la magia de devolución
-            $this->sucursalService->devolverReceta($idReceta); //falta definir REPOS 😏
-
-            return response()->json([
-                'ok'      => true,
-                'message' => 'La receta se marcó como devolviendo y se actualizaron inventarios.'
+            Log::info('Receta encontrada', [
+                'idReceta' => $idReceta,
+                'estado' => $receta->estado,
+                'id_sucursal' => $receta->id_sucursal,
             ]);
 
-        } catch (\Throwable $e) {
-             Log::error($e->getMessage());
-            return response()->json([
-                'ok'      => false,
-                'message' => 'Ocurrió un error al devolver la receta.'
-            ], 500);
-        }
-    }*/
-    /*public function devolverReceta(int $idReceta)
-    {
-            // 1) Recuperas la receta de dominio
-        $this->sucursalService->devolverReceta($idReceta);
-    }*/
-    /*public function devolverReceta(Request $request, int $idReceta)
-    {
-        try {
-            // 👉 Solo coordina: manda mensaje al service
-            $this->sucursalService->devolverReceta($idReceta);
+            // Intentar devolver la receta en el servicio
+            $okDevolucion = $this->sucursalService->devolverReceta($idReceta);
+
+            Log::info('Resultado devolverReceta()', [
+                'idReceta' => $idReceta,
+                'okDevolucion' => $okDevolucion
+            ]);
+
+            if (!$okDevolucion) {
+                Log::warning('No se pudo iniciar la devolución de la receta', [
+                    'idReceta' => $idReceta,
+                    'mensaje' => 'El servicio devolverReceta() retornó false. Revisar SucursalService.'
+                ]);
+                
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'ok' => false,
+                        'message' => 'No se pudo iniciar la devolución de la receta. Verifica los logs del servidor.',
+                    ], 422);
+                }
+
+                return redirect()
+                    ->back()
+                    ->with('error', 'No se pudo iniciar la devolución de la receta.');
+            }
+
+            // Actualizar el estado de la receta
+            $okEstado = $this->empleadoService->actualizarEstado($idReceta, 'devolviendo');
+
+            Log::info('Resultado actualizarEstado()', [
+                'idReceta' => $idReceta,
+                'okEstado' => $okEstado
+            ]);
+
+            $okFinal = $okDevolucion && $okEstado;
 
             if ($request->expectsJson()) {
                 return response()->json([
-                    'ok'      => true,
-                    'message' => 'La receta se devolvió correctamente a las sucursales.'
-                ]);
+                    'ok' => $okFinal,
+                    'nuevoEstado' => $okFinal ? 'devolviendo' : null,
+                    'message' => $okFinal
+                        ? 'La devolución se inició correctamente. La receta está en estado "devolviendo".'
+                        : 'No se pudo actualizar el estado de la receta.',
+                ], $okFinal ? 200 : 422);
             }
 
             return redirect()
                 ->back()
-                ->with('success', 'La receta se devolvió correctamente a las sucursales.');
+                ->with(
+                    $okFinal ? 'success' : 'error',
+                    $okFinal
+                        ? 'La devolución se inició correctamente. La receta está en estado "devolviendo".'
+                        : 'No se pudo actualizar el estado de la receta.'
+                );
+
         } catch (\Throwable $e) {
-            Log::error('Error al devolver receta', [
-                'id_receta' => $idReceta,
-                'error'     => $e->getMessage(),
+            Log::error('Error al devolver la receta', [
+                'idReceta' => $idReceta,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
 
             if ($request->expectsJson()) {
                 return response()->json([
-                    'ok'      => false,
-                    'message' => 'Ocurrió un error al devolver la receta.',
+                    'ok' => false,
+                    'message' => 'Ocurrió un error al devolver la receta: ' . $e->getMessage(),
                 ], 500);
             }
 
@@ -180,59 +175,51 @@ class GestionarRecetaController extends Controller
                 ->back()
                 ->with('error', 'Ocurrió un error al devolver la receta: ' . $e->getMessage());
         }
-    }*/
-    public function devolverReceta(int $idReceta)
-    {
-        // 👉 Aquí puedes debuggear directamente
-        // dd($idReceta);
-
-        // Llamas al service
-        $this->sucursalService->devolverReceta($idReceta);
-
-        // Si dentro del service haces dd($lo_que_sea), se va a ver aquí
-        return redirect()
-            ->back()
-            ->with('success', 'Se ejecutó devolverReceta() en SucursalService.');
     }
 
-
-    public function confirmarRecetaNoRecogida(Request $request,int $idReceta)
+    public function confirmarRecetaNoRecogida(Request $request, int $idReceta)
     {
         try {
-            // Solo cambiamos el estado a "no_recogida"
             $ok = $this->empleadoService->actualizarEstado($idReceta, 'no_recogida');
 
             if (!$ok) {
                 return response()->json([
-                    'ok'      => false,
+                    'ok' => false,
                     'message' => 'No se encontró la receta o no se pudo actualizar.'
                 ], 400);
             }
 
             return response()->json([
-                'ok'      => true,
+                'ok' => true,
                 'message' => 'La receta se marcó como NO RECOGIDA y ya no aparecerá en esta lista.'
             ]);
 
         } catch (\Throwable $e) {
             Log::error('Error al confirmar receta como no recogida', [
                 'idReceta' => $idReceta,
-                'error'    => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'ok'      => false,
+                'ok' => false,
                 'message' => 'Ocurrió un error al confirmar la receta como no recogida.'
             ], 500);
         }
     }
 
-    public function mostrarMapa(Request $request,int $idReceta)
+    public function mostrarMapa(int $idReceta)
     {
-        // Solo coordina: pide datos al servicio y los manda a la vista
+        $info = $this->empleadoService->obtenerRecetaYDetallesResumen($idReceta);
+
         $segmentos = $this->empleadoService->construirSegmentosMapaReceta($idReceta);
-
-        return view('empleado.rutas_mapa', compact('segmentos'));
+        
+        return view('empleado.detalles_receta', [
+            'receta' => $info['receta'],
+            'detallesResumen' => $info['detallesResumen'],
+            'totalGeneral' => $info['totalGeneral'],
+            'comision' => $info['comision'],
+            'totalConComision' => $info['totalConComision'],
+            'segmentos' => $segmentos,
+        ]);
     }
-
 }

@@ -22,7 +22,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         mostrarSucursales(sucursales);
         
     } catch (error) {
-        console.error('Error al cargar sucursales:', error);
         Swal.fire({
             icon: 'error',
             title: 'Error',

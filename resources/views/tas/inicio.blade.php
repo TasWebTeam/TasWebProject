@@ -254,7 +254,6 @@
 
 @push('scripts')
 <script>
-    // Smooth scroll para el indicador
     document.querySelector('.scroll-indicator')?.addEventListener('click', function() {
         document.querySelector('#farmacias').scrollIntoView({ 
             behavior: 'smooth' 

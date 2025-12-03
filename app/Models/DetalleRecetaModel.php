@@ -6,10 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DetalleRecetaModel extends Model
 {
-    // Nombre correcto de la tabla
     protected $table = 'detalle_recetas';
-
-    // PK artificial creada en la migración
     protected $primaryKey = 'id_detalle_receta';
     public $incrementing = true;
 
@@ -48,18 +45,6 @@ class DetalleRecetaModel extends Model
             'id_detalle_receta'
         );
     }
-/*
-    public function lineaPorMedicamento()
-    {
-        return $this->hasMany(
-            LineaSurtidoModel::class,
-            'id_detalle_receta',
-            'id_detalle_receta'
-        )->whereColumn(
-            'linea_surtido.id_medicamento',
-            'detalle_recetas.id_medicamento'
-        );
-    }*/
     
     public function lineaPorMedicamento()
     {

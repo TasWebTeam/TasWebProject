@@ -19,6 +19,7 @@ use App\Domain\LineaSurtido;
 use App\Domain\Pago;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use DateTime;
 use Exception;
 
@@ -27,6 +28,10 @@ class ConsultarRepository
     public function recuperarCadena($nombreCadena)
     {
         $cadenaModel = CadenaModel::where('nombre', $nombreCadena)->first();
+
+        if (!$cadenaModel) {
+            throw new Exception("No se encontró la cadena: {$nombreCadena}");
+        }
 
         return $this->transformarCadenaModelADomain($cadenaModel);
     }
@@ -45,6 +50,11 @@ class ConsultarRepository
             ->where('nombre', $nombreSucursal)
             ->where('id_cadena', $cad->getIdCadena())
             ->first();
+
+        if (!$sucursalModel) {
+            throw new Exception("No se encontró la sucursal: {$nombreSucursal} para la cadena {$cad->getNombre()}");
+        }
+
         return $this->transformarSucursalModelADomain($sucursalModel);
     }
     
@@ -62,43 +72,117 @@ class ConsultarRepository
         );
     }
 
+    /**
+     * Recuperar inventario para CONSULTA (sin lock)
+     * Usado cuando solo se necesita leer información
+     */
     public function recuperarInventarioConsultar(Cadena $Cadena, int $idSuc, string $nombreMedicamento)
     {
-        try{
+        try {
+            Log::info('Recuperando inventario para consulta', [
+                'cadena' => $Cadena->getIdCadena(),
+                'sucursal' => $idSuc,
+                'medicamento' => $nombreMedicamento
+            ]);
+
             $inventarioModel = InventarioModel::with(['medicamento', 'cadena', 'sucursal'])
-            ->where('id_cadena', $Cadena->getIdCadena())
-            ->where('id_sucursal', $idSuc)
-            ->whereHas('medicamento', function ($q) use ($nombreMedicamento) {
-                $q->where('nombre', $nombreMedicamento);
-            })
-            ->first();
+                ->where('id_cadena', $Cadena->getIdCadena())
+                ->where('id_sucursal', $idSuc)
+                ->whereHas('medicamento', function ($q) use ($nombreMedicamento) {
+                    $q->where('nombre', $nombreMedicamento);
+                })
+                ->first();
+
+            if (!$inventarioModel) {
+                Log::warning('Inventario no encontrado', [
+                    'cadena' => $Cadena->getIdCadena(),
+                    'sucursal' => $idSuc,
+                    'medicamento' => $nombreMedicamento
+                ]);
+                throw new Exception("Medicamento '{$nombreMedicamento}' no disponible en esta sucursal");
+            }
+
+            Log::info('Inventario encontrado', [
+                'id_inventario' => $inventarioModel->id_inventario,
+                'stock_actual' => $inventarioModel->stock_actual,
+                'precio' => $inventarioModel->precio_actual
+            ]);
+
             $inventario = $this->transformarInventarioModelADomain($inventarioModel);
             return $inventario;
+
         } catch (Exception $e) {
-            return null;
+            Log::error('Error al recuperar inventario para consulta', [
+                'error' => $e->getMessage(),
+                'cadena' => $Cadena->getIdCadena(),
+                'sucursal' => $idSuc,
+                'medicamento' => $nombreMedicamento
+            ]);
+            throw $e;
         }
     }
 
+    /**
+     * Recuperar inventario con LOCK para ACTUALIZACIÓN
+     * Usado cuando se va a modificar el stock
+     */
     public function recuperarInventario(Cadena $Cadena, int $idSuc, string $nombreMedicamento)
     {
-        try{
+        try {
+            Log::info('Recuperando inventario con lock', [
+                'cadena' => $Cadena->getIdCadena(),
+                'sucursal' => $idSuc,
+                'medicamento' => $nombreMedicamento
+            ]);
             $inventarioModel = InventarioModel::with(['medicamento', 'cadena', 'sucursal'])
-            ->where('id_cadena', $Cadena->getIdCadena())
-            ->where('id_sucursal', $idSuc)
-            ->whereHas('medicamento', function ($q) use ($nombreMedicamento) {
-                $q->where('nombre', $nombreMedicamento);
-            })
-            ->lockForUpdate()
-            ->first();
+                ->where('id_cadena', $Cadena->getIdCadena())
+                ->where('id_sucursal', $idSuc)
+                ->whereHas('medicamento', function ($q) use ($nombreMedicamento) {
+                    $q->where('nombre', $nombreMedicamento);
+                })
+                ->lockForUpdate()
+                ->first();
+                
+            if (!$inventarioModel) {
+                Log::warning('Inventario no encontrado con lock', [
+                    'cadena' => $Cadena->getIdCadena(),
+                    'sucursal' => $idSuc,
+                    'medicamento' => $nombreMedicamento
+                ]);
+                throw new Exception("Medicamento '{$nombreMedicamento}' no disponible en esta sucursal");
+            }
+
+            Log::info('Inventario encontrado con lock', [
+                'id_inventario' => $inventarioModel->id_inventario,
+                'stock_actual' => $inventarioModel->stock_actual,
+                'precio' => $inventarioModel->precio_actual
+            ]);
+
             $inventario = $this->transformarInventarioModelADomain($inventarioModel);
             return $inventario;
+
         } catch (Exception $e) {
-            return null;
+            Log::error('Error al recuperar inventario con lock', [
+                'error' => $e->getMessage(),
+                'cadena' => $Cadena->getIdCadena(),
+                'sucursal' => $idSuc,
+                'medicamento' => $nombreMedicamento
+            ]);
+            throw $e;
         }
     }
     
     private function transformarInventarioModelADomain(InventarioModel $inventarioModel): InventarioSucursal
     {
+        // Validar que las relaciones estén cargadas
+        if (!$inventarioModel->sucursal) {
+            throw new Exception('La relación sucursal no está cargada en el inventario');
+        }
+
+        if (!$inventarioModel->medicamento) {
+            throw new Exception('La relación medicamento no está cargada en el inventario');
+        }
+
         $sucursalDomain = $this->transformarSucursalModelADomain(
             $inventarioModel->sucursal
         );
@@ -106,6 +190,7 @@ class ConsultarRepository
         $medicamentoDomain = $this->transformarMedicamentoModelADomain(
             $inventarioModel->medicamento
         );
+
         return new InventarioSucursal(
             $inventarioModel->id_inventario,
             $sucursalDomain,
@@ -278,7 +363,7 @@ class ConsultarRepository
         $lat0 = $sucursalOrigen->getLatitud();
         $lon0 = $sucursalOrigen->getLongitud();
 
-        $table = (new SucursalModel())->getTable(); // 'sucursales'
+        $table = (new SucursalModel())->getTable(); 
 
         $haversine = "
             6371 * 2 * ASIN(

@@ -83,7 +83,6 @@
 
 @push('scripts')
 <script>
-    // botón del footer para subir
     const btnScrollTop = document.getElementById('btnScrollTop');
     if (btnScrollTop) {
         btnScrollTop.addEventListener('click', function(e) {

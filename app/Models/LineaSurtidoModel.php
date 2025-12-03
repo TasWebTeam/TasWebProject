@@ -18,7 +18,6 @@ class LineaSurtidoModel extends Model
         'id_cadenaSurtido',
         'id_sucursalSurtido',
         'id_detalle_receta',
-        'id_empleado',
         'estado_entrega',
         'cantidad'
     ];

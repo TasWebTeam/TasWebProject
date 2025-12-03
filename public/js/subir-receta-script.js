@@ -21,6 +21,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnGenerarReceta = document.getElementById("btn-generar-receta");
     const seccionResumen = document.getElementById("seccion-resumen");
 
+    const configReceta = document.getElementById("config-receta");
+    const seleccionarMedicamentoUrl = configReceta
+        ? configReceta.dataset.urlSeleccionar
+        : null;
+
+    const csrfToken = document
+        .querySelector('meta[name="csrf-token"]')
+        .getAttribute("content");
+
     let medicamentos = [];
     let contadorMedicamentos = 0;
     let searchTimeout;
@@ -73,7 +82,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const resultados = await response.json();
             mostrarResultados(resultados);
         } catch (error) {
-            console.error("Error al buscar medicamentos:", error);
             searchResults.innerHTML = `
                 <div class="no-results">
                     <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
@@ -145,8 +153,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 med.id_medicamento === id && med.laboratorio === laboratorio
         );
 
+        let medicamento;
+
         if (medicamentoExistente) {
             medicamentoExistente.cantidad += cantidad;
+            medicamento = medicamentoExistente;
         } else {
             contadorMedicamentos++;
             
@@ -159,6 +170,7 @@ document.addEventListener("DOMContentLoaded", function () {
             };
             medicamentos.push(medicamento);
         }
+        notificarMedicamentoSeleccionado(medicamento);
 
         actualizarTablaMedicamentos();
         limpiarFormularioMedicamento();
@@ -167,6 +179,37 @@ document.addEventListener("DOMContentLoaded", function () {
         actualizarBotonEnviar();
 
         searchPopup.classList.remove("active");
+    }
+
+    async function notificarMedicamentoSeleccionado(medicamento) {
+        if (!seleccionarMedicamentoUrl) {
+            return;
+        }
+
+        try {
+            const response = await fetch(seleccionarMedicamentoUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": csrfToken,
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify({
+                    id_medicamento: medicamento.id_medicamento,
+                    cantidad: medicamento.cantidad,
+                    laboratorio: medicamento.laboratorio,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Error en la petición al servidor");
+            }
+
+            const data = await response.json();
+
+        } catch (error) {
+            return;
+        }
     }
 
     function guardarCedula() {
@@ -367,28 +410,83 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function procesarReceta() {
+    Swal.fire({
+        title: "Procesando receta...",
+        text: "Por favor espere",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+            Swal.showLoading();
+        },
+    });
+    
+    document.getElementById('form-receta').submit();
+}
+
+    async function enviarRecetaAlServidor() {
+    const cedula = cedulaInput.value.trim();
+    const cadena = localStorage.getItem("farmaciaCadena");
+    const sucursal = localStorage.getItem("farmaciaSucursal");
+
+    Swal.fire({
+        title: "Procesando receta...",
+        text: "Por favor espere",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+            Swal.showLoading();
+        },
+    });
+
+    try {
+        const response = await fetch("/procesarReceta", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": csrfToken,
+                "Accept": "application/json",
+            },
+            body: JSON.stringify({
+                cedula_profesional: cedula,
+                farmacia_cadena: cadena,
+                farmacia_sucursal: sucursal,
+                medicamentos: medicamentos,
+            }),
+        });
+
+        const contentType = response.headers.get("content-type");
+        
+        if (!contentType || !contentType.includes("application/json")) {
+            const text = await response.text();
+            console.error("Respuesta no JSON:", text);
+            throw new Error("El servidor no devolvió una respuesta JSON válida");
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Error al procesar la receta");
+        }
+
         Swal.fire({
-            title: "¿Procesar receta?",
-            text: "Se enviará la receta para su procesamiento",
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonText: "Sí, procesar",
-            cancelButtonText: "Cancelar",
+            title: "¡Éxito!",
+            text: data.message || "Receta procesada correctamente",
+            icon: "success",
             confirmButtonColor: "#005B96",
-            cancelButtonColor: "#6c757d",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const form = document.querySelector("form");
-                if (form) {
-                    form.submit();
-                } else {
-                    console.error("No se encontró el formulario");
-                }
-            }
+        }).then(() => {
+        });
+        
+    } catch (error) {
+        console.error("Error completo:", error);
+        
+        Swal.fire({
+            title: "Error",
+            text: error.message || "Ocurrió un error al procesar la receta",
+            icon: "error",
+            confirmButtonColor: "#005B96",
         });
     }
-
-    // Busca esta función en tu archivo subir-receta-script.js y reemplázala:
+}
 
 function actualizarStepper(paso) {
     const stepperContainer = document.querySelector(".stepper-container");
@@ -426,7 +524,6 @@ function actualizarStepper(paso) {
     html += "</div>";
     stepperContainer.innerHTML = html;
 
-    // Actualizar TODOS los footers con step-badge
     const footerBadges = document.querySelectorAll(
         ".formulario-receta-footer .step-badge"
     );

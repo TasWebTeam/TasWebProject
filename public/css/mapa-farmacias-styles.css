@@ -63,9 +63,6 @@
     50% { transform: translateY(-5px); }
 }
 
-/* ============================================
-   COMBOBOX MEJORADO
-   ============================================ */
 
 .filtro-container {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -194,10 +191,6 @@
     color: var(--mapa-primary);
 }
 
-/* ============================================
-   MAPA
-   ============================================ */
-
 .map-container {
     height: 500px;
     border-radius: 15px;
@@ -219,10 +212,6 @@
     pointer-events: none;
     z-index: 1000;
 }
-
-/* ============================================
-   LEAFLET CUSTOMIZATION
-   ============================================ */
 
 .leaflet-popup-content-wrapper {
     border-radius: 12px;
@@ -277,10 +266,6 @@
     }
 }
 
-/* ============================================
-   FOOTER
-   ============================================ */
-
 .mapa-farmacias-footer {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     padding: 20px;
@@ -327,10 +312,6 @@
 .step-badge i {
     color: var(--mapa-success);
 }
-
-/* ============================================
-   RESPONSIVE
-   ============================================ */
 
 @media (max-width: 768px) {
     .map-container {

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Models\CadenaModel;
@@ -20,8 +21,10 @@ use App\Domain\LineaSurtido;
 use App\Domain\Pago;
 
 use Illuminate\Support\Facades\DB;
-class ActualizarRepository{
-    
+use Illuminate\Support\Facades\Log;
+
+class ActualizarRepository
+{
     public function beginTransaction()
     {
         DB::beginTransaction();
@@ -39,18 +42,66 @@ class ActualizarRepository{
 
     public function actualizarInventario(Cadena $cadena, $idSucursal, InventarioSucursal $inv): void
     {  
-        $inventario= InventarioModel::where('id_cadena', $cadena->getIdCadena())
-                 ->where('id_sucursal', $idSucursal)
-                 ->where('id_medicamento', $inv->obtenerMedicamento()->getIdMedicamento())
-                 ->first();
+        try {
+            Log::info('Actualizando inventario', [
+                'cadena' => $cadena->getIdCadena(),
+                'sucursal' => $idSucursal,
+                'medicamento_id' => $inv->obtenerMedicamento()->getIdMedicamento(),
+                'medicamento_nombre' => $inv->obtenerMedicamento()->getNombre(),
+                'stock_nuevo' => $inv->obtenerStock()
+            ]);
 
-        $inventario->stock_actual = $inv->obtenerStock();
-        $inventario->save();
+            $inventario = InventarioModel::where('id_cadena', $cadena->getIdCadena())
+                ->where('id_sucursal', $idSucursal)
+                ->where('id_medicamento', $inv->obtenerMedicamento()->getIdMedicamento())
+                ->first();
+
+            // ✅ VALIDAR QUE EXISTE
+            if (!$inventario) {
+                Log::error('Inventario no encontrado para actualizar', [
+                    'cadena' => $cadena->getIdCadena(),
+                    'sucursal' => $idSucursal,
+                    'medicamento_id' => $inv->obtenerMedicamento()->getIdMedicamento(),
+                    'medicamento_nombre' => $inv->obtenerMedicamento()->getNombre()
+                ]);
+
+                throw new \Exception(
+                    "No se encontró el inventario para actualizar. " .
+                    "Cadena: {$cadena->getIdCadena()}, " .
+                    "Sucursal: {$idSucursal}, " .
+                    "Medicamento: {$inv->obtenerMedicamento()->getNombre()}"
+                );
+            }
+
+            // ✅ AHORA SÍ ACTUALIZAR
+            $stockAnterior = $inventario->stock_actual;
+            $inventario->stock_actual = $inv->obtenerStock();
+            $inventario->save();
+
+            Log::info('Inventario actualizado exitosamente', [
+                'id_inventario' => $inventario->id_inventario,
+                'stock_anterior' => $stockAnterior,
+                'stock_nuevo' => $inventario->stock_actual
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar inventario', [
+                'error' => $e->getMessage(),
+                'cadena' => $cadena->getIdCadena(),
+                'sucursal' => $idSucursal,
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
     }
 
     public function guardarReceta(Receta $receta): bool
     {
         try {
+            Log::info('Guardando receta', [
+                'id_receta' => $receta->getIdReceta()
+            ]);
+
             RecetaModel::where('id_receta', $receta->getIdReceta())
                 ->update([
                     'estado_pedido'      => $receta->getEstadoPedido(),
@@ -59,77 +110,129 @@ class ActualizarRepository{
                         : null
                 ]);
 
+            Log::info('Receta guardada exitosamente', [
+                'id_receta' => $receta->getIdReceta()
+            ]);
+
             return true;
 
         } catch (\Exception $e) {
+            Log::error('Error al guardar receta', [
+                'error' => $e->getMessage(),
+                'id_receta' => $receta->getIdReceta()
+            ]);
             return false;
         }
     }
 
-     public function guardarRecetaCompleta(Paciente $paciente, Receta $receta): RecetaModel
+    public function guardarRecetaCompleta(Paciente $paciente, Receta $receta): RecetaModel
     {
-        // 1) Guardar/crear la receta
-        $recetaModel = new RecetaModel();
-        $recetaModel->id_receta = $receta->getIdReceta();
-        $recetaModel->id_usuario      = $paciente->getId(); // o el método que tengas
-        $recetaModel->id_cadenaDestino      = $receta->getSucursal()->getCadena()->getIdCadena();
-        $recetaModel->id_sucursalDestino      = $receta->getSucursal()->getIdSucursal();
-        $recetaModel->cedula_profesional = $receta->getCedulaProfesional();
-        $recetaModel->fecha_registro   = $receta->getFechaRegistro()
-                                            ? $receta->getFechaRegistro()->format('Y-m-d H:i:s')
-                                            : now();
-        $recetaModel->fecha_recoleccion = $receta->getFechaRecoleccion()
-                                              ? $receta->getFechaRecoleccion()->format('Y-m-d H:i:s')
-                                              : null;
-        $recetaModel->estado_pedido    = $receta->getEstadoPedido();
+        try {
+            Log::info('Guardando receta completa', [
+                'paciente_id' => $paciente->getId(),
+                'total_detalles' => count($receta->getDetallesReceta())
+            ]);
 
+            $recetaModel = new RecetaModel();
+            $recetaModel->id_usuario            = $paciente->getId(); 
+            $recetaModel->id_cadenaDestino      = $receta->getSucursal()->getCadena()->getIdCadena();
+            $recetaModel->id_sucursalDestino    = $receta->getSucursal()->getIdSucursal();
+            $recetaModel->cedula_profesional    = $receta->getCedulaProfesional();
+            $recetaModel->fecha_registro        = $receta->getFechaRegistro()
+                                                    ? $receta->getFechaRegistro()->format('Y-m-d H:i:s')
+                                                    : now();
+            $recetaModel->fecha_recoleccion     = $receta->getFechaRecoleccion()
+                                                    ? $receta->getFechaRecoleccion()->format('Y-m-d H:i:s')
+                                                    : null;
+            $recetaModel->estado_pedido         = $receta->getEstadoPedido();
 
-        $recetaModel->save();
+            $recetaModel->save();
 
-        // 2) Guardar cada DetalleReceta
-        foreach ($receta->getDetallesReceta() as $detalle) {
+            Log::info('RecetaModel guardada', [
+                'id_receta' => $recetaModel->id_receta
+            ]);
 
-            /** @var \App\Domain\DetalleReceta $detalle */
-            $detalleModel = new DetalleRecetaModel();
-            $detalleModel->id_receta       = $recetaModel->id_receta;
-            $detalleModel->id_medicamento  = $detalle->getMedicamento()->getIdMedicamento();
-            $detalleModel->cantidad        = $detalle->getCantidad();
-            $detalleModel->precio = $detalle->getPrecio();
-            $detalleModel->save();
+            // Guardar detalles
+            foreach ($receta->getDetallesReceta() as $detalle) {
+                Log::info('Guardando detalle', [
+                    'medicamento' => $detalle->getMedicamento()->getNombre(),
+                    'cantidad' => $detalle->getCantidad()
+                ]);
 
-            // 3) Guardar cada LineaSurtido de ese detalle
-            foreach ($detalle->getLineasSurtido() as $linea) {
-                /** @var \App\Domain\LineaSurtido $linea */
+                $detalleModel = new DetalleRecetaModel();
+                $detalleModel->id_receta       = $recetaModel->id_receta;
+                $detalleModel->id_medicamento  = $detalle->getMedicamento()->getIdMedicamento();
+                $detalleModel->cantidad        = $detalle->getCantidad();
+                $detalleModel->precio          = $detalle->getPrecio();
+                $detalleModel->save();
 
-                $sucursalLinea = $linea->getSucursal();
+                // Guardar líneas de surtido
+                foreach ($detalle->getLineasSurtido() as $linea) {
+                    $sucursalLinea = $linea->getSucursal();
 
-                $lineaModel = new LineaSurtidoModel();
-                $lineaModel->id_receta = $receta->getIdReceta();
-                $lineaModel->id_medicamento = $detalle->getMedicamento()->getIdMedicamento();
-                $lineaModel->id_cadenaSurtido       = $sucursalLinea->getCadena()->getIdCadena();
-                $lineaModel->id_sucursalSurtido     = $sucursalLinea->getIdSucursal();
-                $lineaModel->estado_entrega  = $linea->getEstadoEntrega();
-                $lineaModel->cantidad        = $linea->getCantidad();
-                $lineaModel->save();
+                    Log::info('Guardando línea de surtido', [
+                        'sucursal' => $sucursalLinea->getNombre(),
+                        'cantidad' => $linea->getCantidad(),
+                        'estado' => $linea->getEstadoEntrega()
+                    ]);
+
+                    $lineaModel = new LineaSurtidoModel();
+                    $lineaModel->id_receta           = $recetaModel->id_receta;
+                    $lineaModel->id_medicamento      = $detalle->getMedicamento()->getIdMedicamento();
+                    $lineaModel->id_cadenaSurtido    = $sucursalLinea->getCadena()->getIdCadena();
+                    $lineaModel->id_sucursalSurtido  = $sucursalLinea->getId();
+                    $lineaModel->id_detalle_receta   = $detalleModel->id_detalle_receta;
+                    $lineaModel->estado_entrega      = $linea->getEstadoEntrega();
+                    $lineaModel->cantidad            = $linea->getCantidad();
+                    $lineaModel->save();
+                }
             }
-        }
 
-        return $recetaModel;
+            Log::info('Receta completa guardada exitosamente', [
+                'id_receta' => $recetaModel->id_receta,
+                'total_detalles' => count($receta->getDetallesReceta())
+            ]);
+
+            return $recetaModel;
+
+        } catch (\Exception $e) {
+            Log::error('Error al guardar receta completa', [
+                'error' => $e->getMessage(),
+                'paciente_id' => $paciente->getId(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
     }
 
     public function actualizarEstadoReceta(Receta $receta): bool
     {
         try {
-            RecetaModel::find($receta->getidReceta());
-            if (!$receta) {
+            $recetaModel = RecetaModel::find($receta->getIdReceta());
+            
+            if (!$recetaModel) {
+                Log::warning('Receta no encontrada para actualizar estado', [
+                    'id_receta' => $receta->getIdReceta()
+                ]);
                 return false;
             }
-            //$receta->save();
-                return true;
-            } catch (\Exception $e) {
-                return false;
-            }
-    }
 
-    
+            $recetaModel->estado_pedido = $receta->getEstadoPedido();
+            $recetaModel->save();
+
+            Log::info('Estado de receta actualizado', [
+                'id_receta' => $receta->getIdReceta(),
+                'nuevo_estado' => $receta->getEstadoPedido()
+            ]);
+
+            return true;
+
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar estado de receta', [
+                'error' => $e->getMessage(),
+                'id_receta' => $receta->getIdReceta()
+            ]);
+            return false;
+        }
+    }
 }

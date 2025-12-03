@@ -231,7 +231,6 @@
     border-top: 3px solid var(--color-cyan);
 }
 
-/* Estilos del popup de búsqueda */
 .search-popup {
     position: fixed;
     top: 0;
@@ -392,7 +391,6 @@
     transform: rotate(90deg);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .formulario-receta-card {
         max-width: 100%;

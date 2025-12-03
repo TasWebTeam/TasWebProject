@@ -10,9 +10,7 @@ class MedicamentoModel extends Model
     protected $primaryKey = 'id_medicamento';
     public $timestamps = false;
 
-    // No incluyo id_medicamento porque es AUTO_INCREMENT
     protected $fillable = [
-        'id_medicamento',
         'nombre',
         'especificacion',
         'laboratorio',
@@ -28,7 +26,7 @@ class MedicamentoModel extends Model
         );
     }
 
-         public function imagen()
+    public function imagen()
     {
         return $this->belongsTo(ImagenMedicamentoModel::class, 'idImagen', 'idImagen');
     }
