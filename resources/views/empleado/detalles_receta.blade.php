@@ -5,10 +5,8 @@
     <h3 class="mb-3">Ruta de surtido y detalles de receta</h3>
 
     <div class="row">
-        {{-- Columna izquierda: info + detalles --}}
         <div class="col-md-5 mb-4">
 
-            {{-- Card info de receta --}}
             <div class="card mb-3">
                 <div class="card-header">
                     Información de la receta
@@ -30,7 +28,6 @@
                 </div>
             </div>
 
-            {{-- Tabla detalles + sucursales que surten --}}
             <div class="card">
                 <div class="card-header">
                     Detalles de la receta

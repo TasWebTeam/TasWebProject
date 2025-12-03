@@ -79,7 +79,7 @@ class SucursalService
     {
         try {
             $receta = $this->consultarRepo->recuperarReceta($idReceta);
-
+            
             $this->actualizarRepo->beginTransaction();
 
             $this->devolverLineasASucursal($receta);
@@ -97,8 +97,8 @@ class SucursalService
     {
          foreach ($receta->getDetallesReceta() as $detalle){
                 foreach ($detalle->getLineasSurtido() as $linea) {
-                $cadena      = $receta->getSucursal()->getCadena();
-                $idSucursal    = $receta->getSucursal()->getId();
+                $cadena = $linea->getSucursal()->getCadena();
+                $idSucursal = $linea->getSucursal()->getId();
                 $medicamento = $detalle->getMedicamento();
                 $cantidad      = $linea->getCantidad();
 

@@ -5,7 +5,6 @@
 @section('content')
 <div class="container py-5">
 
-    {{-- Título dinámico --}}
     <h1 class="mb-4" style="color:#003865;">
         Recetas pendientes por surtir — {{ $nombreCadena ?? 'Cadena' }} - {{ $nombreSucursal ?? 'Sucursal' }}
     </h1>
@@ -14,7 +13,6 @@
         Aquí puedes ver las recetas enviadas por los pacientes que están pendientes de surtir.
     </p>
 
-    {{-- Filtros --}}
     <div class="card mb-4">
         <div class="card-body">
             <form method="GET" action="{{ route('empleado_recetas') }}" class="row g-3">
@@ -41,7 +39,6 @@
         </div>
     </div>
 
-    {{-- Tabla --}}
     <div class="card">
         <div class="card-body">
             <h5 class="card-title mb-3">Listado de recetas</h5>

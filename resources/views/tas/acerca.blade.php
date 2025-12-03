@@ -6,7 +6,6 @@
 
     <h1 class="text-center fw-bold mb-5" style="color:#003865;">Acerca de Nosotros</h1>
 
-    <!-- Quiénes somos -->
     <section id="quienes" class="mb-5 acerca-section">
         <h2 class="mb-4"><i class="fas fa-users me-2 text-primary"></i>Quiénes somos</h2>
         <div class="acerca-card p-4">
@@ -22,7 +21,6 @@
         </div>
     </section>
 
-    <!-- Aviso de privacidad -->
     <section id="privacidad" class="mb-5 acerca-section">
         <h2 class="mb-4"><i class="fas fa-shield-alt me-2 text-primary"></i>Aviso de Privacidad</h2>
         <div class="acerca-card p-4">
@@ -39,7 +37,6 @@
         </div>
     </section>
 
-    <!-- Términos y condiciones -->
     <section id="terminos" class="mb-5 acerca-section">
         <h2 class="mb-4"><i class="fas fa-file-contract me-2 text-primary"></i>Términos y Condiciones</h2>
         <div class="acerca-card p-4">
@@ -54,7 +51,6 @@
         </div>
     </section>
 
-    <!-- Blog -->
     <section id="blog" class="mb-5 acerca-section">
         <h2 class="mb-4"><i class="fas fa-blog me-2 text-primary"></i>Blog</h2>
         <div class="acerca-card p-4">
@@ -71,7 +67,6 @@
 
 </div>
 
-{{-- Footer al final del contenido --}}
 @include('layouts.footer') 
 
 @endsection

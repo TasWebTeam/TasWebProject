@@ -57,9 +57,9 @@ class ProcesarRecetaController extends Controller
         $this->introducirMedicamento("Paracetamol 500mg",7);
 
         $numTarjeta = "1234 1234 1234 1234"; 
-
+        
         $resultado = $this->recetaService->procesarReceta($numTarjeta);
-                    
+        
         $fechaRecoleccion = now()->addDay()->setTime(10, 0)->format('d/m/Y H:i');
         if($resultado == true){
             return view('tas.resultado', [

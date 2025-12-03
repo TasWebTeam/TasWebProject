@@ -129,11 +129,7 @@ class ConsultarRepository
     public function recuperarInventario(Cadena $Cadena, int $idSuc, string $nombreMedicamento)
     {
         try {
-            Log::info('Recuperando inventario con lock', [
-                'cadena' => $Cadena->getIdCadena(),
-                'sucursal' => $idSuc,
-                'medicamento' => $nombreMedicamento
-            ]);
+            
             $inventarioModel = InventarioModel::with(['medicamento', 'cadena', 'sucursal'])
                 ->where('id_cadena', $Cadena->getIdCadena())
                 ->where('id_sucursal', $idSuc)
@@ -142,33 +138,12 @@ class ConsultarRepository
                 })
                 ->lockForUpdate()
                 ->first();
-                
-            if (!$inventarioModel) {
-                Log::warning('Inventario no encontrado con lock', [
-                    'cadena' => $Cadena->getIdCadena(),
-                    'sucursal' => $idSuc,
-                    'medicamento' => $nombreMedicamento
-                ]);
-                throw new Exception("Medicamento '{$nombreMedicamento}' no disponible en esta sucursal");
-            }
-
-            Log::info('Inventario encontrado con lock', [
-                'id_inventario' => $inventarioModel->id_inventario,
-                'stock_actual' => $inventarioModel->stock_actual,
-                'precio' => $inventarioModel->precio_actual
-            ]);
 
             $inventario = $this->transformarInventarioModelADomain($inventarioModel);
             return $inventario;
 
         } catch (Exception $e) {
-            Log::error('Error al recuperar inventario con lock', [
-                'error' => $e->getMessage(),
-                'cadena' => $Cadena->getIdCadena(),
-                'sucursal' => $idSuc,
-                'medicamento' => $nombreMedicamento
-            ]);
-            throw $e;
+            return null;
         }
     }
     

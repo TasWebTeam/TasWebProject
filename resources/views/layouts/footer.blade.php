@@ -1,4 +1,3 @@
-<!-- Footer -->
 <footer class="text-white pt-5 pb-4 footer-fullwidth"> 
     <div class="container">
         <div class="row">

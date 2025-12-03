@@ -59,13 +59,11 @@
 
                                 <td data-acciones>
 
-                                    {{-- Botón Ver detalles --}}
                                     <a href="{{ route('empleado_detalles.receta', ['id' => $receta->getIdReceta()]) }}"
                                        class="btn btn-sm btn-outline-primary">
                                         Ver detalles
                                     </a>
 
-                                    {{-- Botón Iniciar devolución --}}
                                     @if ($estado === 'lista_para_recoleccion')
                                         <button class="btn btn-sm btn-outline-danger ms-1"
                                             data-bs-toggle="modal"
@@ -75,7 +73,6 @@
                                         </button>
                                     @endif
 
-                                    {{-- Botón Confirmar no recogida --}}
                                     @if ($estado === 'devolviendo')
                                         <button class="btn btn-sm btn-outline-secondary ms-1"
                                             data-bs-toggle="modal"
@@ -106,7 +103,6 @@
 
 
 
-{{-- MODAL: INICIAR DEVOLUCIÓN --}}
 <div class="modal fade" id="modalDevolucion" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -120,7 +116,7 @@
                 ¿Deseas iniciar la <strong>DEVOLUCIÓN</strong> de esta receta?
                 <br>
                 <small class="text-muted">
-                    El estado cambiará a <strong>“devolviendo”</strong>.
+                    El estado cambiará a <strong>"devolviendo"</strong>.
                 </small>
             </div>
 
@@ -133,9 +129,6 @@
     </div>
 </div>
 
-
-
-{{-- MODAL: CONFIRMAR NO RECOGIDA --}}
 <div class="modal fade" id="modalNoRecogida" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -149,7 +142,7 @@
                 ¿Confirmas que esta receta <strong>NO fue recogida</strong> por el paciente?
                 <br>
                 <small class="text-muted">
-                    Se registrará como “no recogida” y desaparecerá de esta lista.
+                    Se registrará como "no recogida" y desaparecerá de esta lista.
                 </small>
             </div>
 
@@ -163,7 +156,6 @@
 </div>
 
 
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -173,9 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const devolverUrlTemplate = "{{ route('empleado_recetas_devolver', ['idReceta' => '__ID__']) }}";
     const noRecogidaUrlTemplate = "{{ route('empleado_recetas_confirmar_no_recogida', ['idReceta' => '__ID__']) }}";
 
-    // =============================
-    // MODAL: INICIAR DEVOLUCIÓN
-    // =============================
     const modalDevolucion = document.getElementById('modalDevolucion');
 
     modalDevolucion.addEventListener('show.bs.modal', event => {
@@ -186,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-confirm-devolucion').addEventListener('click', () => {
 
         const url = devolverUrlTemplate.replace('__ID__', idSeleccionado);
-        console.log('[DEVOLUCIÓN] Enviando POST a:', url);
 
         fetch(url, {
             method: 'POST',
@@ -204,17 +192,14 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 data = await r.json();
             } catch (e) {
-                console.error('[DEVOLUCIÓN] Error parseando JSON:', e);
+
             }
 
-            console.log('[DEVOLUCIÓN] Respuesta HTTP', status, 'JSON:', data);
 
             if (!data || !data.ok) {
-                console.warn('[DEVOLUCIÓN] No se pudo iniciar la devolución. Mensaje:', data ? data.message : 'sin datos');
                 return;
             }
 
-            // Si todo OK:
             const modal = bootstrap.Modal.getInstance(modalDevolucion);
             modal.hide();
 
@@ -229,14 +214,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (tdAcciones) {
-                    tdAcciones.innerHTML = `
-                        <button class="btn btn-sm btn-outline-secondary ms-1"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modalNoRecogida"
-                            data-id="${idSeleccionado}">
-                            Confirmar no recogida
-                        </button>
-                    `;
+                    const btnDevolver = tdAcciones.querySelector('button[data-bs-target="#modalDevolucion"]');
+                    
+                    if (btnDevolver) {
+                        const nuevoBoton = document.createElement('button');
+                        nuevoBoton.className = 'btn btn-sm btn-outline-secondary ms-1';
+                        nuevoBoton.setAttribute('data-bs-toggle', 'modal');
+                        nuevoBoton.setAttribute('data-bs-target', '#modalNoRecogida');
+                        nuevoBoton.setAttribute('data-id', idSeleccionado);
+                        nuevoBoton.textContent = 'Confirmar no recogida';
+                        
+                        btnDevolver.replaceWith(nuevoBoton);
+                    }
                 }
             }
 
@@ -247,22 +236,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-
-
-    // =============================
-    // MODAL: CONFIRMAR NO RECOGIDA
-    // =============================
     const modalNoRecogida = document.getElementById('modalNoRecogida');
 
     modalNoRecogida.addEventListener('show.bs.modal', event => {
         idSeleccionado = event.relatedTarget.getAttribute('data-id');
-        console.log('[NO RECOGIDA] Abrir modal para receta', idSeleccionado);
     });
 
     document.getElementById('btn-confirm-no-recogida').addEventListener('click', () => {
 
         const url = noRecogidaUrlTemplate.replace('__ID__', idSeleccionado);
-        console.log('[NO RECOGIDA] Enviando POST a:', url);
 
         fetch(url, {
             method: 'POST',
@@ -280,13 +262,10 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 data = await r.json();
             } catch (e) {
-                console.error('[NO RECOGIDA] Error parseando JSON:', e);
+                
             }
 
-            console.log('[NO RECOGIDA] Respuesta HTTP', status, 'JSON:', data);
-
             if (!data || !data.ok) {
-                console.warn('[NO RECOGIDA] No se pudo marcar como no recogida. Mensaje:', data ? data.message : 'sin datos');
                 return;
             }
 
@@ -297,9 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (row) row.remove();
 
         })
-        .catch(err => {
-            console.error('[NO RECOGIDA] Error de red o fetch:', err);
-        });
+        .catch(err => {});
     });
 
 });
