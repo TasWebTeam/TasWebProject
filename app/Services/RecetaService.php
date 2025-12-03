@@ -100,7 +100,7 @@ class RecetaService
             }
 
             $cadena = $suc->getCadena();
-            $idSucursal = $suc->getId(); // ✅ USAR getIdSucursal()
+            $idSucursal = $suc->getId(); 
 
             Log::info('Buscando medicamento en inventario', [
                 'cadena' => $cadena->getIdCadena(),
@@ -108,7 +108,6 @@ class RecetaService
                 'medicamento' => $nombreMedicamento
             ]);
 
-            // Usar recuperarInventarioConsultar (sin lock) para agregar medicamentos
             $inv = $this->consultarRepository->recuperarInventarioConsultar($cadena, $idSucursal, $nombreMedicamento);
             
             $med = $inv->obtenerMedicamento();
@@ -156,16 +155,12 @@ class RecetaService
                 }
             }
             
-            // Validar pago
             $pago = $rec->obtenerPago();
             $pago->validarPago((string)$numTarjeta);
-            // Calcular fecha de recolección
             $rec->calcularFecha();
             
-            // Cambiar estado
             $rec->cambiarEstado('en_proceso');
 
-            // Guardar todo en la base de datos
             $this->actualizarRepository->guardarRecetaCompleta($this->paciente, $rec);
             
             $this->actualizarRepository->commitTransaction();
@@ -178,16 +173,10 @@ class RecetaService
         }
     }
 
-    /**
-     * Procesa un detalle de la receta, intentando surtir el medicamento
-     * desde la sucursal origen y otras sucursales si es necesario
-     */
     private function procesarDetalle(DetalleReceta $detalle, Sucursal $sucursalOrigen)
     {
         $cantidadRequerida = $detalle->getCantidad();
         $sucursalActual    = $sucursalOrigen;
-
-    // $rec = $this->paciente->getUltimaReceta();
 
         $buscarSucursales = true;
         $candidatas       = [];

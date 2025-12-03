@@ -56,7 +56,6 @@ class ActualizarRepository
                 ->where('id_medicamento', $inv->obtenerMedicamento()->getIdMedicamento())
                 ->first();
 
-            // ✅ VALIDAR QUE EXISTE
             if (!$inventario) {
                 Log::error('Inventario no encontrado para actualizar', [
                     'cadena' => $cadena->getIdCadena(),
@@ -73,7 +72,6 @@ class ActualizarRepository
                 );
             }
 
-            // ✅ AHORA SÍ ACTUALIZAR
             $stockAnterior = $inventario->stock_actual;
             $inventario->stock_actual = $inv->obtenerStock();
             $inventario->save();
@@ -152,7 +150,6 @@ class ActualizarRepository
                 'id_receta' => $recetaModel->id_receta
             ]);
 
-            // Guardar detalles
             foreach ($receta->getDetallesReceta() as $detalle) {
                 Log::info('Guardando detalle', [
                     'medicamento' => $detalle->getMedicamento()->getNombre(),
@@ -166,7 +163,6 @@ class ActualizarRepository
                 $detalleModel->precio          = $detalle->getPrecio();
                 $detalleModel->save();
 
-                // Guardar líneas de surtido
                 foreach ($detalle->getLineasSurtido() as $linea) {
                     $sucursalLinea = $linea->getSucursal();
 

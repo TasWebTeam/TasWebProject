@@ -21,5 +21,3 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error);
     });
 });
-
-// nigga

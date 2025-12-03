@@ -149,7 +149,6 @@ class ConsultarRepository
     
     private function transformarInventarioModelADomain(InventarioModel $inventarioModel): InventarioSucursal
     {
-        // Validar que las relaciones estén cargadas
         if (!$inventarioModel->sucursal) {
             throw new Exception('La relación sucursal no está cargada en el inventario');
         }

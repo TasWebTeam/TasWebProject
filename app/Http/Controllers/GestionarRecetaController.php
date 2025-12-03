@@ -81,7 +81,6 @@ class GestionarRecetaController extends Controller
         try {
             Log::info('Iniciando devolución de receta', ['idReceta' => $idReceta]);
 
-            // Verificar que la receta existe antes de intentar devolverla
             $receta = \App\Models\RecetaModel::find($idReceta);
             if (!$receta) {
                 Log::error('Receta no encontrada', ['idReceta' => $idReceta]);
@@ -102,7 +101,6 @@ class GestionarRecetaController extends Controller
                 'id_sucursal' => $receta->id_sucursal,
             ]);
 
-            // Intentar devolver la receta en el servicio
             $okDevolucion = $this->sucursalService->devolverReceta($idReceta);
 
             Log::info('Resultado devolverReceta()', [
@@ -128,7 +126,6 @@ class GestionarRecetaController extends Controller
                     ->with('error', 'No se pudo iniciar la devolución de la receta.');
             }
 
-            // Actualizar el estado de la receta
             $okEstado = $this->empleadoService->actualizarEstado($idReceta, 'devolviendo');
 
             Log::info('Resultado actualizarEstado()', [
