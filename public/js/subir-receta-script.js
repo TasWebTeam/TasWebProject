@@ -109,7 +109,9 @@ document.addEventListener("DOMContentLoaded", function () {
                  data-id="${med.id_medicamento}" 
                  data-nombre="${med.nombre}" 
                  data-laboratorio="${med.laboratorio || "Sin especificar"}">
-                <img src="${med.imagen?.url || "/images/medicamentos/default.png"}" 
+                <img src="${
+                    med.imagen?.url || "/images/medicamentos/default.png"
+                }" 
                      alt="${med.nombre}" 
                      class="medicamento-imagen"
                      onerror="this.src='/images/medicamentos/default.png'">
@@ -160,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
             medicamento = medicamentoExistente;
         } else {
             contadorMedicamentos++;
-            
+
             const medicamento = {
                 id: contadorMedicamentos,
                 id_medicamento: id,
@@ -192,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": csrfToken,
-                    "Accept": "application/json",
+                    Accept: "application/json",
                 },
                 body: JSON.stringify({
                     id_medicamento: medicamento.id_medicamento,
@@ -206,7 +208,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const data = await response.json();
-
         } catch (error) {
             return;
         }
@@ -410,128 +411,133 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function procesarReceta() {
-    Swal.fire({
-        title: "Procesando receta...",
-        text: "Por favor espere",
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        didOpen: () => {
-            Swal.showLoading();
-        },
-    });
-    
-    document.getElementById('form-receta').submit();
-}
+        document.getElementById("farmacia_cadena").value =
+            localStorage.getItem("farmaciaCadena");
+        document.getElementById("farmacia_sucursal").value =
+            localStorage.getItem("farmaciaSucursal");
+
+        Swal.fire({
+            title: "Procesando receta...",
+            text: "Por favor espere",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+        });
+
+        document.getElementById("form-receta").submit();
+    }
 
     async function enviarRecetaAlServidor() {
-    const cedula = cedulaInput.value.trim();
-    const cadena = localStorage.getItem("farmaciaCadena");
-    const sucursal = localStorage.getItem("farmaciaSucursal");
+        const cedula = cedulaInput.value.trim();
+        const cadena = localStorage.getItem("farmaciaCadena");
+        const sucursal = localStorage.getItem("farmaciaSucursal");
 
-    Swal.fire({
-        title: "Procesando receta...",
-        text: "Por favor espere",
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        didOpen: () => {
-            Swal.showLoading();
-        },
-    });
-
-    try {
-        const response = await fetch("/procesarReceta", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": csrfToken,
-                "Accept": "application/json",
+        Swal.fire({
+            title: "Procesando receta...",
+            text: "Por favor espere",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
             },
-            body: JSON.stringify({
-                cedula_profesional: cedula,
-                farmacia_cadena: cadena,
-                farmacia_sucursal: sucursal,
-                medicamentos: medicamentos,
-            }),
         });
 
-        const contentType = response.headers.get("content-type");
-        
-        if (!contentType || !contentType.includes("application/json")) {
-            const text = await response.text();
-            console.error("Respuesta no JSON:", text);
-            throw new Error("El servidor no devolvió una respuesta JSON válida");
+        try {
+            const response = await fetch("/procesarReceta", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": csrfToken,
+                    Accept: "application/json",
+                },
+                body: JSON.stringify({
+                    cedula_profesional: cedula,
+                    farmacia_cadena: cadena,
+                    farmacia_sucursal: sucursal,
+                    medicamentos: medicamentos,
+                }),
+            });
+
+            const contentType = response.headers.get("content-type");
+
+            if (!contentType || !contentType.includes("application/json")) {
+                const text = await response.text();
+                console.error("Respuesta no JSON:", text);
+                throw new Error(
+                    "El servidor no devolvió una respuesta JSON válida"
+                );
+            }
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Error al procesar la receta");
+            }
+
+            Swal.fire({
+                title: "¡Éxito!",
+                text: data.message || "Receta procesada correctamente",
+                icon: "success",
+                confirmButtonColor: "#005B96",
+            }).then(() => {});
+        } catch (error) {
+            console.error("Error completo:", error);
+
+            Swal.fire({
+                title: "Error",
+                text: error.message || "Ocurrió un error al procesar la receta",
+                icon: "error",
+                confirmButtonColor: "#005B96",
+            });
         }
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || "Error al procesar la receta");
-        }
-
-        Swal.fire({
-            title: "¡Éxito!",
-            text: data.message || "Receta procesada correctamente",
-            icon: "success",
-            confirmButtonColor: "#005B96",
-        }).then(() => {
-        });
-        
-    } catch (error) {
-        console.error("Error completo:", error);
-        
-        Swal.fire({
-            title: "Error",
-            text: error.message || "Ocurrió un error al procesar la receta",
-            icon: "error",
-            confirmButtonColor: "#005B96",
-        });
     }
-}
 
-function actualizarStepper(paso) {
-    const stepperContainer = document.querySelector(".stepper-container");
-    if (!stepperContainer) return;
+    function actualizarStepper(paso) {
+        const stepperContainer = document.querySelector(".stepper-container");
+        if (!stepperContainer) return;
 
-    const steps = [
-        { numero: 1, nombre: "Seleccionar<br>Sucursal" },
-        { numero: 2, nombre: "Subir<br>Receta" },
-        { numero: 3, nombre: "Confirmar<br>Pedido" },
-    ];
+        const steps = [
+            { numero: 1, nombre: "Seleccionar<br>Sucursal" },
+            { numero: 2, nombre: "Subir<br>Receta" },
+            { numero: 3, nombre: "Confirmar<br>Pedido" },
+        ];
 
-    let html = '<div class="stepper-wrapper">';
+        let html = '<div class="stepper-wrapper">';
 
-    steps.forEach((step, index) => {
-        const estado =
-            step.numero < paso
-                ? "completed"
-                : step.numero === paso
-                ? "active"
-                : "";
+        steps.forEach((step, index) => {
+            const estado =
+                step.numero < paso
+                    ? "completed"
+                    : step.numero === paso
+                    ? "active"
+                    : "";
 
-        html += `
+            html += `
             <div class="stepper-item ${estado}">
                 <div class="step-counter">${step.numero}</div>
                 <div class="step-name">${step.nombre}</div>
             </div>
         `;
 
-        if (index < steps.length - 1) {
-            const lineaEstado = step.numero < paso ? "completed" : "";
-            html += `<div class="stepper-line ${lineaEstado}"></div>`;
-        }
-    });
+            if (index < steps.length - 1) {
+                const lineaEstado = step.numero < paso ? "completed" : "";
+                html += `<div class="stepper-line ${lineaEstado}"></div>`;
+            }
+        });
 
-    html += "</div>";
-    stepperContainer.innerHTML = html;
+        html += "</div>";
+        stepperContainer.innerHTML = html;
 
-    const footerBadges = document.querySelectorAll(
-        ".formulario-receta-footer .step-badge"
-    );
-    footerBadges.forEach(footerBadge => {
-        footerBadge.classList.remove("d-none");
-        footerBadge.innerHTML = `<i class="fas fa-check-circle me-2"></i>Paso ${paso} de 3`;
-    });
-}
+        const footerBadges = document.querySelectorAll(
+            ".formulario-receta-footer .step-badge"
+        );
+        footerBadges.forEach((footerBadge) => {
+            footerBadge.classList.remove("d-none");
+            footerBadge.innerHTML = `<i class="fas fa-check-circle me-2"></i>Paso ${paso} de 3`;
+        });
+    }
     function cargarInformacionFarmacia() {
         const cadena = localStorage.getItem("farmaciaCadena");
         const sucursal = localStorage.getItem("farmaciaSucursal");

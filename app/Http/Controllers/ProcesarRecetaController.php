@@ -2,25 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Cadena;
-use App\Domain\DetalleReceta;
-use App\Domain\Medicamento;
-use App\Domain\Receta;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Domain\Paciente;
-use App\Domain\Pago;
-use App\Domain\Sucursal;
-use App\Models\CadenaModel;
-use App\Services\SucursalService;
 use App\Services\RecetaService;
-use App\Services\TasService;
-use DateTime;
-
+use App\Services\SucursalService;
+use Illuminate\Http\Request;
 
 class ProcesarRecetaController extends Controller
 {
-    private SucursalService $sucursalService; 
+    private SucursalService $sucursalService;
     private RecetaService $recetaService;
 
     public function __construct(SucursalService $sucursalService, RecetaService $recetaService)
@@ -28,56 +16,73 @@ class ProcesarRecetaController extends Controller
         $this->sucursalService = $sucursalService;
         $this->recetaService = $recetaService;
     }
-    
-    public function crearNuevaReceta(){             
-        $usuarioCorreo= session('usuario.correo');      
+
+    public function crearNuevaReceta(Request $request)
+    {
+        $usuarioCorreo = session('usuario.correo');
         $this->recetaService->crearNuevaReceta($usuarioCorreo);
 
-        $cadena = "Farmacias del Ahorro";
-        $sucursal = "Cedros";
+        // ✔️ Datos reales enviados desde el paso 3
+        $cadena = $request->farmacia_cadena;
+        $sucursal = $request->farmacia_sucursal;
 
-        $this->introducirSucursal($cadena, $sucursal);  
+        $this->introducirSucursal($cadena, $sucursal);
     }
 
-    public function introducirSucursal(string $nombreCadena, string $nombreSucursal){   
+    public function introducirSucursal(string $nombreCadena, string $nombreSucursal)
+    {
         $this->recetaService->introducirSucursal($nombreCadena, $nombreSucursal);
     }
 
-    public function introducirCedulaProfesional(string $cedulaProfesional){    
+    public function introducirCedulaProfesional(string $cedulaProfesional)
+    {
         $this->recetaService->introducirCedulaProfesional($cedulaProfesional);
     }
-    
-    public function introducirMedicamento($nombreMedicamento, $cantidad){
+
+    public function introducirMedicamento($nombreMedicamento, $cantidad)
+    {
         $this->recetaService->introducirMedicamento($nombreMedicamento, $cantidad);
     }
 
-    public function procesarReceta(Request $request){
-        $this->crearNuevaReceta();
-        $this->introducirCedulaProfesional("12345678");
-        $this->introducirMedicamento("Paracetamol 500mg",7);
+    public function procesarReceta(Request $request)
+    {
+        $this->crearNuevaReceta($request);
 
-        $numTarjeta = "1234 1234 1234 1234"; 
-        
+        $this->introducirCedulaProfesional($request->cedula_profesional);
+
+        $medicamentos = json_decode($request->medicamentos, true);
+
+        foreach ($medicamentos as $med) {
+            $this->introducirMedicamento($med['nombre'], $med['cantidad']);
+        }
+
+        $numTarjeta = '1234 1234 1234 1234';
+
         $resultado = $this->recetaService->procesarReceta($numTarjeta);
-        
+
         $fechaRecoleccion = now()->addDay()->setTime(10, 0)->format('d/m/Y H:i');
-        if($resultado == true){
+
+        if ($resultado == true) {
+
             return view('tas.resultado', [
                 'exito' => true,
+                
                 'numeroPedido' => 1,
-                'cedulaProfesional' => "12345678",
-                'farmacia' => "Farmacias del Ahorro" . ' - Sucursal Cedros',
-                'medicamentos' => [],
+                'cedulaProfesional' => $request->cedula_profesional,
+                'farmacia' => $request->farmacia_cadena . ' - Sucursal ' . $request->farmacia_sucursal,
+                'medicamentos' => $medicamentos,
                 'fechaRecoleccion' => $fechaRecoleccion,
-                'mensaje' => 'Receta procesada correctamente'
+                'mensaje' => 'Receta procesada correctamente',
             ]);
         }
+
         return view('tas.resultado', [
             'exito' => false,
-            'mensaje' => "No se pudo surtir todos los medicamentos",
-            'cedulaProfesional' => $request->cedula_profesional ?? 'N/A',
-            'farmacia' => ($request->farmacia_cadena ?? 'N/A') . ' - Sucursal ' . ($request->farmacia_sucursal ?? 'N/A'),
-            'medicamentos' => []
+            'mensaje' => 'No se pudo surtir todos los medicamentos',
+
+            'cedulaProfesional' => $request->cedula_profesional,
+            'farmacia' => $request->farmacia_cadena . ' - Sucursal ' . $request->farmacia_sucursal,
+            'medicamentos' => $medicamentos,
         ]);
     }
 }

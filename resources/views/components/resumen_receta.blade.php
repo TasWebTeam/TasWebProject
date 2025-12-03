@@ -3,16 +3,14 @@
         <i class="fas fa-info-circle me-2"></i>
         Revise cuidadosamente la información antes de procesar la receta
     </div>
-
     <form id="form-procesar-receta" method="POST" action="{{ route('procesarReceta') }}">
         @csrf
-        
-        <!-- Campos ocultos para enviar datos -->
+
         <input type="hidden" name="cedula_profesional" id="hidden-cedula">
-        <input type="hidden" name="farmacia_id" id="hidden-farmacia">
+        <input type="hidden" name="farmacia_cadena" id="hidden-farmacia-cadena">
+        <input type="hidden" name="farmacia_sucursal" id="hidden-farmacia-sucursal">
         <input type="hidden" name="medicamentos" id="hidden-medicamentos">
 
-        <!-- Información del Médico -->
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">
@@ -27,7 +25,6 @@
             </div>
         </div>
 
-        <!-- Farmacia Seleccionada -->
         <div class="card mb-4">
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0">
@@ -42,7 +39,6 @@
             </div>
         </div>
 
-        <!-- Medicamentos -->
         <div class="card mb-4">
             <div class="card-header bg-info text-white">
                 <h5 class="mb-0">
@@ -74,7 +70,6 @@
             </div>
         </div>
 
-        <!-- Botones de acción -->
         <div class="d-flex justify-content-between gap-3 mt-4">
             <button type="button" class="btn btn-secondary btn-lg" id="btn-volver-editar">
                 <i class="fas fa-arrow-left me-2"></i>Volver a editar
@@ -96,31 +91,37 @@
 </template>
 
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('form-procesar-receta');
-    
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const cedula = document.getElementById('resumen-cedula').textContent.trim();
-        const farmacia = document.getElementById('resumen-farmacia').textContent.trim();
-        
-        const medicamentos = [];
-        document.querySelectorAll('.fila-resumen-medicamento').forEach(fila => {
-            medicamentos.push({
-                nombre: fila.querySelector('.nombre-resumen').textContent.trim(),
-                cantidad: fila.querySelector('.cantidad-resumen').textContent.trim(),
-                laboratorio: fila.querySelector('.laboratorio-resumen').textContent.trim()
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('form-procesar-receta');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const cedula = document.getElementById('resumen-cedula').textContent.trim();
+                const farmacia = document.getElementById('resumen-farmacia').textContent.trim();
+
+                const medicamentos = [];
+                document.querySelectorAll('.fila-resumen-medicamento').forEach(fila => {
+                    medicamentos.push({
+                        nombre: fila.querySelector('.nombre-resumen').textContent.trim(),
+                        cantidad: fila.querySelector('.cantidad-resumen').textContent
+                        .trim(),
+                        laboratorio: fila.querySelector('.laboratorio-resumen').textContent
+                            .trim()
+                    });
+                });
+
+                document.getElementById('hidden-farmacia-cadena').value = localStorage.getItem(
+                    "farmaciaCadena");
+                document.getElementById('hidden-farmacia-sucursal').value = localStorage.getItem(
+                    "farmaciaSucursal");
+
+                document.getElementById('hidden-cedula').value = cedula;
+                document.getElementById('hidden-medicamentos').value = JSON.stringify(medicamentos);
+
+                this.submit();
             });
         });
-        
-        document.getElementById('hidden-cedula').value = cedula;
-        document.getElementById('hidden-farmacia').value = farmacia;
-        document.getElementById('hidden-medicamentos').value = JSON.stringify(medicamentos);
-        
-        this.submit();
-    });
-});
-</script>
+    </script>
 @endpush
