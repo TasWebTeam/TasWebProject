@@ -22,7 +22,6 @@ class ProcesarRecetaController extends Controller
         $usuarioCorreo = session('usuario.correo');
         $this->recetaService->crearNuevaReceta($usuarioCorreo);
 
-        // ✔️ Datos reales enviados desde el paso 3
         $cadena = $request->farmacia_cadena;
         $sucursal = $request->farmacia_sucursal;
 

@@ -10,31 +10,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     const filtro = document.getElementById("filtro_cadena");
 
     try {
-        const response = await fetch('/sucursales');
-        
+        const response = await fetch("/sucursales");
+
         if (!response.ok) {
-            throw new Error('Error al cargar sucursales');
+            throw new Error("Error al cargar sucursales");
         }
-        
+
         sucursales = await response.json();
-        
+
         llenarFiltros(sucursales);
         mostrarSucursales(sucursales);
-        
     } catch (error) {
         Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudieron cargar las sucursales',
+            icon: "error",
+            title: "Error",
+            text: "No se pudieron cargar las sucursales",
         });
     }
 
     function llenarFiltros(data) {
         const cadenas = [
-            ...new Set(data.map(s => s.cadena?.nombre).filter(Boolean))
+            ...new Set(data.map((s) => s.cadena?.nombre).filter(Boolean)),
         ];
 
-        cadenas.forEach(cadena => {
+        cadenas.forEach((cadena) => {
             const op = document.createElement("option");
             op.value = cadena;
             op.textContent = cadena;
@@ -44,16 +43,39 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     filtro.addEventListener("change", () => {
         const c = filtro.value;
-        const filtradas = c ? sucursales.filter(s => s.cadena?.nombre === c) : sucursales;
+        const filtradas = c
+            ? sucursales.filter((s) => s.cadena?.nombre === c)
+            : sucursales;
         mostrarSucursales(filtradas);
     });
 
     function mostrarSucursales(lista) {
-        markers.forEach(m => map.removeLayer(m));
+        markers.forEach((m) => map.removeLayer(m));
         markers = [];
 
-        lista.forEach(f => {
-            const marker = L.marker([f.latitud, f.longitud]).addTo(map);
+        lista.forEach((f) => {
+            const iconMap = {
+                "Farmacias Guadalajara": "/images/farmacias/gdl.png",
+                "Farmacias Benavides": "/images/farmacias/bnv.png",
+                "Farmacias del Ahorro": "/images/farmacias/aho.png",
+                "Farmacias Similares": "/images/farmacias/sim.png",
+                "Farmacias Farmacon": "/images/farmacias/far.png",
+            };
+
+            const iconUrl =
+                iconMap[f.cadena?.nombre] ||
+                "/images/farmacias/icon_default.jpg";
+
+            const customIcon = L.icon({
+                iconUrl: iconUrl,
+                iconSize: [60, 60],
+                iconAnchor: [30, 30],
+                popupAnchor: [0, -30],
+            });
+
+            const marker = L.marker([f.latitud, f.longitud], {
+                icon: customIcon,
+            }).addTo(map);
             markers.push(marker);
 
             marker.bindPopup(`
@@ -61,7 +83,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <strong>${f.nombre}</strong><br>
                     <small>${f.cadena?.nombre ?? "Sin cadena"}</small><br>
                     <button class='btn btn-sm btn-tas-outline mt-2'
-                        onclick="seleccionarFarmacia('${f.cadena?.nombre}', '${f.nombre}')">
+                        onclick="seleccionarFarmacia('${f.cadena?.nombre}', '${
+                f.nombre
+            }')">
                         <i class="fas fa-check-circle me-1"></i>Seleccionar
                     </button>
                 </div>
@@ -72,7 +96,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 function seleccionarFarmacia(cadena, nombre) {
     const nombreCompleto = `${cadena} — Sucursal ${nombre}`;
-    
+
     Swal.fire({
         title: "¿Confirmar selección?",
         html: `Has elegido:<br><strong>${nombreCompleto}</strong>`,
@@ -87,19 +111,22 @@ function seleccionarFarmacia(cadena, nombre) {
             localStorage.setItem("farmaciaCadena", cadena);
             localStorage.setItem("farmaciaSucursal", nombre);
 
-            const elementoFarmacia = document.getElementById('farmacia-seleccionada');
+            const elementoFarmacia = document.getElementById(
+                "farmacia-seleccionada"
+            );
             if (elementoFarmacia) {
                 elementoFarmacia.textContent = nombreCompleto;
             }
 
-            const mapSection = document.getElementById('map-section');
-            const formSection = document.getElementById('form-section');
-            
-            if (mapSection && formSection) {
-                mapSection.classList.add('d-none');
-                formSection.classList.remove('d-none');
+            const mapSection = document.getElementById("map-section");
+            const formSection = document.getElementById("form-section");
 
-                const stepperContainer = document.querySelector('.stepper-container');
+            if (mapSection && formSection) {
+                mapSection.classList.add("d-none");
+                formSection.classList.remove("d-none");
+
+                const stepperContainer =
+                    document.querySelector(".stepper-container");
                 if (stepperContainer) {
                     stepperContainer.innerHTML = `
                         <div class='stepper-wrapper'>
@@ -139,8 +166,8 @@ function seleccionarFarmacia(cadena, nombre) {
 }
 
 function toggleTextarea() {
-    const container = document.getElementById('textarea-container');
+    const container = document.getElementById("textarea-container");
     if (container) {
-        container.classList.toggle('d-none');
+        container.classList.toggle("d-none");
     }
 }

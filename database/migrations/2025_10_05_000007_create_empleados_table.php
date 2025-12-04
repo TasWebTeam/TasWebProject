@@ -24,8 +24,8 @@ return new class extends Migration
                 ->references('id_cadena')
                 ->on('cadenas');
 
-            $table->foreign(['id_cadena','id_sucursal'], 'fk_empleados_sucursales')
-                ->references(['id_cadena','id_sucursal'])
+            $table->foreign('id_sucursal', 'fk_empleados_sucursales')
+                ->references('id')
                 ->on('sucursales');
 
             $table->foreign('id_puesto', 'fk_empleados_puestos')

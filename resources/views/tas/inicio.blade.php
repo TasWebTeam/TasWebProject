@@ -246,7 +246,6 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/video-background.css') }}">
-<link rel="stylesheet" href="{{ asset('css/comofuncionatas.css') }}">
 <link rel="stylesheet" href="{{ asset('css/beneficiostas.css') }}">
 <link rel="stylesheet" href="{{ asset('css/carrusel.css') }}">
 <link rel="stylesheet" href="{{ asset('css/footer.css') }}">

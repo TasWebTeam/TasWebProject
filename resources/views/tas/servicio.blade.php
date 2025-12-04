@@ -27,10 +27,10 @@
         <div class="contact-card p-4">
             <p>Si necesitas ayuda, soporte o tienes alguna duda, puedes comunicarte con nosotros a través de:</p>
             <ul class="list-unstyled contacto-list">
-                <li>📩 <strong>Correo:</strong> soporte@tas.com</li>
-                <li>📞 <strong>Teléfono:</strong> 800-741-123</li>
-                <li>💬 <strong>Chat en línea:</strong> Por el momento no esta disponible.</li>
-                <li>📍 <strong>Horario:</strong> Servicio de atencion de lunes a viernes. 9:00 Am - 11:00 Pm.</li>
+                <li><strong>Correo:</strong> soporte@tas.com</li>
+                <li><strong>Teléfono:</strong> 800-741-123</li>
+                <li><strong>Chat en línea:</strong> Por el momento no esta disponible.</li>
+                <li><strong>Horario:</strong> Servicio de atencion de lunes a viernes. 9:00 Am - 11:00 Pm.</li>
             </ul>
         </div>
     </section>

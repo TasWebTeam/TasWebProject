@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('stock_actual');
             $table->decimal('precio_actual', 8, 2);
 
-            $table->unique(['id_sucursal', 'id_medicamento'], 'uq_inventarios');  
+            $table->unique(['id_cadena', 'id_sucursal', 'id_medicamento'], 'uq_inventarios');
 
             $table->foreign('id_sucursal', 'fk_inv_suc')
                 ->references('id')

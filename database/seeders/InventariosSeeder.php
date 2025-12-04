@@ -7,26 +7,113 @@ use Illuminate\Support\Facades\DB;
 
 class InventariosSeeder extends Seeder
 {
-    public function run()
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
     {
-        DB::table('inventarios')->insert([
-            [ 'id_inventario' => 1,  'id_cadena' => 'AHO', 'id_sucursal' => 1, 'id_medicamento' => 1, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 2,  'precio_actual' => 120.50 ],
-            [ 'id_inventario' => 2,  'id_cadena' => 'AHO', 'id_sucursal' => 1, 'id_medicamento' => 2, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 80, 'precio_actual' => 85.00 ],
-            [ 'id_inventario' => 3,  'id_cadena' => 'AHO', 'id_sucursal' => 1, 'id_medicamento' => 3, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 80, 'precio_actual' => 95.00 ],
-            [ 'id_inventario' => 4,  'id_cadena' => 'AHO', 'id_sucursal' => 1, 'id_medicamento' => 4, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 80, 'precio_actual' => 140.00 ],
-            [ 'id_inventario' => 5,  'id_cadena' => 'AHO', 'id_sucursal' => 1, 'id_medicamento' => 5, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 80, 'precio_actual' => 110.00 ],
+        $inventarios = [
+            // AHO - Sucursal 1
+            ['id_cadena' => 'AHO', 'id_sucursal' => 1, 'id_medicamento' => 1, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 35.00],
+            ['id_cadena' => 'AHO', 'id_sucursal' => 1, 'id_medicamento' => 2, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 28.00],
+            ['id_cadena' => 'AHO', 'id_sucursal' => 1, 'id_medicamento' => 3, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 42.00],
+            ['id_cadena' => 'AHO', 'id_sucursal' => 1, 'id_medicamento' => 4, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 48.00],
+            ['id_cadena' => 'AHO', 'id_sucursal' => 1, 'id_medicamento' => 5, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 32.00],
+            ['id_cadena' => 'AHO', 'id_sucursal' => 1, 'id_medicamento' => 6, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 25.00],
+            ['id_cadena' => 'AHO', 'id_sucursal' => 1, 'id_medicamento' => 7, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 38.00],
+            ['id_cadena' => 'AHO', 'id_sucursal' => 1, 'id_medicamento' => 8, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 45.00],
+            
+            // AHO - Sucursal 2
+            ['id_cadena' => 'AHO', 'id_sucursal' => 2, 'id_medicamento' => 1, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 35.00],
+            ['id_cadena' => 'AHO', 'id_sucursal' => 2, 'id_medicamento' => 2, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 28.00],
+            ['id_cadena' => 'AHO', 'id_sucursal' => 2, 'id_medicamento' => 3, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 42.00],
+            ['id_cadena' => 'AHO', 'id_sucursal' => 2, 'id_medicamento' => 4, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 48.00],
+            ['id_cadena' => 'AHO', 'id_sucursal' => 2, 'id_medicamento' => 5, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 32.00],
+            ['id_cadena' => 'AHO', 'id_sucursal' => 2, 'id_medicamento' => 6, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 25.00],
+            ['id_cadena' => 'AHO', 'id_sucursal' => 2, 'id_medicamento' => 7, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 38.00],
+            ['id_cadena' => 'AHO', 'id_sucursal' => 2, 'id_medicamento' => 8, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 45.00],
+            
+            // BNV - Sucursal 3
+            ['id_cadena' => 'BNV', 'id_sucursal' => 3, 'id_medicamento' => 1, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 35.00],
+            ['id_cadena' => 'BNV', 'id_sucursal' => 3, 'id_medicamento' => 2, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 28.00],
+            ['id_cadena' => 'BNV', 'id_sucursal' => 3, 'id_medicamento' => 3, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 42.00],
+            ['id_cadena' => 'BNV', 'id_sucursal' => 3, 'id_medicamento' => 4, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 48.00],
+            ['id_cadena' => 'BNV', 'id_sucamento' => 3, 'id_medicamento' => 5, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 32.00],
+            ['id_cadena' => 'BNV', 'id_sucursal' => 3, 'id_medicamento' => 6, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 25.00],
+            ['id_cadena' => 'BNV', 'id_sucursal' => 3, 'id_medicamento' => 7, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 38.00],
+            ['id_cadena' => 'BNV', 'id_sucursal' => 3, 'id_medicamento' => 8, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 45.00],
+            
+            // BNV - Sucursal 4
+            ['id_cadena' => 'BNV', 'id_sucursal' => 4, 'id_medicamento' => 1, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 35.00],
+            ['id_cadena' => 'BNV', 'id_sucursal' => 4, 'id_medicamento' => 2, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 28.00],
+            ['id_cadena' => 'BNV', 'id_sucursal' => 4, 'id_medicamento' => 3, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 42.00],
+            ['id_cadena' => 'BNV', 'id_sucursal' => 4, 'id_medicamento' => 4, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 48.00],
+            ['id_cadena' => 'BNV', 'id_sucursal' => 4, 'id_medicamento' => 5, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 32.00],
+            ['id_cadena' => 'BNV', 'id_sucursal' => 4, 'id_medicamento' => 6, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 25.00],
+            ['id_cadena' => 'BNV', 'id_sucursal' => 4, 'id_medicamento' => 7, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 38.00],
+            ['id_cadena' => 'BNV', 'id_sucursal' => 4, 'id_medicamento' => 8, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 45.00],
+            
+            // FAR - Sucursal 5
+            ['id_cadena' => 'FAR', 'id_sucursal' => 5, 'id_medicamento' => 1, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 35.00],
+            ['id_cadena' => 'FAR', 'id_sucursal' => 5, 'id_medicamento' => 2, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 28.00],
+            ['id_cadena' => 'FAR', 'id_sucursal' => 5, 'id_medicamento' => 3, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 42.00],
+            ['id_cadena' => 'FAR', 'id_sucursal' => 5, 'id_medicamento' => 4, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 48.00],
+            ['id_cadena' => 'FAR', 'id_sucursal' => 5, 'id_medicamento' => 5, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 32.00],
+            ['id_cadena' => 'FAR', 'id_sucursal' => 5, 'id_medicamento' => 6, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 25.00],
+            ['id_cadena' => 'FAR', 'id_sucursal' => 5, 'id_medicamento' => 7, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 38.00],
+            ['id_cadena' => 'FAR', 'id_sucursal' => 5, 'id_medicamento' => 8, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 45.00],
+            
+            // FAR - Sucursal 6
+            ['id_cadena' => 'FAR', 'id_sucursal' => 6, 'id_medicamento' => 1, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 35.00],
+            ['id_cadena' => 'FAR', 'id_sucursal' => 6, 'id_medicamento' => 2, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 28.00],
+            ['id_cadena' => 'FAR', 'id_sucursal' => 6, 'id_medicamento' => 3, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 42.00],
+            ['id_cadena' => 'FAR', 'id_sucursal' => 6, 'id_medicamento' => 4, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 48.00],
+            ['id_cadena' => 'FAR', 'id_sucursal' => 6, 'id_medicamento' => 5, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 32.00],
+            ['id_cadena' => 'FAR', 'id_sucursal' => 6, 'id_medicamento' => 6, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 25.00],
+            ['id_cadena' => 'FAR', 'id_sucursal' => 6, 'id_medicamento' => 7, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 38.00],
+            ['id_cadena' => 'FAR', 'id_sucursal' => 6, 'id_medicamento' => 8, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 45.00],
+            
+            // GDL - Sucursal 7
+            ['id_cadena' => 'GDL', 'id_sucursal' => 7, 'id_medicamento' => 1, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 35.00],
+            ['id_cadena' => 'GDL', 'id_sucursal' => 7, 'id_medicamento' => 2, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 28.00],
+            ['id_cadena' => 'GDL', 'id_sucursal' => 7, 'id_medicamento' => 3, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 42.00],
+            ['id_cadena' => 'GDL', 'id_sucursal' => 7, 'id_medicamento' => 4, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 48.00],
+            ['id_cadena' => 'GDL', 'id_sucursal' => 7, 'id_medicamento' => 5, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 32.00],
+            ['id_cadena' => 'GDL', 'id_sucursal' => 7, 'id_medicamento' => 6, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 25.00],
+            ['id_cadena' => 'GDL', 'id_sucursal' => 7, 'id_medicamento' => 7, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 38.00],
+            ['id_cadena' => 'GDL', 'id_sucursal' => 7, 'id_medicamento' => 8, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 45.00],
+            
+            // GDL - Sucursal 8
+            ['id_cadena' => 'GDL', 'id_sucursal' => 8, 'id_medicamento' => 1, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 35.00],
+            ['id_cadena' => 'GDL', 'id_sucursal' => 8, 'id_medicamento' => 2, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 28.00],
+            ['id_cadena' => 'GDL', 'id_sucursal' => 8, 'id_medicamento' => 3, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 42.00],
+            ['id_cadena' => 'GDL', 'id_sucursal' => 8, 'id_medicamento' => 4, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 48.00],
+            ['id_cadena' => 'GDL', 'id_sucursal' => 8, 'id_medicamento' => 5, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 32.00],
+            ['id_cadena' => 'GDL', 'id_sucursal' => 8, 'id_medicamento' => 6, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 25.00],
+            ['id_cadena' => 'GDL', 'id_sucursal' => 8, 'id_medicamento' => 7, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 38.00],
+            ['id_cadena' => 'GDL', 'id_sucursal' => 8, 'id_medicamento' => 8, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 45.00],
+            
+            // SIM - Sucursal 9
+            ['id_cadena' => 'SIM', 'id_sucursal' => 9, 'id_medicamento' => 1, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 35.00],
+            ['id_cadena' => 'SIM', 'id_sucursal' => 9, 'id_medicamento' => 2, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 28.00],
+            ['id_cadena' => 'SIM', 'id_sucursal' => 9, 'id_medicamento' => 3, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 42.00],
+            ['id_cadena' => 'SIM', 'id_sucursal' => 9, 'id_medicamento' => 4, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 48.00],
+            ['id_cadena' => 'SIM', 'id_sucursal' => 9, 'id_medicamento' => 5, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 32.00],
+            ['id_cadena' => 'SIM', 'id_sucursal' => 9, 'id_medicamento' => 6, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 25.00],
+            ['id_cadena' => 'SIM', 'id_sucursal' => 9, 'id_medicamento' => 7, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 38.00],
+            ['id_cadena' => 'SIM', 'id_sucursal' => 9, 'id_medicamento' => 8, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 45.00],
+            
+            // SIM - Sucursal 10
+            ['id_cadena' => 'SIM', 'id_sucursal' => 10, 'id_medicamento' => 1, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 35.00],
+            ['id_cadena' => 'SIM', 'id_sucursal' => 10, 'id_medicamento' => 2, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 28.00],
+            ['id_cadena' => 'SIM', 'id_sucursal' => 10, 'id_medicamento' => 3, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 42.00],
+            ['id_cadena' => 'SIM', 'id_sucursal' => 10, 'id_medicamento' => 4, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 48.00],
+            ['id_cadena' => 'SIM', 'id_sucursal' => 10, 'id_medicamento' => 5, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 32.00],
+            ['id_cadena' => 'SIM', 'id_sucursal' => 10, 'id_medicamento' => 6, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 25.00],
+            ['id_cadena' => 'SIM', 'id_sucursal' => 10, 'id_medicamento' => 7, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 38.00],
+            ['id_cadena' => 'SIM', 'id_sucursal' => 10, 'id_medicamento' => 8, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 8, 'precio_actual' => 45.00],
+        ];
 
-            [ 'id_inventario' => 6,  'id_cadena' => 'AHO', 'id_sucursal' => 2, 'id_medicamento' => 1, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 0,  'precio_actual' => 120.50 ],
-            [ 'id_inventario' => 7,  'id_cadena' => 'AHO', 'id_sucursal' => 2, 'id_medicamento' => 2, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 80, 'precio_actual' => 85.00 ],
-            [ 'id_inventario' => 8,  'id_cadena' => 'AHO', 'id_sucursal' => 2, 'id_medicamento' => 3, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 80, 'precio_actual' => 95.00 ],
-            [ 'id_inventario' => 9,  'id_cadena' => 'AHO', 'id_sucursal' => 2, 'id_medicamento' => 4, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 80, 'precio_actual' => 140.00 ],
-            [ 'id_inventario' => 10, 'id_cadena' => 'AHO', 'id_sucursal' => 2, 'id_medicamento' => 5, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 80, 'precio_actual' => 110.00 ],
-
-            [ 'id_inventario' => 11, 'id_cadena' => 'BNV', 'id_sucursal' => 3, 'id_medicamento' => 1, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 2,  'precio_actual' => 120.50 ],
-            [ 'id_inventario' => 12, 'id_cadena' => 'BNV', 'id_sucursal' => 3, 'id_medicamento' => 2, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 80, 'precio_actual' => 85.00 ],
-            [ 'id_inventario' => 13, 'id_cadena' => 'BNV', 'id_sucursal' => 3, 'id_medicamento' => 3, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 80, 'precio_actual' => 95.00 ],
-            [ 'id_inventario' => 14, 'id_cadena' => 'BNV', 'id_sucursal' => 3, 'id_medicamento' => 4, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 80, 'precio_actual' => 140.00 ],
-            [ 'id_inventario' => 15, 'id_cadena' => 'BNV', 'id_sucursal' => 3, 'id_medicamento' => 5, 'stock_minimo' => 10, 'stock_maximo' => 150, 'stock_actual' => 80, 'precio_actual' => 110.00 ],
-        ]);
+        DB::table('inventarios')->insert($inventarios);
     }
 }

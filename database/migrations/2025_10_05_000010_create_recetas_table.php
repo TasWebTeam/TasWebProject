@@ -20,7 +20,8 @@ return new class extends Migration
                 'en_proceso',
                 'lista_para_recoleccion',
                 'entregada',
-                'no_recogida'
+                'no_recogida',
+                'devolviendo'
             ])->default('en_proceso');
             
             $table->foreign('id_usuario')

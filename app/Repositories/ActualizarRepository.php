@@ -134,7 +134,7 @@ class ActualizarRepository
             $recetaModel = new RecetaModel();
             $recetaModel->id_usuario            = $paciente->getId(); 
             $recetaModel->id_cadenaDestino      = $receta->getSucursal()->getCadena()->getIdCadena();
-            $recetaModel->id_sucursalDestino    = $receta->getSucursal()->getIdSucursal();
+            $recetaModel->id_sucursalDestino    = $receta->getSucursal()->getId();
             $recetaModel->cedula_profesional    = $receta->getCedulaProfesional();
             $recetaModel->fecha_registro        = $receta->getFechaRegistro()
                                                     ? $receta->getFechaRegistro()->format('Y-m-d H:i:s')
