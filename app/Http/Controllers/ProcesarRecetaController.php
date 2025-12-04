@@ -3,17 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Services\RecetaService;
-use App\Services\SucursalService;
+use App\Services\TasService;
 use Illuminate\Http\Request;
 
 class ProcesarRecetaController extends Controller
 {
-    private SucursalService $sucursalService;
     private RecetaService $recetaService;
+    private TasService $tasService;
 
-    public function __construct(SucursalService $sucursalService, RecetaService $recetaService)
+    public function __construct(TasService $tasService, RecetaService $recetaService)
     {
-        $this->sucursalService = $sucursalService;
+        $this->tasService = $tasService;
         $this->recetaService = $recetaService;
     }
 
@@ -54,8 +54,11 @@ class ProcesarRecetaController extends Controller
         foreach ($medicamentos as $med) {
             $this->introducirMedicamento($med['nombre'], $med['cantidad']);
         }
+        $usuario = session('usuario');
 
-        $numTarjeta = '1234 1234 1234 1234';
+        $tarjeta = $this->tasService->obtenerTarjetaUsuario($usuario['id']);
+
+        $numTarjeta = $tarjeta->getLast4();
 
         $resultado = $this->recetaService->procesarReceta($numTarjeta);
 
@@ -65,9 +68,7 @@ class ProcesarRecetaController extends Controller
 
             return view('tas.resultado', [
                 'exito' => true,
-                
-                'numeroPedido' => 1,
-                'cedulaProfesional' => $request->cedula_profesional,
+                                'cedulaProfesional' => $request->cedula_profesional,
                 'farmacia' => $request->farmacia_cadena . ' - Sucursal ' . $request->farmacia_sucursal,
                 'medicamentos' => $medicamentos,
                 'fechaRecoleccion' => $fechaRecoleccion,

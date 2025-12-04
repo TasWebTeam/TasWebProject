@@ -337,40 +337,24 @@ class TasService
         return $sucursales;
     }
 
-    public function buscarMedicamentos(string $query): array
-    {
-        $modelos = $this->tasRepository->buscarMedicamentosPorNombre($query);
+   // Agregar este método nuevo en TasService
+public function obtenerIdSucursalPorNombre(string $nombreSucursal): ?int
+{
+    return $this->tasRepository->obtenerIdSucursalPorNombre($nombreSucursal);
+}
 
-        if (!$modelos || $modelos->isEmpty()) {
-            return [];
-        }
+// Actualizar el método buscarMedicamentos para recibir idSucursal
+public function buscarMedicamentos(string $query, int $idSucursal): array
+{
+    $modelos = $this->tasRepository->buscarMedicamentosPorNombre($query, $idSucursal);
 
-        $medicamentos = [];
-
-        foreach ($modelos as $m) {
-
-            $imagenDomain = $m->imagen
-                ? new ImagenMedicamento(
-                    $m->imagen->idImagen,
-                    asset($m->imagen->URL)
-                )
-                : null;
-
-            $medicamento = new Medicamento(
-                $m->id_medicamento,
-                $m->idImagen,
-                $m->nombre,
-                $m->especificacion,
-                $m->laboratorio,
-                $m->es_controlado,
-                $imagenDomain
-            );
-
-            $medicamentos[] = $medicamento->toArray();
-        }
-
-        return $medicamentos;
+    if (!$modelos || $modelos->isEmpty()) {
+        return [];
     }
+
+    // Los modelos ya vienen mapeados desde el repository con el precio incluido
+    return $modelos->toArray();
+}
 
 
     public function obtenerMedicamentos(int $idMedicamento): ?Medicamento

@@ -286,17 +286,27 @@ class TasController extends Controller
         return redirect()->route('tas_loginView');
     }
     public function buscarMedicamentos(Request $request)
-    {
-        $query = $request->input('nombre_medicamento');
+{
+    $query = $request->input('nombre_medicamento');
+    $nombreSucursal = $request->input('id_sucursal'); // Viene el nombre, no el ID
 
-        if (!$query || strlen($query) < 3) {
-            return response()->json([]);
-        }
-
-        $medicamentos = $this->tasService->buscarMedicamentos($query);
-
-        return response()->json($medicamentos);
+    if (!$query || strlen($query) < 3) {
+        return response()->json([]);
     }
+
+    // Obtener el ID real de la sucursal a partir del nombre
+    $idSucursal = $this->tasService->obtenerIdSucursalPorNombre($nombreSucursal);
+    
+    if (!$idSucursal) {
+        return response()->json([
+            'error' => 'Sucursal no encontrada'
+        ], 404);
+    }
+
+    $medicamentos = $this->tasService->buscarMedicamentos($query, $idSucursal);
+
+    return response()->json($medicamentos);
+}
     public function obtenerSucursales()
     {
         $sucursales = $this->tasService->obtenerSucursales();

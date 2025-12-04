@@ -137,41 +137,69 @@ class RecetaService
         }
     }
     
-    public function procesarReceta($numTarjeta)
-    {
-        $rec = $this->paciente->getUltimaReceta();
+   public function procesarReceta($numTarjeta)
+{
+    $rec = $this->paciente->getUltimaReceta();
+    
+    $this->actualizarRepository->beginTransaction();
+    
+    try {
+        $sucursalOrigen = $rec->getSucursal();
+        $detallesReceta = $rec->getDetallesReceta();
         
-        $this->actualizarRepository->beginTransaction();
-        
-        try {
-            $sucursalOrigen = $rec->getSucursal();
-            $detallesReceta = $rec->getDetallesReceta();
-            foreach($detallesReceta as $detalle) {
-                $resultado = $this->procesarDetalle($detalle, $sucursalOrigen);
-                
-                if ($resultado === false) {
-                    $this->actualizarRepository->rollbackTransaction();
-                    return false;
-                }
+        foreach($detallesReceta as $detalle) {
+            $resultado = $this->procesarDetalle($detalle, $sucursalOrigen);
+            
+            if ($resultado === false) {
+                $this->actualizarRepository->rollbackTransaction();
+                return false;
             }
-            
-            $pago = $rec->obtenerPago();
-            $pago->validarPago((string)$numTarjeta);
-            $rec->calcularFecha();
-            
-            $rec->cambiarEstado('en_proceso');
-
-            $this->actualizarRepository->guardarRecetaCompleta($this->paciente, $rec);
-            
-            $this->actualizarRepository->commitTransaction();
-            
-            return true;
-            
-        } catch (\Throwable $e) {
-            $this->actualizarRepository->rollbackTransaction();
-            return false;            
         }
+        
+        $pago = $rec->obtenerPago();
+        $pago->validarPago((string)$numTarjeta);
+        $rec->calcularFecha();
+        
+        $rec->cambiarEstado('en_proceso');
+
+        // Guardar la receta completa y obtener el ID generado
+        $recetaModel = $this->actualizarRepository->guardarRecetaCompleta($this->paciente, $rec);
+        
+        // Guardar el pago con el ID de la receta, ID de tarjeta y monto total
+        $idTarjeta = $pago->getIdTarjeta(); // Asegúrate que este método existe en tu clase Pago
+        $montoTotal = $rec->calcularTotal();
+        
+        $this->actualizarRepository->guardarPagoReceta(
+            $recetaModel->id_receta,
+            $idTarjeta,
+            $montoTotal
+        );
+        
+        Log::info('Pago de receta procesado', [
+            'id_receta' => $recetaModel->id_receta,
+            'id_tarjeta' => $idTarjeta,
+            'monto' => $montoTotal
+        ]);
+        
+        $this->actualizarRepository->commitTransaction();
+        
+        return true;
+        
+    } catch (\Throwable $e) {
+        Log::error('Error al procesar receta', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        $this->actualizarRepository->rollbackTransaction();
+        return false;            
     }
+}
+
+
+public function obtenerUltimaRecetaGuardada()
+{
+    return $this->paciente ? $this->paciente->getUltimaReceta() : null;
+}
 
     private function procesarDetalle(DetalleReceta $detalle, Sucursal $sucursalOrigen)
     {

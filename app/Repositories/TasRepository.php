@@ -132,19 +132,51 @@ class TasRepository
             return null;
         }
     }
-
-    public function buscarMedicamentosPorNombre(string $query, int $limit = 10)
-    {
-        try {
-            return MedicamentoModel::with('imagen')
-                ->where('nombre', 'LIKE', "{$query}%")
-                ->limit($limit)
-                ->get();  
-        } catch (\Exception $e) {
-            return null;
-        }
+public function obtenerIdSucursalPorNombre(string $nombreSucursal): ?int
+{
+    try {
+        $sucursal = SucursalModel::where('nombre', $nombreSucursal)->first();
+        return $sucursal ? $sucursal->id : null;
+    } catch (\Exception $e) {
+        \Log::error('Error al obtener ID de sucursal', [
+            'nombre' => $nombreSucursal,
+            'error' => $e->getMessage()
+        ]);
+        return null;
     }
-
+}
+    public function buscarMedicamentosPorNombre(string $query, int $idSucursal, int $limit = 10)
+{
+    try {
+        return MedicamentoModel::with(['imagen', 'inventarios' => function($q) use ($idSucursal) {
+                $q->where('id_sucursal', $idSucursal);
+            }])
+            ->where('nombre', 'LIKE', "{$query}%")
+            ->limit($limit)
+            ->get()
+            ->map(function($medicamento) {
+                // Obtener el precio del inventario de la sucursal específica
+                $inventario = $medicamento->inventarios->first();
+                
+                return [
+                    'id_medicamento' => $medicamento->id_medicamento,
+                    'nombre' => $medicamento->nombre,
+                    'especificacion' => $medicamento->especificacion,
+                    'laboratorio' => $medicamento->laboratorio,
+                    'es_controlado' => $medicamento->es_controlado,
+                    'imagen' => $medicamento->imagen,
+                    'precio' => $inventario ? $inventario->precio_actual : 0,
+                ];
+            });
+    } catch (\Exception $e) {
+        Log::error('Error al buscar medicamentos', [
+            'error' => $e->getMessage(),
+            'query' => $query,
+            'id_sucursal' => $idSucursal
+        ]);
+        return collect([]);
+    }
+}
     public function obtenerMedicamentoPorId(int $idMedicamento)  
     {
         try {
