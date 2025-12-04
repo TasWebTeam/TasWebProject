@@ -78,7 +78,7 @@
                             </tr>
                             <tr class="table-success">
                                 <td colspan="5" class="text-end fw-bold fs-5">
-                                    <i class="fas fa-percentage me-2"></i>Comisión 15% (Total a Pagar):
+                                    Comisión 15% (Total a Pagar):
                                 </td>
                                 <td class="text-end fw-bold fs-5 text-success" id="resumen-comision">$0.00</td>
                             </tr>

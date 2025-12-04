@@ -413,6 +413,8 @@ document.addEventListener("DOMContentLoaded", function () {
             return a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" });
         });
 
+        let subtotalResumen = 0;
+
         medicamentosOrdenados.forEach((med, index) => {
             const template = templateFilaResumen.content.cloneNode(true);
             const fila = template.querySelector(".fila-resumen-medicamento");
@@ -421,9 +423,18 @@ document.addEventListener("DOMContentLoaded", function () {
             fila.querySelector(".nombre-resumen").textContent = med.nombre;
             fila.querySelector(".cantidad-resumen").textContent = med.cantidad;
             fila.querySelector(".laboratorio-resumen").textContent = med.laboratorio;
+            fila.querySelector(".precio-resumen").textContent = `${med.precio.toFixed(2)}`;
+            fila.querySelector(".total-resumen").textContent = `${med.subtotal.toFixed(2)}`;
+
+            subtotalResumen += med.subtotal;
 
             tbodyResumen.appendChild(fila);
         });
+
+        // Actualizar totales en el resumen
+        const comisionResumen = subtotalResumen * TASA_COMISION;
+        document.getElementById("resumen-total").textContent = `${subtotalResumen.toFixed(2)}`;
+        document.getElementById("resumen-comision").textContent = `${comisionResumen.toFixed(2)}`;
     }
 
     function volverAEditar() {

@@ -337,25 +337,53 @@ class TasService
         return $sucursales;
     }
 
-   // Agregar este método nuevo en TasService
+// Agregar este método nuevo en TasService
 public function obtenerIdSucursalPorNombre(string $nombreSucursal): ?int
 {
     return $this->tasRepository->obtenerIdSucursalPorNombre($nombreSucursal);
 }
 
-// Actualizar el método buscarMedicamentos para recibir idSucursal
+// Actualizar el método buscarMedicamentos para crear objetos del dominio
 public function buscarMedicamentos(string $query, int $idSucursal): array
 {
-    $modelos = $this->tasRepository->buscarMedicamentosPorNombre($query, $idSucursal);
+    $resultados = $this->tasRepository->buscarMedicamentosPorNombre($query, $idSucursal);
 
-    if (!$modelos || $modelos->isEmpty()) {
+    if (!$resultados || $resultados->isEmpty()) {
         return [];
     }
 
-    // Los modelos ya vienen mapeados desde el repository con el precio incluido
-    return $modelos->toArray();
-}
+    $medicamentos = [];
 
+    foreach ($resultados as $med) {
+        // Crear objeto ImagenMedicamento si existe
+        $imagenDomain = null;
+        if (isset($med['imagen']) && $med['imagen']) {
+            $imagenDomain = new ImagenMedicamento(
+                $med['imagen']->idImagen,
+                asset($med['imagen']->URL)
+            );
+        }
+
+        // Crear objeto Medicamento del dominio
+        $medicamento = new Medicamento(
+            $med['id_medicamento'],
+            $med['imagen']->idImagen ?? null,
+            $med['nombre'],
+            $med['especificacion'],
+            $med['laboratorio'],
+            $med['es_controlado'],
+            $imagenDomain
+        );
+
+        // Convertir a array y agregar el precio (que no es parte del dominio Medicamento)
+        $medicamentoArray = $medicamento->toArray();
+        $medicamentoArray['precio'] = $med['precio']; // Agregar precio del inventario
+
+        $medicamentos[] = $medicamentoArray;
+    }
+
+    return $medicamentos;
+}
 
     public function obtenerMedicamentos(int $idMedicamento): ?Medicamento
     {
