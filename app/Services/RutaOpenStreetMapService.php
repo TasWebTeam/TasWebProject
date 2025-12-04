@@ -2,7 +2,6 @@
 namespace App\Services;
 
 use GuzzleHttp\Client;
-use Illuminate\Support\Facades\Log;
 
 class RutaOpenStreetMapService
 {
@@ -38,7 +37,6 @@ class RutaOpenStreetMapService
 
             return $metros / 1000.0;
         } catch (\Throwable $e) {
-            Log::error('Error consultando ruta OSM: ' . $e->getMessage());
             return null;
         }
     }
@@ -74,7 +72,6 @@ class RutaOpenStreetMapService
             return $puntos;
 
         } catch (\Throwable $e) {
-            Log::error('Error consultando ruta OSM (coordenadas): ' . $e->getMessage());
             return [];
         }
     }

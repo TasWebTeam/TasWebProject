@@ -20,10 +20,11 @@ class Paciente extends Usuario{
 
       public function setRecetas(array $recetas): void{
         foreach ($recetas as $r) {
-            if (!$r instanceof DetalleReceta) {
-                throw new InvalidArgumentException("Todos los elementos deben ser DetalleReceta");
+            if (!$r instanceof Receta) {
+                throw new InvalidArgumentException("Todos los elementos deben ser Receta");
             }
         }
+        $this->recetas = $recetas;
     }
     
     public function crearNuevaReceta(): void{
@@ -38,14 +39,6 @@ class Paciente extends Usuario{
         }
 
         return $this->recetas[array_key_last($this->recetas)];
-    }
-
-    public function notificarReceta(): void{
-        
-    }
-
-    public function notificarCancelacion(): void{
-        
     }
 
     public function agregarReceta(Receta $receta): void{

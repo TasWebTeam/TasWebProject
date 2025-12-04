@@ -32,11 +32,10 @@ document.addEventListener("DOMContentLoaded", function () {
     let medicamentos = [];
     let contadorMedicamentos = 0;
     let searchTimeout;
-    let medicamentoSeleccionado = null; // Almacena el medicamento seleccionado temporalmente
-
+    let medicamentoSeleccionado = null; 
     let subtotal = 0;
     let total = 0;
-    const TASA_COMISION = 0.15; // 15%
+    const TASA_COMISION = 0.15; 
 
     cargarInformacionFarmacia();
 
@@ -47,12 +46,10 @@ document.addEventListener("DOMContentLoaded", function () {
         btnGenerarReceta.addEventListener("click", mostrarResumen);
     }
 
-    // Evento para búsqueda de medicamentos
     nombreMedInput.addEventListener("input", function (e) {
         clearTimeout(searchTimeout);
         const query = e.target.value.trim();
 
-        // Resetear medicamento seleccionado si se modifica el input
         medicamentoSeleccionado = null;
         btnAnadirMedicamento.disabled = true;
 
@@ -66,7 +63,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Evento del botón añadir
     btnAnadirMedicamento.addEventListener("click", function() {
         if (medicamentoSeleccionado) {
             agregarMedicamentoATabla();
@@ -150,7 +146,6 @@ document.addEventListener("DOMContentLoaded", function () {
             )
             .join("");
 
-        // Agregar evento click a cada medicamento
         document.querySelectorAll(".medicamento-item").forEach((item) => {
             item.addEventListener("click", function () {
                 seleccionarMedicamentoDelPopup(this.dataset);
@@ -159,7 +154,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function seleccionarMedicamentoDelPopup(data) {
-        // Guardar datos del medicamento seleccionado
         medicamentoSeleccionado = {
             id_medicamento: data.id,
             nombre: data.nombre,
@@ -167,16 +161,12 @@ document.addEventListener("DOMContentLoaded", function () {
             precio: parseFloat(data.precio)
         };
 
-        // Autocompletar el input con el nombre del medicamento
         nombreMedInput.value = data.nombre;
         
-        // Habilitar el botón añadir
         btnAnadirMedicamento.disabled = false;
         
-        // Cerrar el popup
         searchPopup.classList.remove("active");
         
-        // Enfocar el campo de cantidad
         cantidadMedInput.focus();
     }
 
@@ -185,7 +175,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const cantidad = parseInt(cantidadMedInput.value) || 1;
 
-        // Verificar si el medicamento ya existe en la tabla
         const medicamentoExistente = medicamentos.find(
             (med) => med.id_medicamento === medicamentoSeleccionado.id_medicamento && 
                      med.laboratorio === medicamentoSeleccionado.laboratorio
@@ -216,7 +205,6 @@ document.addEventListener("DOMContentLoaded", function () {
         actualizarContadorMedicamentos();
         actualizarBotonEnviar();
 
-        // Opcional: notificar al servidor
         notificarMedicamentoSeleccionado(medicamentoSeleccionado);
     }
 
@@ -431,7 +419,6 @@ document.addEventListener("DOMContentLoaded", function () {
             tbodyResumen.appendChild(fila);
         });
 
-        // Actualizar totales en el resumen
         const comisionResumen = subtotalResumen * TASA_COMISION;
         document.getElementById("resumen-total").textContent = `${subtotalResumen.toFixed(2)}`;
         document.getElementById("resumen-comision").textContent = `${comisionResumen.toFixed(2)}`;

@@ -4,7 +4,6 @@
 
 @section('content')
 
-{{-- VIDEO HERO SECTION - Full Width pegado a navbar --}}
 <section class="video-hero-section">
     <div class="video-container">
         <video autoplay muted loop playsinline class="hero-video">
@@ -12,10 +11,8 @@
             Tu navegador no soporta el video.
         </video>
         
-        {{-- Overlay oscuro para mejor legibilidad del texto --}}
         <div class="video-overlay"></div>
         
-        {{-- Contenido sobre el video --}}
         <div class="video-content">
             <div class="container">
                 <div class="row justify-content-center">
@@ -28,16 +25,6 @@
                         </p>
                         <div class="animate-fade-in-delay-2">
 
-
-                            <!--<a href="#farmacias" class="btn btn-light btn-lg px-5 py-3 me-3 mb-3">
-                                Ver farmacias
-                            </a>
-                            <a href="{{ route('servicio') }}" class="btn btn-outline-light btn-lg px-5 py-3 mb-3">
-                                Saber más
-                            </a> -->
-                        
-
-                            {{-- SI NO HAY SESIÓN --}}
                             @if (!session()->has('usuario'))
                                 <a href="{{ route('tas_loginView') }}" class="btn btn-light btn-lg px-5 py-3 me-3 mb-3">
                                     Iniciar sesión
@@ -48,7 +35,6 @@
                                 </a>
                             @endif
 
-                            {{-- SI HAY SESIÓN --}}
                             @if (session()->has('usuario'))
                                 <a href="#farmacias" class="btn btn-light btn-lg px-5 py-3 me-3 mb-3">
                                     Ver farmacias
@@ -66,7 +52,6 @@
             </div>
         </div>
         
-        {{-- Indicador de scroll --}}
         <div class="scroll-indicator">
             <i class="fas fa-chevron-down"></i>
         </div>
@@ -74,7 +59,6 @@
 </section>
 
 
-<!-- SECCIÓN: ¿CÓMO FUNCIONA TAS? -->
 <section class="como-funciona-section py-5">
     <div class="container text-center">
 
@@ -84,7 +68,6 @@
         </p>
 
         <div class="row g-4">
-            <!-- PASO 1 -->
             <div class="col-md-4">
                 <div class="funciona-card p-4 h-100">
                     <div class="icon-wrapper mb-3">
@@ -97,7 +80,6 @@
                 </div>
             </div>
 
-            <!-- PASO 2 -->
             <div class="col-md-4">
                 <div class="funciona-card p-4 h-100">
                     <div class="icon-wrapper mb-3">
@@ -110,7 +92,6 @@
                 </div>
             </div>
 
-            <!-- PASO 3 -->
             <div class="col-md-4">
                 <div class="funciona-card p-4 h-100">
                     <div class="icon-wrapper mb-3">
@@ -128,8 +109,7 @@
 </section>
 
 
-<!-- SECCIÓN: BENEFICIOS DE TAS -->
-<section class="beneficios-section py-3"> <!--"beneficios-section py-3"-->
+<section class="beneficios-section py-3"> 
     <div class="container text-center">
         <h2 class="fw-bold mb-4" style="color:#003865;">Beneficios de usar TAS</h2>
         <p class="text-muted mb-5 fs-5">
@@ -137,7 +117,6 @@
         </p>
 
         <div class="row g-4">
-            <!-- Beneficio 1 -->
             <div class="col-md-3">
                 <div class="beneficio-card p-4 h-100">
                     <div class="icon-wrapper mb-3">
@@ -150,7 +129,6 @@
                 </div>
             </div>
 
-            <!-- Beneficio 2 -->
             <div class="col-md-3">
                 <div class="beneficio-card p-4 h-100">
                     <div class="icon-wrapper mb-3">
@@ -163,7 +141,6 @@
                 </div>
             </div>
 
-            <!-- Beneficio 3 -->
             <div class="col-md-3">
                 <div class="beneficio-card p-4 h-100">
                     <div class="icon-wrapper mb-3">
@@ -176,7 +153,6 @@
                 </div>
             </div>
 
-            <!-- Beneficio 4 -->
             <div class="col-md-3">
                 <div class="beneficio-card p-4 h-100">
                     <div class="icon-wrapper mb-3">
@@ -193,7 +169,6 @@
 </section>
 
 
-{{-- SECCIÓN DE FARMACIAS COLABORADORAS --}}
 <div class="container py-5" id="farmacias">
     @php
         $partnerLogos = [
@@ -239,7 +214,6 @@
 
 
 
-{{-- Footer al final del contenido --}}
 @include('layouts.footer') 
 
 @endsection

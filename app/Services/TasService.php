@@ -337,13 +337,11 @@ class TasService
         return $sucursales;
     }
 
-// Agregar este método nuevo en TasService
 public function obtenerIdSucursalPorNombre(string $nombreSucursal): ?int
 {
     return $this->tasRepository->obtenerIdSucursalPorNombre($nombreSucursal);
 }
 
-// Actualizar el método buscarMedicamentos para crear objetos del dominio
 public function buscarMedicamentos(string $query, int $idSucursal): array
 {
     $resultados = $this->tasRepository->buscarMedicamentosPorNombre($query, $idSucursal);
@@ -355,7 +353,6 @@ public function buscarMedicamentos(string $query, int $idSucursal): array
     $medicamentos = [];
 
     foreach ($resultados as $med) {
-        // Crear objeto ImagenMedicamento si existe
         $imagenDomain = null;
         if (isset($med['imagen']) && $med['imagen']) {
             $imagenDomain = new ImagenMedicamento(
@@ -364,7 +361,6 @@ public function buscarMedicamentos(string $query, int $idSucursal): array
             );
         }
 
-        // Crear objeto Medicamento del dominio
         $medicamento = new Medicamento(
             $med['id_medicamento'],
             $med['imagen']->idImagen ?? null,
@@ -375,9 +371,8 @@ public function buscarMedicamentos(string $query, int $idSucursal): array
             $imagenDomain
         );
 
-        // Convertir a array y agregar el precio (que no es parte del dominio Medicamento)
         $medicamentoArray = $medicamento->toArray();
-        $medicamentoArray['precio'] = $med['precio']; // Agregar precio del inventario
+        $medicamentoArray['precio'] = $med['precio'];
 
         $medicamentos[] = $medicamentoArray;
     }

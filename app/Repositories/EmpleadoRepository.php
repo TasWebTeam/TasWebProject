@@ -41,20 +41,26 @@ class EmpleadoRepository
         return $receta->save();
     }
 
-    public function obtenerExpiradasPorSucursal(String $idCadena, int $idSucursal): Collection
+    public function obtenerExpiradasPorSucursal(String $idCadena, int $idSucursal, ?string $estado = null)
     {
-        return RecetaModel::with(['usuario', 'sucursalDestino.cadena'])
+        $query = RecetaModel::with(['usuario', 'sucursalDestino.cadena'])
             ->where('id_cadenaDestino', $idCadena)
             ->where('id_sucursalDestino', $idSucursal)
             ->where(function ($q) {
-            $q->where(function ($q2) {
-                $q2->where('estado_pedido', 'lista_para_recoleccion')
-                   ->whereRaw("TIMESTAMPDIFF(HOUR, fecha_recoleccion, NOW()) > 72");
-            })
-            ->orWhere('estado_pedido', 'devolviendo');
-        })
-        ->orderByDesc('fecha_registro')
-        ->get();
+                $q->where(function ($q2) {
+                    $q2->where('estado_pedido', 'lista_para_recoleccion')
+                    ->whereRaw("TIMESTAMPDIFF(HOUR, fecha_recoleccion, NOW()) > 72");
+                })
+                ->orWhere('estado_pedido', 'devolviendo');
+            });
+
+        if (!empty($estado)) {
+            $query->where('estado_pedido', $estado);
+        } else {
+            $query->whereIn('estado_pedido', ['lista_para_recoleccion', 'devolviendo']);
+        }
+
+        return $query->orderByDesc('fecha_registro')->get();
     }
 
     public function obtenerSucursalPorCadenaYSucursal(String $idCadena, int $idSucursal): ?SucursalModel

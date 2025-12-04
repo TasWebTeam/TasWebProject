@@ -208,6 +208,11 @@
                         <h2 class="text-success mb-3">¡Receta Procesada Exitosamente!</h2>
                         <p class="text-muted mb-4">Su receta ha sido enviada y está siendo preparada</p>
                         
+                        <div class="alert alert-info mx-auto" style="max-width: 500px;">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Número de Pedido:</strong> #{{ $numeroPedido ?? 'N/A' }}
+                        </div>
+
                         <div class="card mt-4">
                             <div class="card-header bg-light">
                                 <h5 class="mb-0">

@@ -264,8 +264,6 @@ class TasController extends Controller
             $usuario['id'],
             $request->numero_tarjeta,
             $request->fecha_vencimiento,
-            $request->cvv,
-            $request->nombre_tarjeta,
         );
 
         if (is_string($resultado)) {
@@ -288,13 +286,12 @@ class TasController extends Controller
     public function buscarMedicamentos(Request $request)
 {
     $query = $request->input('nombre_medicamento');
-    $nombreSucursal = $request->input('id_sucursal'); // Viene el nombre, no el ID
+    $nombreSucursal = $request->input('id_sucursal');
 
     if (!$query || strlen($query) < 3) {
         return response()->json([]);
     }
 
-    // Obtener el ID real de la sucursal a partir del nombre
     $idSucursal = $this->tasService->obtenerIdSucursalPorNombre($nombreSucursal);
     
     if (!$idSucursal) {

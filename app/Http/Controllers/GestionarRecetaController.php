@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\EmpleadoService;
 use App\Services\SucursalService;
-use Illuminate\Support\Facades\Log;
-
 
 class GestionarRecetaController extends Controller
 {
@@ -31,13 +29,14 @@ class GestionarRecetaController extends Controller
         return view('empleado.recetas', compact('recetas', 'estado', 'nombreSucursal', 'nombreCadena'));
     }
 
-    public function recetasExpiradas()
+    public function recetasExpiradas(Request $request)
     {
         $idSucursal = session('usuario.id_sucursal');
         $idCadena = session('usuario.id_cadena');
+        $estado = $request->query(key: 'estado');
         $nombreSucursal = session('usuario.nombre_sucursal');
         $nombreCadena = session('usuario.nombre_cadena');    
-        $recetas = $this->empleadoService->obtenerRecetasExpiradas($idCadena, $idSucursal);
+        $recetas = $this->empleadoService->obtenerRecetasExpiradas($idCadena, $idSucursal, $estado);
 
         return view('empleado.recetas_expiradas', compact('recetas', 'nombreSucursal', 'nombreCadena'));
     }
@@ -76,48 +75,15 @@ class GestionarRecetaController extends Controller
         );
     }
 
+
     public function devolverReceta(Request $request, int $idReceta)
     {
         try {
-            Log::info('Iniciando devolución de receta', ['idReceta' => $idReceta]);
-
-            $receta = \App\Models\RecetaModel::find($idReceta);
-            if (!$receta) {
-                Log::error('Receta no encontrada', ['idReceta' => $idReceta]);
-                
+            if (!$this->sucursalService->devolverReceta($idReceta)) {
                 if ($request->expectsJson()) {
                     return response()->json([
                         'ok' => false,
-                        'message' => 'La receta no existe.',
-                    ], 404);
-                }
-
-                return redirect()->back()->with('error', 'La receta no existe.');
-            }
-
-            Log::info('Receta encontrada', [
-                'idReceta' => $idReceta,
-                'estado' => $receta->estado,
-                'id_sucursal' => $receta->id_sucursal,
-            ]);
-
-            $okDevolucion = $this->sucursalService->devolverReceta($idReceta);
-
-            Log::info('Resultado devolverReceta()', [
-                'idReceta' => $idReceta,
-                'okDevolucion' => $okDevolucion
-            ]);
-
-            if (!$okDevolucion) {
-                Log::warning('No se pudo iniciar la devolución de la receta', [
-                    'idReceta' => $idReceta,
-                    'mensaje' => 'El servicio devolverReceta() retornó false. Revisar SucursalService.'
-                ]);
-                
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'ok' => false,
-                        'message' => 'No se pudo iniciar la devolución de la receta. Verifica los logs del servidor.',
+                        'message' => 'No se pudo iniciar la devolución de la receta',
                     ], 422);
                 }
 
@@ -126,40 +92,33 @@ class GestionarRecetaController extends Controller
                     ->with('error', 'No se pudo iniciar la devolución de la receta.');
             }
 
-            $okEstado = $this->empleadoService->actualizarEstado($idReceta, 'devolviendo');
+            if (!$this->empleadoService->actualizarEstado($idReceta, 'devolviendo')) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'ok' => false,
+                        'message' => 'No se pudo actualizar el estado de la receta.',
+                        'nuevoEstado' => null,
+                    ], 422);
+                }
 
-            Log::info('Resultado actualizarEstado()', [
-                'idReceta' => $idReceta,
-                'okEstado' => $okEstado
-            ]);
-
-            $okFinal = $okDevolucion && $okEstado;
+                return redirect()
+                    ->back()
+                    ->with('error', 'No se pudo actualizar el estado de la receta.');
+            }
 
             if ($request->expectsJson()) {
                 return response()->json([
-                    'ok' => $okFinal,
-                    'nuevoEstado' => $okFinal ? 'devolviendo' : null,
-                    'message' => $okFinal
-                        ? 'La devolución se inició correctamente. La receta está en estado "devolviendo".'
-                        : 'No se pudo actualizar el estado de la receta.',
-                ], $okFinal ? 200 : 422);
+                    'ok' => true,
+                    'nuevoEstado' => 'devolviendo',
+                    'message' => 'La devolución se inició correctamente. La receta está en estado "devolviendo".',
+                ], 200);
             }
 
             return redirect()
                 ->back()
-                ->with(
-                    $okFinal ? 'success' : 'error',
-                    $okFinal
-                        ? 'La devolución se inició correctamente. La receta está en estado "devolviendo".'
-                        : 'No se pudo actualizar el estado de la receta.'
-                );
+                ->with('success', 'La devolución se inició correctamente. La receta está en estado "devolviendo".');
 
         } catch (\Throwable $e) {
-            Log::error('Error al devolver la receta', [
-                'idReceta' => $idReceta,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
 
             if ($request->expectsJson()) {
                 return response()->json([
@@ -173,6 +132,7 @@ class GestionarRecetaController extends Controller
                 ->with('error', 'Ocurrió un error al devolver la receta: ' . $e->getMessage());
         }
     }
+
 
     public function confirmarRecetaNoRecogida(Request $request, int $idReceta)
     {
@@ -192,11 +152,6 @@ class GestionarRecetaController extends Controller
             ]);
 
         } catch (\Throwable $e) {
-            Log::error('Error al confirmar receta como no recogida', [
-                'idReceta' => $idReceta,
-                'error' => $e->getMessage(),
-            ]);
-
             return response()->json([
                 'ok' => false,
                 'message' => 'Ocurrió un error al confirmar la receta como no recogida.'

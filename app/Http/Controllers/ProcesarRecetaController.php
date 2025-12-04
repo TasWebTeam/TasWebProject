@@ -62,16 +62,19 @@ class ProcesarRecetaController extends Controller
 
         $resultado = $this->recetaService->procesarReceta($numTarjeta);
 
-        $fechaRecoleccion = now()->addDay()->setTime(10, 0)->format('d/m/Y H:i');
+        $usuarioCorreo = session('usuario.correo');
+        $receta = $this->recetaService->obtenerPacienteReceta($usuarioCorreo);
+        $fechaRecoleccion = $receta->getFechaRecoleccion();
 
         if ($resultado == true) {
 
             return view('tas.resultado', [
                 'exito' => true,
-                                'cedulaProfesional' => $request->cedula_profesional,
+                'numeroPedido' => $receta->getIdReceta(),
+                'cedulaProfesional' => $request->cedula_profesional,
                 'farmacia' => $request->farmacia_cadena . ' - Sucursal ' . $request->farmacia_sucursal,
                 'medicamentos' => $medicamentos,
-                'fechaRecoleccion' => $fechaRecoleccion,
+                'fechaRecoleccion' => $fechaRecoleccion->format('Y-m-d H:i:s'), 
                 'mensaje' => 'Receta procesada correctamente',
             ]);
         }

@@ -19,7 +19,6 @@ use App\Domain\LineaSurtido;
 use App\Domain\Pago;
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use DateTime;
 use Exception;
 
@@ -72,19 +71,9 @@ class ConsultarRepository
         );
     }
 
-    /**
-     * Recuperar inventario para CONSULTA (sin lock)
-     * Usado cuando solo se necesita leer información
-     */
     public function recuperarInventarioConsultar(Cadena $Cadena, int $idSuc, string $nombreMedicamento)
     {
         try {
-            Log::info('Recuperando inventario para consulta', [
-                'cadena' => $Cadena->getIdCadena(),
-                'sucursal' => $idSuc,
-                'medicamento' => $nombreMedicamento
-            ]);
-
             $inventarioModel = InventarioModel::with(['medicamento', 'cadena', 'sucursal'])
                 ->where('id_cadena', $Cadena->getIdCadena())
                 ->where('id_sucursal', $idSuc)
@@ -94,38 +83,18 @@ class ConsultarRepository
                 ->first();
 
             if (!$inventarioModel) {
-                Log::warning('Inventario no encontrado', [
-                    'cadena' => $Cadena->getIdCadena(),
-                    'sucursal' => $idSuc,
-                    'medicamento' => $nombreMedicamento
-                ]);
                 throw new Exception("Medicamento '{$nombreMedicamento}' no disponible en esta sucursal");
             }
-
-            Log::info('Inventario encontrado', [
-                'id_inventario' => $inventarioModel->id_inventario,
-                'stock_actual' => $inventarioModel->stock_actual,
-                'precio' => $inventarioModel->precio_actual
-            ]);
 
             $inventario = $this->transformarInventarioModelADomain($inventarioModel);
             return $inventario;
 
         } catch (Exception $e) {
-            Log::error('Error al recuperar inventario para consulta', [
-                'error' => $e->getMessage(),
-                'cadena' => $Cadena->getIdCadena(),
-                'sucursal' => $idSuc,
-                'medicamento' => $nombreMedicamento
-            ]);
             throw $e;
         }
     }
 
-    /**
-     * Recuperar inventario con LOCK para ACTUALIZACIÓN
-     * Usado cuando se va a modificar el stock
-     */
+
     public function recuperarInventario(Cadena $Cadena, int $idSuc, string $nombreMedicamento)
     {
         try {

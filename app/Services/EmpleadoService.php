@@ -35,9 +35,9 @@ class EmpleadoService
         return $recetas;
     }
 
-    public function obtenerRecetasExpiradas(string $idCadena,int $idSucursal): array
+    public function obtenerRecetasExpiradas(string $idCadena,int $idSucursal,?string $estado): array
     {
-        $recetasModel = $this->repo->obtenerExpiradasPorSucursal($idCadena,$idSucursal);
+        $recetasModel = $this->repo->obtenerExpiradasPorSucursal($idCadena,$idSucursal,$estado);
 
         $recetas = [];
         foreach ($recetasModel as $r) {

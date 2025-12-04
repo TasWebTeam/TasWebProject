@@ -11,7 +11,6 @@ use App\Domain\InventarioSucursal;
 
 use App\Repositories\ActualizarRepository;
 use App\Repositories\ConsultarRepository;
-use Illuminate\Support\Facades\Log;
 
 class RecetaService 
 {
@@ -47,15 +46,18 @@ class RecetaService
         return $paciente;
     }
 
+    public function obtenerPacienteReceta($correo){
+        $usuario = $this->tasService->encontrarUsuario($correo);
+        $idUsuario = $usuario->getId();
+        $paciente = $this->consultarRepository->recuperarPacienteRecetas($idUsuario);
+        $receta = $paciente->getUltimaReceta();
+        return $receta;
+    }
+
     public function crearNuevaReceta($correo)
     {
         $paciente = $this->obtenerPaciente($correo);
         $paciente->crearNuevaReceta();
-        
-        Log::info('Nueva receta creada para paciente', [
-            'paciente_id' => $paciente->getId(),
-            'correo' => $correo
-        ]);
     }
 
     public function introducirSucursal($nombreCadena, $nombreSucursal) 
@@ -65,11 +67,6 @@ class RecetaService
         $cad = $this->consultarRepository->recuperarCadena($nombreCadena);
         $suc = $this->consultarRepository->recuperarSucursal($nombreSucursal, $cad);
         $rec->asignarSucursal($suc);
-        
-        Log::info('Sucursal asignada a receta', [
-            'cadena' => $nombreCadena,
-            'sucursal' => $nombreSucursal
-        ]);
     }
 
     public function introducirCedulaProfesional($cedulaProfesional)
@@ -77,20 +74,11 @@ class RecetaService
         
         $rec = $this->paciente->getUltimaReceta();
         $rec->introducirCedulaProfesional($cedulaProfesional);
-        
-        Log::info('Cédula profesional introducida', [
-            'cedula' => $cedulaProfesional
-        ]);
     }
 
     public function introducirMedicamento($nombreMedicamento, $cantidad)
     {
         try {
-            
-            Log::info('Introduciendo medicamento', [
-                'medicamento' => $nombreMedicamento,
-                'cantidad' => $cantidad
-            ]);
             
             $rec = $this->paciente->getUltimaReceta();
             $suc = $rec->getSucursal();
@@ -102,12 +90,6 @@ class RecetaService
             $cadena = $suc->getCadena();
             $idSucursal = $suc->getId(); 
 
-            Log::info('Buscando medicamento en inventario', [
-                'cadena' => $cadena->getIdCadena(),
-                'sucursal_id' => $idSucursal,
-                'medicamento' => $nombreMedicamento
-            ]);
-
             $inv = $this->consultarRepository->recuperarInventarioConsultar($cadena, $idSucursal, $nombreMedicamento);
             
             $med = $inv->obtenerMedicamento();
@@ -118,21 +100,8 @@ class RecetaService
             $comisionTotal = $rec->calcularComision($total);
             $rec->obtenerPago()->actualizarComision($comisionTotal);
             
-            Log::info('Medicamento agregado exitosamente', [
-                'medicamento' => $nombreMedicamento,
-                'cantidad' => $cantidad,
-                'precio' => $precio,
-                'total_receta' => $total,
-                'comision' => $comisionTotal
-            ]);
-            
         } catch (\Exception $e) {
-            Log::error('Error al introducir medicamento', [
-                'error' => $e->getMessage(),
-                'medicamento' => $nombreMedicamento,
-                'cantidad' => $cantidad,
-                'trace' => $e->getTraceAsString()
-            ]);
+           
             throw $e;
         }
     }
@@ -172,12 +141,6 @@ public function procesarReceta($numTarjeta)
             return false;            
         }
     }
-
-
-public function obtenerUltimaRecetaGuardada()
-{
-    return $this->paciente ? $this->paciente->getUltimaReceta() : null;
-}
 
     private function procesarDetalle(DetalleReceta $detalle, Sucursal $sucursalOrigen)
     {
@@ -223,11 +186,7 @@ public function obtenerUltimaRecetaGuardada()
             $sucursalActual = $infoSucursal['sucursal'];
         }
     }
-
-    /**
-     * Verifica la disponibilidad de un medicamento en una sucursal
-     * y descuenta del inventario si hay stock disponible
-     */
+   
     private function verificarDisponibilidadEnSucursal(
         Sucursal $sucursal,
         Medicamento $medicamento,

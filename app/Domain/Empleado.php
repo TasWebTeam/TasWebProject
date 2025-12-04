@@ -40,8 +40,4 @@ class Empleado extends Usuario{
     {
         $this->sucursal = $sucursal;
     }
-    
-    public function notificarReceta(): void{
-        
-    }
 }

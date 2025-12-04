@@ -138,10 +138,6 @@ public function obtenerIdSucursalPorNombre(string $nombreSucursal): ?int
         $sucursal = SucursalModel::where('nombre', $nombreSucursal)->first();
         return $sucursal ? $sucursal->id : null;
     } catch (\Exception $e) {
-        \Log::error('Error al obtener ID de sucursal', [
-            'nombre' => $nombreSucursal,
-            'error' => $e->getMessage()
-        ]);
         return null;
     }
 }
@@ -155,7 +151,6 @@ public function obtenerIdSucursalPorNombre(string $nombreSucursal): ?int
             ->limit($limit)
             ->get()
             ->map(function($medicamento) {
-                // Obtener el precio del inventario de la sucursal específica
                 $inventario = $medicamento->inventarios->first();
                 
                 return [
@@ -169,11 +164,6 @@ public function obtenerIdSucursalPorNombre(string $nombreSucursal): ?int
                 ];
             });
     } catch (\Exception $e) {
-        Log::error('Error al buscar medicamentos', [
-            'error' => $e->getMessage(),
-            'query' => $query,
-            'id_sucursal' => $idSucursal
-        ]);
         return collect([]);
     }
 }

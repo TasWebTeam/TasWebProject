@@ -14,6 +14,30 @@
         o están en proceso de devolución.
     </p>
 
+    {{-- Tarjeta de filtros --}}
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ route('empleado_recetas_expiradas') }}" class="row g-3">
+                {{-- Filtro por estado --}}
+                <div class="col-md-4">
+                    <label class="form-label">Estado</label>
+                    <select name="estado" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="lista_para_recoleccion" {{ request('estado') === 'lista_para_recoleccion' ? 'selected' : '' }}>
+                            Expirada
+                        </option>
+                        <option value="devolviendo" {{ request('estado') === 'devolviendo' ? 'selected' : '' }}>
+                            Devolviendo
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" type="submit">Filtrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-body">
             <h5 class="card-title mb-3">Listado de recetas expiradas / en devolución</h5>

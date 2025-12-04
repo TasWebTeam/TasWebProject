@@ -13,7 +13,6 @@
         <input type="hidden" name="farmacia_sucursal" id="hidden-farmacia-sucursal">
         <input type="hidden" name="medicamentos" id="hidden-medicamentos">
 
-        <!-- Información básica -->
         <div class="card mb-3">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">
@@ -42,7 +41,6 @@
             </div>
         </div>
 
-        <!-- Tabla de medicamentos con totales -->
         <div class="card mb-4">
             <div class="card-header bg-info text-white">
                 <h5 class="mb-0">
