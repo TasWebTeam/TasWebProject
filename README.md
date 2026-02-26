@@ -8,7 +8,6 @@
 ![PHP](https://img.shields.io/badge/PHP-Language-777BB4?logo=php&logoColor=white)
 ![Blade](https://img.shields.io/badge/Blade-Template%20Engine-F05340)
 ![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?logo=mysql&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql&logoColor=white)
 ![REST API](https://img.shields.io/badge/API-RESTful-009688)
 ![Flutter](https://img.shields.io/badge/Flutter-Mobile-02569B?logo=flutter&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-white)
