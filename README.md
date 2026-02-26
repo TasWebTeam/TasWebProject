@@ -4,6 +4,21 @@
   # Te Acerco Salud (TAS)
 </div>
 
+![Laravel](https://img.shields.io/badge/Laravel-Backend-FF2D20?logo=laravel&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-Language-777BB4?logo=php&logoColor=white)
+![Blade](https://img.shields.io/badge/Blade-Template%20Engine-F05340)
+![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?logo=mysql&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql&logoColor=white)
+![REST API](https://img.shields.io/badge/API-RESTful-009688)
+![Flutter](https://img.shields.io/badge/Flutter-Mobile-02569B?logo=flutter&logoColor=white)
+![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-white)
+![Architecture](https://img.shields.io/badge/Architecture-MVC-purple)
+![Methodology](https://img.shields.io/badge/Methodology-SCRUM%20%7C%20UP-blue)
+![UML](https://img.shields.io/badge/Modeling-UML%20%26%20UWE-orange)
+![Enterprise Architect](https://img.shields.io/badge/CASE-Enterprise%20Architect-red)
+![Security](https://img.shields.io/badge/Security-Sanctum%20%7C%20CSRF-green)
+![Status](https://img.shields.io/badge/Status-Completed-brightgreen)
+
 ## Overview
 
 **Te Acerco Salud** is a web and mobile platform that connects patients with a collaborative pharmacy network to streamline prescription fulfillment. Users can upload prescriptions, select their preferred pharmacy, and ensure complete medication availability without visiting multiple locations.
